@@ -56,43 +56,46 @@ class info(commands.Cog):
     async def hlep(self,ctx):
         result = 0
         def check(reaction, user): return user == ctx.author
-        lit = ["""
+        lit = [""">>>INFO<<<
 ] ";]hlep"
 > Brings up this message :)
 ] ";]sys"
 > Shows some sys info :P
 ] ";]ping"
 > Shows the ping time :L
+] ";]git"
+> Shows the github/gitlab repo ;]
+] ";]usrinfo"
+> Shows your user info 0.0
+] ";]info"
+> Shows additional info""",
+                """>>>FUN1<<<
+] ";]rng {x} {y} {z}" [Option: {z}]
+> Prints an RNG from {x} to {y}, {z} times
 ] ";]slots"
 > Slot machine :D
 ] ";]coin {x}" [Option: {x}]
-> Flips a virtual coin {x} times 0.0""",
-                """] ";]git"
-> Shows the github/gitlab repo ;]
-] ";]rng {x} {y} {z}" [Option: {z}]
-> Prints an RNG from {x} to {y}, {z} times
-] ";]usrinfo"
-> Shows your user info 0.0
+> Flips a virtual coin {x} times 0.0
 ] ";]dnd"
 > Roles all dice from Dragons and Dungeons!
-] ";]info"
-> Shows additional info""",
-                """] ";]cool {uID}"
+] ";]blkjck"
+> BLACKJACK! 0o0""",
+                """>>>FUN2<<<
+] ";]cool {uID}"
 > Gives someone [{userID}] a sneaky surpise ;D
 ] ";]rick"
 > Rick Roll! °ω°
-] ";]blkjck"
-> BLACKJACK! 0o0
 ] ";]spam {x}"
 > Spams {x} amount of chars >.<
+] ";]react {mID} {reactions}" [{reaction}.split " "]
+> Adds {reactions} to a given {mID} .-.""",
+               """>>>MATH<<<
 ] ";]graph {eq} {xmin} {xmax}"
-> Graphs {eq} from {xmin} to {xmax} 9.6""",
-                """] ";]rto {x} {y}"
+> Graphs {eq} from {xmin} to {xmax} 9.6
+] ";]rto {x} {y}"
 > Reduces the ratio of {x} and {y} ;-;
 ] ";]rad {x}"
 > Reduces a radical, {x}! >:D
-] ";]react {mID} {reactions}" [{reaction}.split " "]
-> Adds {reactions} to a given {mID} .-.
 ] ";]stats {data}"
 > Gives stats given {data} ._.
 ] ";]quad {a} {b} {c}"
@@ -126,13 +129,13 @@ class info(commands.Cog):
 ```'''))
                 elif str(reaction.emoji) == '◀':
                     await msg.remove_reaction('◀', ctx.author)
-                    if result == 0: return
+                    if result == 0: pass
                     else: result = result - 1
                 elif str(reaction.emoji) == '⏹':
                     return await msg.clear_reactions()
                 elif str(reaction.emoji) == '▶':
                     await msg.remove_reaction('▶', ctx.author)
-                    if result == (len(m.pages) - 1): return
+                    if result == (len(m.pages) - 1): pass
                     else: result += 1
                 elif str(reaction.emoji) == '⏩':
                     result = len(m.pages) - 1
@@ -210,8 +213,8 @@ this bot, or just dont say bad things.
     @commands.command()
     async def git(self, ctx):
         try:
-            await ctx.send('''`]GITHUB PAGE` https://github.com/VoxelPrismatic/basic-ai/
-    `]GITLAB PAGE` https://gitlab.com/VoxelPrismatic/basic-ai/''')
+            await ctx.send('''`]GITHUB PAGE` https://github.com/VoxelPrismatic/prizai/
+    `]GITLAB PAGE` https://gitlab.com/VoxelPrismatic/prizai/''')
             await com("GITHUB/GITLAB")
         except discord.HTTPException: await exc(ctx, 1)
         except discord.Forbidden: await exc(ctx, 2)
