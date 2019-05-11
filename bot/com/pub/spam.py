@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*
+
+#/// DEPENDENCIES
+import discord                    #python3.7 -m pip install -U discord.py
+import logging
+import random
+from discord.ext import commands
+from discord.ext.commands import Bot, MissingPermissions, has_permissions
+
+##///---------------------///##
+##///   BOT DEFINITIONS   ///##
+##///---------------------///##
+
+def rand(ll,tt): return random.randint(ll,tt)
+
+##///---------------------///##
+##///    BOT  COMMANDS    ///##
+##///---------------------///##
+
+@commands.command()
+async def spam(ctx, num: int):
+    if num > 10000: num = 10000
+    send = ""
+    data = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcsdefghgijklmnopqrstuvwxyz1234567890!@#$%^&*()-_=+[]{}\"\'<,>./?\\|`~"
+    for x in range(num):
+        send = send+(data[rand(0,len(data)-1)])
+        if len(send) == 2000:
+            await ctx.send(send)
+            send = ""
+    if len(send) > 0: await ctx.send(send)
+
+##///---------------------///##
+##///     OTHER STUFF     ///##
+##///---------------------///##
+def setup(bot):
+    print('+COM')
+    bot.add_command(spam)
+    print('GOOD')
+
+def teardown(bot):
+    print('-COM')
+    bot.remove_command('spam')
+    print('GOOD')
