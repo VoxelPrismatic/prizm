@@ -6,6 +6,7 @@ import discord                    #python3.7 -m pip install -U discord.py
 import logging
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
+from chk.enbl import enbl
 
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
@@ -23,6 +24,7 @@ async def exc(ctx, code: int):
 
 @commands.command()
 @has_permissions(manage_messages=True)
+@commands.check(enbl)
 async def clr(ctx, arg: int):
     try: await ctx.channel.purge(limit=arg+1)
     except discord.HTTPException: await exc(ctx, 1)

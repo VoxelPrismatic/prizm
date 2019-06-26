@@ -5,15 +5,16 @@
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
 import random
+from util import embedify
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
+from chk.enbl import enbl
 
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
 ##///---------------------///##
 
 def rand(ll,tt): return random.randint(ll,tt)
-def embedify(text): return discord.Embed(title="!] PRIZ AI ;] [!", description=text, color=0x069d9d)
 async def exc(ctx, code: int):
     print('EXCEPTION!')
     if code == 1: await ctx.send('```diff\n-]ERROR 400\n=]BAD REQUEST```')
@@ -25,8 +26,8 @@ async def exc(ctx, code: int):
 ##///---------------------///##
 
 @commands.command()
-async def dnd(ctx):
-    try: await ctx.send(embed=embedify(f"""```md
+@commands.check(enbl)
+async def dnd(ctx): await ctx.send(embed=embedify.embedify(desc=f"""```md
 #] DND!
 >  D4 // {rand(1,4)}
 >  D6 // {rand(1,6)}
@@ -34,9 +35,6 @@ async def dnd(ctx):
 > D10 // {rand(1,10)}
 > D12 // {rand(1,12)}
 > D20 // {rand(1,20)}```"""))
-    except discord.HTTPException: await exc(ctx, 1)
-    except discord.Forbidden: await exc(ctx, 2)
-    except discord.NotFound: await exc(ctx, 3)
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

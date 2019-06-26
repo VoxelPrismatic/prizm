@@ -4,14 +4,14 @@
 #/// DEPENDENCIES
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
+from util import embedify
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
-
+from chk.enbl import enbl
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
 ##///---------------------///##
 
-def embedify(text, thumb): return discord.Embed(title="!] PRIZ AI ;] [!", description=text, color=0x069d9d).set_thumbnail(url=thumb)
 async def exc(ctx, code: int):
     print('EXCEPTION!')
     if code == 1: await ctx.send('```diff\n-]ERROR 400\n=]BAD REQUEST```')
@@ -23,11 +23,13 @@ async def exc(ctx, code: int):
 ##///---------------------///##
 
 @commands.command()
-async def mbr(ctx, *, _mbr:discord.Member):
+@commands.check(enbl)
+async def mbr(ctx, _mbr:discord.Member=None):
+    if _mbr==None: _mbr=ctx.author
     try:
         gperms = ', '.join(perm for perm, value in _mbr.guild_permissions if value)
         cperms = ', '.join(perm for perm, value in _mbr.permissions_in(ctx.channel) if value)
-        await ctx.send(embed=embedify(f'''```
+        await ctx.send(embed=embedify.embedify(desc=f'''```
      ID // {_mbr.id}
     BOT // {_mbr.bot}
    USER // {_mbr.name}
@@ -40,7 +42,7 @@ async def mbr(ctx, *, _mbr:discord.Member):
 CREATED // {_mbr.created_at}
 DISCRIM // {_mbr.discriminator}``````diff
 + GLD PERM // {gperms}``````diff
-- CNL PERM // {cperms}```''', _mbr.avatar_url))
+- CNL PERM // {cperms}```''', thumb=str(_mbr.avatar_url)))
     except discord.HTTPException: await exc(ctx, 1)
     except discord.Forbidden: await exc(ctx, 2)
     except discord.NotFound: await exc(ctx, 3)

@@ -4,6 +4,8 @@
 #/// DEPENDENCIES
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
+import sys
+from dyn import refresh
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 
@@ -25,10 +27,11 @@ async def exc(ctx, code: int):
 @commands.is_owner()
 async def pwr(ctx):
     try:
+        allext, lodtxt = refresh.refresh()
         await ctx.send('```md\n#]SEE YA PEEPS```')
         channel = ctx.bot.get_channel(556247032701124650)
         await channel.purge(limit=10)
-        await ctx.bot.logout()
+        sys.exit()
     except discord.HTTPException: await exc(ctx, 1)
     except discord.Forbidden: await exc(ctx, 2)
     except discord.NotFound: await exc(ctx, 3)

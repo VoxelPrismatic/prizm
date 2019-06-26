@@ -5,8 +5,10 @@
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
 import random
+from util import pages
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
+from chk.enbl import enbl
 
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
@@ -25,8 +27,9 @@ async def exc(ctx, code: int):
 ##///---------------------///##
 
 @commands.command()
+@commands.check(enbl)
 async def coin(ctx, *nums: int):
-    try:
+        lit = []
         if len(nums) == 0: num = 1
         else: num = int(nums[0])
         tcnt = y = hcnt = 0
@@ -37,15 +40,12 @@ async def coin(ctx, *nums: int):
         for x in range(num):
             if rand(0,1): tcnt+=1; outp = outp+"[T] "
             else: hcnt+=1; outp = outp+"[H] "
-            if y == 497:
-                await ctx.send(f'```{outp}```')
+            if y == 200:
+                lit.append(str(outp))
                 outp = ""; y = 0
             else: y+=1
-        if y != 0: await ctx.send(f'```{outp}```')
-        await ctx.send(f'```]HEAD // {hcnt}\n]TAIL // {tcnt}```')
-    except discord.HTTPException: await exc(ctx, 1)
-    except discord.Forbidden: await exc(ctx, 2)
-    except discord.NotFound: await exc(ctx, 3)
+        if y != 0: lit.append(str(outp))
+        await pages.PageThis(ctx, lit, "COINS", low=f'```]HEAD // {hcnt}\n]TAIL // {tcnt}```')
 
 
 ##///---------------------///##

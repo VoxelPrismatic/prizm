@@ -16,25 +16,18 @@ import matplotlib, math, statistics, random
 import platform, sys, sysconfig, traceback, shlex
 from shlex import quote
 from ast import literal_eval
+from util import embedify, pages
 from discord.ext import commands
 from discord.voice_client import VoiceClient
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
+from chk.enbl import enbl
 
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
 ##///---------------------///##
 
 def rand(ll,tt): return random.randint(ll,tt)
-def embedify(text): return discord.Embed(title="!] PRIZ AI ;] [!", description=text, color=0x069d9d)
-async def log(bot, head, text):
-    chnl = bot.get_channel(569698278271090728)
-    msgs = await chnl.send(embed=embedify(f'''```md\n#] {head}!\n> {text}```'''))
-    return msgs
 
-async def com(bot, command):
-    msgs = await log(bot, "COMMAND USED", f'COMMAND // {command}')
-    print(f']{command}')
-    return msgs
 async def exc(ctx, code: int):
     print('EXCEPTION!')
     if code == 1: await ctx.send('```diff\n-]ERROR 400\n=]BAD REQUEST```')
@@ -45,7 +38,8 @@ async def exc(ctx, code: int):
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-
+@commands.command()
+@commands.check(enbl)
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

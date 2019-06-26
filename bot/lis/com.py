@@ -6,18 +6,24 @@ import typing
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
 import traceback
+from util import embedify
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
-bot = commands.Bot(command_prefix=";]")
+
+def getPre(bot,msg):
+    id = msg.guild.id
+    try:return json.load(open('prefixes.json'))[str(id)]
+    except Exception as ex:print(ex);return ";]"
+
+bot = commands.Bot(command_prefix=getPre)
 
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
 ##///---------------------///##
 
-def embedify(text): return discord.Embed(title="!] PRIZ AI ;] [!", description=text, color=0x00ffff)
 async def log(bot, head, text):
     chnl = bot.get_channel(569698278271090728)
-    msgs = await chnl.send(embed=embedify(f'''```md\n#] {head}!\n> {text}```'''))
+    msgs = await chnl.send(embed=embedify.embedify(desc=f'''```md\n#] {head}!\n> {text}```'''))
     return msgs
 
 

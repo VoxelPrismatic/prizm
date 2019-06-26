@@ -5,14 +5,15 @@
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
 import asyncio
+from util import pages
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
+from chk.enbl import enbl
 
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
 ##///---------------------///##
 
-def embedify(text): return discord.Embed(title="!] PRIZ AI ;] [!", description=text, color=0x069d9d)
 async def exc(ctx, code: int):
     print('EXCEPTION!')
     if code == 1: await ctx.send('```diff\n-]ERROR 400\n=]BAD REQUEST```')
@@ -24,9 +25,9 @@ async def exc(ctx, code: int):
 ##///---------------------///##
 
 @commands.command()
-async def chnl(ctx, _chnl:discord.TextChannel):
-    result = 0
-    def check(reaction, user): return user == ctx.author
+@commands.check(enbl)
+async def chnl(ctx, _chnl:discord.TextChannel=None):
+    if _chnl == None: _chnl = ctx.channel
     lit = [f"""
       ID // {_chnl.id}
      POS // {_chnl.position}
@@ -66,39 +67,7 @@ async def chnl(ctx, _chnl:discord.TextChannel):
         if ovr.manage_webhooks: perms.append("manage_webhooks")
         if ovr.manage_emojis: perms.append("manage_emojis")
         lit.append(f"OVERRIDE [{thing}] // {', '.join(perms)}")
-    msgchnl = await ctx.send(embed=embedify(f'''```md
-#] CHANNEL INFO``````
-{lit[result]}
-```'''))
-    await msgchnl.add_reaction('⏪')
-    await msgchnl.add_reaction('◀')
-    await msgchnl.add_reaction('⏹')
-    await msgchnl.add_reaction('▶')
-    await msgchnl.add_reaction('⏩')
-    while True:
-        try: reaction, user = await ctx.bot.wait_for('reaction_add', timeout=60.0, check=check)
-        except asyncio.TimeoutError: return await msgchnl.clear_reactions()
-        else:
-            if str(reaction.emoji) == '⏪':
-                result = 0
-                await msgchnl.remove_reaction('⏪', ctx.author)
-            elif str(reaction.emoji) == '◀':
-                await msgchnl.remove_reaction('◀', ctx.author)
-                result = result - 1
-                if result < 0: result = len(lit) - 1
-            elif str(reaction.emoji) == '⏹':
-                return await msgchnl.clear_reactions()
-            elif str(reaction.emoji) == '▶':
-                await msgchnl.remove_reaction('▶', ctx.author)
-                result = result+1
-                if result > (len(lit) - 1): result = 0
-            elif str(reaction.emoji) == '⏩':
-                result = len(lit) - 1
-                await msgchnl.remove_reaction('⏩', ctx.author)
-            await msgchnl.edit(embed=embedify(f'''```md
-#] CHANNEL INFO``````
-{lit[result]}
-```'''))
+    await pages.PageThis(ctx, lit, "CHANNEL INFO")
 
 
 ##///---------------------///##

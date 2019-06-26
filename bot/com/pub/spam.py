@@ -7,6 +7,7 @@ import logging
 import random
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
+from chk.enbl import enbl
 
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
@@ -19,6 +20,7 @@ def rand(ll,tt): return random.randint(ll,tt)
 ##///---------------------///##
 
 @commands.command()
+@commands.check(enbl)
 async def spam(ctx, num: int):
     if num > 10000: num = 10000
     send = ""

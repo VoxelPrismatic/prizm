@@ -7,12 +7,14 @@ import logging
 import random
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
+from chk.enbl import enbl
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
 @commands.command(aliases=["choose"])
+@commands.check(enbl)
 async def optn(ctx, *options):
     await ctx.send(f'```I choose >>{random.choice(options)}<< {random.choice(["0.0",">.<","9.6",":P",":D",";]"])}```')
 

@@ -5,14 +5,15 @@
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
 import asyncio
+from util import embedify
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
+from chk.enbl import enbl
 
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
 ##///---------------------///##
 
-def embedify(text): return discord.Embed(title="!] PRIZ AI ;] [!", description=text, color=0x069d9d)
 async def exc(ctx, code: int):
     print('EXCEPTION!')
     if code == 1: await ctx.send('```diff\n-]ERROR 400\n=]BAD REQUEST```')
@@ -24,6 +25,7 @@ async def exc(ctx, code: int):
 ##///---------------------///##
 
 @commands.command()
+@commands.check(enbl)
 async def rol(ctx, *, _rol:discord.Role):
     try:
         perms = []
@@ -55,7 +57,7 @@ async def rol(ctx, *, _rol:discord.Role):
         if _rol.permissions.manage_roles: perms.append("manage_roles")
         if _rol.permissions.manage_webhooks: perms.append("manage_webhooks")
         if _rol.permissions.manage_emojis: perms.append("manage_emojis")
-        await ctx.send(embed=embedify(f'''```
+        await ctx.send(embed=embedify.embedify(desc=f'''```
       ID // {_rol.id}
      POS // {_rol.position}
     NAME // {_rol.name}

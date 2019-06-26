@@ -19,18 +19,25 @@ print('##///  [12]  ///##')
 import matplotlib.pyplot as pyplt #python3.7 -m pip install -U matplotlib // SEE SITE FOR MORE
 import matplotlib, math, statistics, random
 import platform, sys, sysconfig, traceback, shlex
-print('##///  [22]  ///##')
+import subprocess,json
+print('##///  [24]  ///##')
 from shlex import quote
 from ast import literal_eval
 from discord.ext import commands
-print('##///  [25]  ///##')
+print('##///  [27]  ///##')
 from discord.voice_client import VoiceClient
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
+from importlib import reload
 
 print('##///  DONE  ///##')
 print('##/// DEFINE ///##')
 
-bot = commands.Bot(command_prefix=";]")
+def getPre(bot,msg):
+    id = msg.guild.id
+    try:return json.load(open('prefixes.json'))[str(id)]
+    except Exception as ex:print(ex);return ";]"
+
+bot = commands.Bot(command_prefix=getPre)
 client = discord.Client()
 bot.remove_command("help")
 logging.basicConfig(level='INFO')
@@ -44,40 +51,28 @@ print('##///  DONE  ///##')
 
 print('##/// IMPORT ///##')
 
-import PrizAI_CODE
+st = ''
+try: 
+    from util import pages; pages.init();print('SUCCESS - PAGES')
+    from util import embedify; print('SUCCESS - EMBED')
+    import PrizAI_CODE; print('SUCCESS - MAIN AI')
+    import PrizAI_IMPROVED; print('SUCCESS - BETTER AI')
+except Exception as ex: st = ex; print(st)
+
+from dyn import refresh, faces
 
 def lext(name): bot.load_extension(name); print(f'>Lext {name}')
 def rext(name): bot.reload_extension(name); print(f'>Rext {name}')
 def uext(name): bot.unload_extension(name); print(f'>Uext {name}')
+def loadmain():
+    et = ["ld","rld","uld","fld"]
+    for ec in et:
+        try: bot.load_extension(f"com.own.{ec}")
+        except: bot.reload_extension(f"com.own.{ec}")
 
-owncom = ["calc","clr0","clrin0","exe","helpown",
-          "pin0","unpin0","pwr"]
+allext, lodtxt = refresh.refresh()
 
-modcom = ["ban","clr","clrin","kick","pin",
-          "unpin"]
-
-infcom = ["data","git","hlep","hlepmod","info",
-          "os","ping", "hlepmini"]
-
-pubcom = ["binary","blkjck","coin","cool","dnd",
-          "echo","react","rick","rng","slots",
-          "snd","spam","emji","rev",
-          "asci","optn"]
-
-discom = ["chnl","emj","gld","mbr","rol",
-          "usr"]
-
-mathcom = ["graph","quad","rto","stats","fct",
-           "rad","fact"]
-
-list_n = ["gld","err","mtn","com","rctf"]
-
-allext = [owncom,modcom,infcom,pubcom,discom,mathcom,list_n]
-
-lodtxt = ["com.own.","com.mod.","com.inf.","com.pub.","com.dis.","com.math.","lis."]
-
-for ext in range(len(allext)):
-    for com in allext[ext]: lext(f'{lodtxt[ext]}{com}')
+loadmain()
 
 print('##///  DONE  ///##')
 
@@ -87,6 +82,22 @@ print('##///  DONE  ///##')
 
 print('##/// DEFINE ///##')
 
+def jsons():
+    pre = json.load(open('prefixes.json'))
+    com = json.load(open('servers.json'))
+    for g in bot.guilds:
+        try: x = pre[str(g.id)]
+        except: pre[str(g.id)] = ';]'
+        try: x = com[str(g.id)]
+        except:
+            com[str(g.id)]={}
+            com[str(g.id)]["com"]={}
+            com[str(g.id)]["tag"]={}
+        for c in bot.commands:
+            try: x = com[str(g.id)]["com"][c.name]
+            except: com[str(g.id)]["com"][c.name] = True
+    open('servers.json','w').write(json.dumps(com,sort_keys=True,indent=4))
+    open('prefixes.json','w').write(json.dumps(pre,sort_keys=True,indent=4))
 
 def FilesLoad(rw): #// Making life easy when the actual code comes
     global PrizM2MR, PrizM2MC, PrizTXT, PrizMATHl, PrizSCIl, PrizENGl, PrizMATHr, PrizSCIr, PrizENGr #Or this wont work at all
@@ -117,17 +128,16 @@ async def ArraysLoad():
         ENGr = await eng2R.readlines()
         print('LOADED ARRAYS')
 
-def embedify(text): return discord.Embed(title="!] PRIZ AI ;] [!", description=text, color=0x00ffff)
-
 async def exc(ctx, code: int):
-    await log('EXCEPTION!',f'TYPE // {code}\n> OCCURED IN // {ctx.channel}\n> 1] BadReq // 2] AllForbid // 3] 404')
+    await log('EXCEPTION!',f'TYPE // {code} \n> OCCURED IN // {ctx.channel}\n> 1] BadReq // 2] AllForbid // 3] 404')
     if code == 1: await ctx.send('```diff\n-]ERROR 400\n=]BAD REQUEST```')
     elif code == 2: await ctx.send('```diff\n-]ERROR 403\n=]ALL FORBIDDEN```')
     elif code == 3: await ctx.send('```diff\n-]ERROR 404\n=]ALL NOT FOUND```')
 
 async def log(head, text):
+    print(f'##///{head}\n{text}') 
     chnl = bot.get_channel(569698278271090728)
-    msgs = await chnl.send(embed=embedify(f'''```md\n#] {head}!\n> {text}```'''))
+    msgs = await chnl.send(embed=embedify.embedify(desc=f'```md\n#] {head}!\n> {text}```'))
     return msgs
 
 print('##///  DONE  ///##')
@@ -140,34 +150,40 @@ print('##// STARTING //##')
 
 @bot.listen()
 async def on_ready():
+    global st
+    jsons()
+    if st != '': await log('MODULE ERROR',st)
+    await bot.change_presence(activity=discord.Activity(type=2,name="HDD clicking sounds",
+                              url='https://discord.gg/Z84Nm6n'))
+    for ext in range(len(allext)):
+        for com in allext[ext]: lext(f'{lodtxt[ext]}{com}')
     print(time.time())
     FilesLoad('r')
     await ArraysLoad()
     print('If an error didn\'t show up yet, then all should be good')
-    bot.locked = False
     print(f'''
 {bot.guilds}
 
 {[bot.get_all_channels()]}
 
-GG! !] PRIZ AI ;] [! // v{discord.__version__}// RESTART - CTRL Z, [up], [enter]
+GG! !] PRIZ AI ;] [! // v{discord.__version__} // RESTART - CTRL Z, [up], [enter]
 ''')
     channel = bot.get_channel(556247032701124650)
     await channel.purge(limit=10)
-    texts = ["the Prisms fly by 0.0",
-             "the Voxels get retextured 0.0",
-             "the Prisms get some love <3",
-             "the Voxels get built ;]",
-             "the Prisms Shininess 0.0",
-             "the Voxels Cubeness >.<"]
-    await bot.change_presence(activity=discord.Activity(type=3, name=random.choice(texts), url='https://discord.gg/Z84Nm6n'))
-    await channel.send(embed=embedify(f'''```md
+    face = faces.faces()
+    texts = faces.texts()
+    await bot.change_presence(activity=discord.Activity(type=3,
+                              name=f"{random.choice(texts)} {random.choice(face)}",
+                              url='https://discord.gg/Z84Nm6n'))
+    await channel.send(embed=embedify.embedify(desc=f'''```md
 #] I\'M BACK ONLINE!!!
 > All the Voxels are textured ;]
 > I am still in the testing phase :C
 > Watch me be entirely re-written 0.0
 > Turned on: {str(datetime.datetime.now())} :D
-#] Turns Off at 8PM CST XC```'''))
+#] HOPEFULLY UP 24/7 {random.choice(face)}```'''))
+    pages.init()
+
 
 ##///---------------------///##
 ##///      BOT EVENT      ///##
@@ -175,62 +191,64 @@ GG! !] PRIZ AI ;] [! // v{discord.__version__}// RESTART - CTRL Z, [up], [enter]
 
 @bot.listen()
 async def on_message(message):
+    ct = message.content
     if "<@481591703959240706>" in message.content or "<@!481591703959240706>" in message.content:
-        await message.add_reaction(bot.get_emoji(574993427314376704))
-    elif bot.user != message.author: await PrizAI_CODE.on_message(bot, message)
-
-##///---------------------///##
-##///   LIVE  RELOADING   ///##
-##///---------------------///##
-
-@bot.command()
-@commands.is_owner()
-async def rld(ctx, *name):
-    await log('EXT', 'Reloading ext(s)')
-    if not len(name):
-        for ext in range(len(allext)):
-            for com in allext[ext]: rext(f'{lodtxt[ext]}{com}')
-    else: rext(name[0])
-    await log('EXT', 'ext(s) successfully reloaded')
-    await ctx.message.add_reaction('👌')
+        await message.add_reaction("<:prizblu:574993427314376704>")
+    elif bot.user != message.author:
+        if ct.startswith(']'): await PrizAI_CODE.on_message(bot, message)
+        elif ct.startswith('}'): await PrizAI_IMPROVED.on_message(bot, message)
+        elif message.channel.id== 590691192430133269: open('PrismaticText','a').write(ct.lower()+'\n')
 
 @bot.command()
 @commands.is_owner()
-async def ld(ctx, *name):
-    await log('EXT', 'Loading ext(s)')
-    if not len(name):
-        for ext in range(len(allext)):
-            for com in allext[ext]: lext(f'{lodtxt[ext]}{com}')
-    else: lext(name[0])
-    await log('EXT', 'Ext(s) successfully loaded')
-    await ctx.message.add_reaction('👌')
+async def load(ctx):
+    loadmain()
+    reload(refresh)
+    reload(faces)
+    reload(pages)
+    reload(embedify)
+    reload(PrizAI_CODE)
+    reload(PrizAI_IMPROVED)
+    pages.init()
+    await ctx.message.add_reaction('\N{OK HAND SIGN}')
 
-@bot.command()
+@bot.command(aliases=['debug','r','rst','db','dbug'])
 @commands.is_owner()
-async def uld(ctx, *name):
-    await log('EXT', 'Unloading ext(s)')
-    if not len(name):
-        for ext in range(len(allext)):
-            for com in allext[ext]: uext(f'{lodtxt[ext]}{com}')
-    else: uext(name[0])
-    await log('EXT', 'Ext(s) successfully unloaded')
-    await ctx.message.add_reaction('👌')
+async def restart(ctx):
+    fail = False
+    msg = await ctx.send('```md\n#] UNLOADING COMMANDS```')
+    allext,lodtxt=refresh.refresh()
+    for ext in range(len(allext)):
+        for com in allext[ext]: 
+            try: uext(f"{lodtxt[ext]}{com}")
+            except: pass
+    await msg.edit(content='```md\n#] RELOADING MODULES```')
+    try:
+        reload(refresh)
+        reload(faces)
+        reload(pages)
+        reload(embedify)
+        reload(PrizAI_CODE)
+        reload(PrizAI_IMPROVED)
+        pages.init()
+    except Exception as ex: await ctx.send(f'```diff\n-] MODULE ERROR\n=] {ex}```'); fail = True
+    else: await msg.edit(content='```md\n#] LOADING COMMANDS```')
+    allext,lodtxt=refresh.refresh()
+    for ext in range(len(allext)):
+        for com in allext[ext]: 
+            try: lext(f"{lodtxt[ext]}{com}")
+            except Exception as ex: 
+                await ctx.send(f'```diff\n-] COMMAND ERROR\n=] {ex}\n=] {com}```'); fail = True
+    await msg.edit(content='```md\n#] REFRESHING JSONs```')
+    try: jsons()
+    except Exception as ex: await ctx.send(f'```diff\n-] JSON ERROR\n=] {ex}```')
+    if not fail: await msg.edit(content='```md\n#] MODULES\n> Literally everything reloaded, successfully too :D```')
+    
 
-@bot.command()
-async def chng(ctx, *name):
-    if len(name) != 0: texts = name
-    else: texts = ["the Prisms fly by 0.0",
-             "the Voxels get retextured 0.0",
-             "the Prisms get some love <3",
-             "the Voxels get built ;]",
-             "the Prisms Shininess 0.0",
-             "the Voxels Cubeness >.<"]
-    await bot.change_presence(activity=discord.Activity(type=3, name=random.choice(texts), url='https://discord.gg/Z84Nm6n'))
-    await ctx.message.add_reaction('👌')
 ##///---------------------///##
 ##///     OTHER STUFF     ///##
 ##///---------------------///##
 
-key = secrets[0][:-1] ##/// For security...
+key = secrets[0] ##/// For security...
 bot.run(key)
 client.run(key)

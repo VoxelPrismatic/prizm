@@ -5,7 +5,7 @@
 import typing
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
-import traceback
+import json
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 bot = commands.Bot(command_prefix=";]")
@@ -14,7 +14,6 @@ bot = commands.Bot(command_prefix=";]")
 ##///   BOT DEFINITIONS   ///##
 ##///---------------------///##
 
-def embedify(text): return discord.Embed(title="!] PRIZ AI ;] [!", description=text, color=0x00ffff)
 async def log(bot, head, text):
     chnl = bot.get_channel(569698278271090728)
     msgs = await chnl.send(embed=embedify(f'''```md\n#] {head}!\n> {text}```'''))
@@ -26,8 +25,10 @@ async def log(bot, head, text):
 ##///---------------------///##
 
 @bot.listen()
-async def when_mentioned(bot, msg):
-    await ctx.send('```md\n#]INFO\n> My prefix is ";]"\n> For example: ";]help"```')
+async def when_mentioned(msg):
+    print('hi')
+    pre = json.load(open("prefixes.json"))[str(msg.guild.id)]
+    await msg.channel.send(f'```md\n#]INFO\n> My prefix is `{pre}`\n> For example: "{pre}hlep"```')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

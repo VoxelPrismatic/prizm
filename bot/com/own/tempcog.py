@@ -14,18 +14,18 @@ from discord.ext.commands import Bot, MissingPermissions, has_permissions
 ##///---------------------///##
 
 @commands.command()
-async def execme(ctx, *, codes):
-    exec(codes)
+async def start(ctx):
+    await ctx.send(ctx.guild)
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##
 ##///---------------------///##
 def setup(bot):
     print('+COM')
-    bot.add_command(execme)
+    bot.add_command(start)
     print('GOOD')
 
 def teardown(bot):
     print('-COM')
-    bot.remove_command('execme')
+    bot.remove_command('start')
     print('GOOD')

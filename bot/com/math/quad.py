@@ -5,15 +5,16 @@
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
 import math
+from util import embedify
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
+from chk.enbl import enbl
 
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
 ##///---------------------///##
 
 def rand(ll,tt): return random.randint(ll,tt)
-def embedify(text): return discord.Embed(title="!] PRIZ AI ;] [!", description=text, color=0x069d9d)
 async def exc(ctx, code: int):
     print('EXCEPTION!')
     if code == 1: await ctx.send('```diff\n-]ERROR 400\n=]BAD REQUEST```')
@@ -25,6 +26,7 @@ async def exc(ctx, code: int):
 ##///---------------------///##
 
 @commands.command()
+@commands.check(enbl)
 async def quad(ctx, A: float, B: float, C: float):
     D = B**2 - 4*A*C; K = 1
     for I in range(1,500):
@@ -35,7 +37,7 @@ async def quad(ctx, A: float, B: float, C: float):
     if D == 1: STR = f'{K}'
     elif K == 1: STR = f'√{D}'
     else: STR = f'{K}√{D}'
-    try: await ctx.send(embed=embedify(f'''```md
+    try: await ctx.send(embed=embedify.embedify(desc=f'''```md
 #]QUADRATICS``````
 {-B}+-{STR}
 ------------

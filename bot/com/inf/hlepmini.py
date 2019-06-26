@@ -5,23 +5,18 @@
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
 import asyncio
+from util import pages
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
-
-##///---------------------///##
-##///   BOT DEFINITIONS   ///##
-##///---------------------///##
-
-def embedify(text): return discord.Embed(title="!] PRIZ AI ;] [!", description=text, color=0x069d9d)
+from chk.enbl import enbl
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
 @commands.command(aliases=["helpmini"])
+@commands.check(enbl)
 async def hlepmini(ctx):
-    result = 0
-    def check(reaction, user): return user == ctx.author
     lit = ["""#] INFO
 > data
 > git
@@ -41,7 +36,7 @@ async def hlepmini(ctx):
             """#] MATHS
 > fact {n}
 > fct {n}
-> graph {eq} {xmin} {xmax}
+> graph {xmin} {xmax} {eq1} {eq2} {eq3} {...}
 > quad {a} {b} {c}
 > rad {n}
 > rto {x} {y}
@@ -52,64 +47,43 @@ async def hlepmini(ctx):
 > clrin {mID} {mID}
 > kick {uID}
 > pin {mID}
-> unpin {mID}""",
-            """#] PUBLIC
-> asci
-> binary
-> blkjck
-> coin {[n]}
-> cool {uID}
+> unpin {mID}
+> enable {command}  // SERVER OWNER ONLY
+> disable {command} // SERVER OWNER ONLY
+> prefix {prefix}   // SERVER OWNER ONLY""",
+            """#] PUBLIC [1/2]
+> md {mID}
 > dnd
-> echo {txt}
-> emji {eID}
-> optn {a} {b} {c} {...}
-> react {mID} {a} {b} {c} {...}
+> snd {cID} {txt}
+> djq
+> rng {min} {max} {?count}
 > rev {txt}
+> poll {txt}
 > rick
-> rng {min} {max} {count}
+> coin {?count}
+> asci
+> optn {a} {b} {c} {...}
+> echo {txt}
+> spam {amount}
+> cool {uID}
+> emj {emoji} // LIMITED
+> react {mID} {a} {b} {c} {...}
 > slots
-> snd {cID} {text}
-> spam {count}
+> blkjck
+> binary {txt}
+> char {txt}
+> vox {text}
+> mines {?size} {?num}
+> tag
+> tag + {name} {stuff}
+> tag - {name}         // TAG CREATOR ONLY
+> tag / {name} {stuff} // TAG CREATOR ONLY
 """]
-    msghlep = await ctx.send(embed=embedify(f'''```md
-#] !] PRIZ AI ;] [! MINI COMMANDS LIST``````md
-{lit[result]}``````md
+    await pages.PageThis(ctx, lit, "MINI COMMANDS LIST", '''```md
 #] To see mod commands, use ";]hlepmod"
 #] To have a conversation, use "]<your text here>""
 #] Some of your data is stored, use ";]data" to see more
-```'''))
-    await msghlep.add_reaction('⏪')
-    await msghlep.add_reaction('◀')
-    await msghlep.add_reaction('⏹')
-    await msghlep.add_reaction('▶')
-    await msghlep.add_reaction('⏩')
-    while True:
-        try: reaction, user = await ctx.bot.wait_for('reaction_add', timeout=60.0, check=check)
-        except asyncio.TimeoutError: return await msghlep.clear_reactions()
-        else:
-            if str(reaction.emoji) == '⏪':
-                result = 0
-                await msghlep.remove_reaction('⏪', ctx.author)
-            elif str(reaction.emoji) == '◀':
-                await msghlep.remove_reaction('◀', ctx.author)
-                result = result - 1
-                if result < 0: result = len(lit) - 1
-            elif str(reaction.emoji) == '⏹':
-                return await msghlep.clear_reactions()
-            elif str(reaction.emoji) == '▶':
-                await msghlep.remove_reaction('▶', ctx.author)
-                result = result+1
-                if result > (len(lit) - 1): result = 0
-            elif str(reaction.emoji) == '⏩':
-                result = len(lit) - 1
-                await msghlep.remove_reaction('⏩', ctx.author)
-            await msghlep.edit(embed=embedify(f'''```md
-#] !] PRIZ AI ;] [! MINI COMMANDS LIST``````md
-{lit[result]}``````md
-#] To see mod commands, use ";]hlepmod"
-#] To have a conversation, use "]<your text here>"
-#] Some of your data is stored, use ";]data" to see more
-```'''))
+```''')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##
@@ -123,4 +97,3 @@ def teardown(bot):
     print('-COM')
     bot.remove_command('hlepmini')
     print('GOOD')
-

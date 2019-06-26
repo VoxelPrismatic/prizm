@@ -4,7 +4,7 @@
 #/// DEPENDENCIES
 import os
 import ast
-import nltk                       #python3.7 -m pip install -U nltk
+#import nltk                       #python3.7 -m pip install -U nltk
 import typing
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
@@ -17,7 +17,7 @@ import matplotlib, math, statistics, random
 import platform, sys, sysconfig, traceback, shlex
 from shlex import quote
 from ast import literal_eval
-from nltk import *
+#from nltk import *
 from discord.ext import commands
 from discord.voice_client import VoiceClient
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
@@ -45,7 +45,6 @@ def FilesLoad(rw): #// Making life easy when the actual code comes
     print('R/W TO FILES')
 ##/// Currently, the above is only used to READ data for the below section, but i'd rather have it now in case i need it later
 
-def com_err(code, text): return(f"```diff\n-] ERROR {code}\n=] {text}")
 def rand(ll,tt): return random.randint(ll,tt)
 def embedify(text): return discord.Embed(title="!] PRIZ AI ;] [!", description=text, color=0x00ffff)
 def loop(string, array):
@@ -56,18 +55,11 @@ def loop(string, array):
     return rtrn
 
 async def log(bot, head, text):
-    loggingchannel = bot.get_channel(569698278271090728)
-    msgs = await loggingchannel.send(embed=embedify(f'''```md\n#] {head}!\n> {text}```'''))
-    return msgs
+    return print(f"#] {head} [#\n> {text}")
 
 async def _io(bot, TxT):
     msgs = await log(bot, "AI I/O", f'{TxT}')
     print(f']{TxT}')
-    return msgs
-
-async def com(bot, command):
-    msgs = await log(bot, "COMMAND USED", f'COMMAND // {command}')
-    print(f']{command}')
     return msgs
 
 async def ArraysLoad():
@@ -89,7 +81,6 @@ async def LoadNow(bot, FileName):
     msgs = await _io(bot, 'FORCE LOAD ARRAYS')
     try:
         async with aiofiles.open(FileName, mode='r') as shit: wtf = await shit.readlines()
-        await msgs.add_reaction('👌')
     except: await _io(bot, 'FAILURE')
     return wtf
 
@@ -97,14 +88,12 @@ async def LearnNow(bot, File, MD, TxT, addtext): ##/// Instant Access (in case)
     msgs = await _io(bot, f"{addtext} // {TxT}")
     try:
         async with aiofiles.open(File, mode=MD) as CurrentText: await CurrentText.write(f'{TxT}\n')
-        await msgs.add_reaction('👌')
-    except: await _io('FAILURE')
+    except: await _io(bot, 'FAILURE')
 
 async def LEARNnSEND(bot, File, MD, TxT, addtext, sendhere, sendthis):
     msgs = await _io(bot, f"{addtext} // {TxT}")
     try:
         async with aiofiles.open(File, mode=MD) as CurrentText: await CurrentText.write(f'{TxT}\n')
-        await msgs.add_reaction('👌')
     except: await _io(bot, 'FAILURE')
 
 async def SEND2(chnl, text1, text2): await chnl.send(text1); await chnl.send(text2)
@@ -140,8 +129,7 @@ async def on_message(bot, message):
             for MSG in AI:
                 print(MSG)
                 if message.content in MSG and message.content != MSG and message.content+"\n" != MSG:
-                    await message.channel.send(MSG)
-                    LOOP = 0; break
+                    return await message.channel.send(MSG)
 
             ##/// TO DISCORD
             #//M2M READ
@@ -158,6 +146,7 @@ async def on_message(bot, message):
                 print(OUT)
             else:
                 M2M2 = await LoadNow(bot, 'PrismaticM2M-C')
+                print(M2M2[y-1])
                 await message.channel.send(M2M2[y-1])
 
             ##/// LEARNING

@@ -7,12 +7,14 @@ import logging
 import math
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
+from chk.enbl import enbl
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(aliases=['frac','ratio'])
+@commands.check(enbl)
 async def rto(ctx, int1: int, int2: int):
     factor = math.gcd(int1, int2)
     await ctx.send(f'```]FACT // {factor}\n]INT1 // {int1/factor}\n]INT2 // {int2/factor}```')

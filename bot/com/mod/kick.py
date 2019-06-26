@@ -6,6 +6,7 @@ import discord                    #python3.7 -m pip install -U discord.py
 import logging
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
+from chk.enbl import enbl
 
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
@@ -22,6 +23,7 @@ async def exc(ctx, code: int):
 ##///---------------------///##
 
 @commands.command()
+@commands.check(enbl)
 @has_permissions(kick_members=True)
 async def kick(ctx, *members: discord.Member):
     await ctx.channel.purge(limit=1)

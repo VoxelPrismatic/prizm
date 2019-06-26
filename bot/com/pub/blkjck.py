@@ -7,6 +7,7 @@ import logging
 import random
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
+from chk.enbl import enbl
 
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
@@ -23,36 +24,31 @@ async def exc(ctx, code: int):
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(aliases=["blackjack","bj"])
+@commands.check(enbl)
 async def blkjck(ctx):
-    try:
-        heart = ['🂱','🂲','🂳','🂴','🂵','🂶','🂷','🂸','🂹','🂺','🂻','🂽','🂾']
-        spade = ['🂡','🂢','🂣','🂤','🂥','🂦','🂧','🂨','🂩','🂪','🂫','🂭','🂮']
-        diam = ['🃁','🃂','🃃','🃄','🃅','🃆','🃇','🃈','🃉','🃊','🃋','🃍','🃎']
-        club = ['🃑','🃒','🃓','🃔','🃕','🃖','🃗','🃘','🃙','🃚','🃛','🃝','🃞']
-        ttl1 = ttl2 = temp = stu = 0
-        usr = cpu = cputxt = usrtxt = ""
+        heart = ['A<3','2<3','3<3','4<3','5<3','6<3','7<3','8<3','9<3','T<3','J<3','Q<3','K<3']
+        spade = ['A>)','2>)','3>)','4>)','5>)','6>)','7>)','8>)','9>)','T>)','J>)','Q>)','K>)']
+        diam = ['A<>','2<>','3<>','4<>','5<>','6<>','7<>','8<>','9<>','T<>','J<>','Q<>','K<>']
+        club = ['A>3','2>3','3>3','4>3','5>3','6>3','7>3','8>3','9>3','T>3','J>3','Q>3','K>3']
+        ttl1 = 0; ttl2 = 0; stu = 0; usr = ""; cpu = ""; cputxt = ""; usrtxt = ""
         while ttl1 <= 18:
-            temp = rand(0,12)
-            if temp + ttl1 + 1 != 21:
-                stu = rand(0,3)
-                if stu == 1: usr = usr+heart.pop[temp]+' '
-                elif stu == 2: usr = usr+spade.pop[temp]+' '
-                elif stu == 3: usr = usr+diam.pop[temp]+' '
-                elif stu == 3: usr = usr+club.pop[temp]+' '
-                temp += 1
-                if temp > 10: temp = 10
-                ttl1 += temp
+            stu = rand(0,3)
+            if stu == 0: temp = random.randint(0, len(heart)-1); usr = usr+heart.pop(temp)+' '
+            elif stu == 1: temp = random.randint(0, len(spade)-1); usr = usr+spade.pop(temp)+' '
+            elif stu == 2: temp = random.randint(0, len(diam)-1); usr = usr+diam.pop(temp)+' '
+            elif stu == 3: temp = random.randint(0, len(club)-1); usr = usr+club.pop(temp)+' '
+            ttl1 += temp
         while ttl2 <= 18:
-            temp = rand(0,12)
-            if temp + ttl2 + 1 != 21:
-                if stu == 1: cpu = cpu+heart.pop[temp]+' '
-                elif stu == 2: cpu = cpu+spade.pop[temp]+' '
-                elif stu == 3: cpu = cpu+diam.pop[temp]+' '
-                elif stu == 3: cpu = cpu+club.pop[temp]+' '
-                temp += 1
-                if temp > 10: temp = 10
-                ttl2 += temp
+            stu = rand(0,3)
+            if stu == 0: temp = random.randint(0, len(heart)-1); cpu = cpu+heart.pop(temp)+' '
+            elif stu == 1: temp = random.randint(0, len(spade)-1); cpu = cpu+spade.pop(temp)+' '
+            elif stu == 2: temp = random.randint(0, len(diam)-1); cpu = cpu+diam.pop(temp)+' '
+            elif stu == 3: temp = random.randint(0, len(club)-1); cpu = cpu+club.pop(temp)+' '
+            ttl2 += temp
+        def rep(h): return h.replace('A','1').replace('T','10').replace('J','11').replace('Q','11').replace('K','11')
+        ttl1 = sum([int(x[:-2]) for x in rep(usr).split(' ')])
+        ttl2 = sum([int(x[:-2]) for x in rep(cpu).split(' ')])
         if ttl1 > 21: usrtxt = f'USER // {usr} [{ttl1}] [BUST]'
         elif ttl1 > ttl2: usrtxt = f'USER // {usr} [{ttl1}] [WIN]'
         elif ttl1 < ttl2: usrtxt = f'USER // {usr} [{ttl1}] [LOSS]'
@@ -62,10 +58,7 @@ async def blkjck(ctx):
         if ttl1 == ttl2:
             usrtxt = f'USER // {usr} [{ttl1}] [TIE]'
             cputxt = f'COMP // {cpu} [{ttl2}] [TIE]'
-        await ctx.send(f'```md\n#]BLACK JACK!\n \n{usrtxt}\n \n{cputxt}```')
-    except discord.HTTPException: await exc(ctx, 1)
-    except discord.Forbidden: await exc(ctx, 2)
-    except discord.NotFound: await exc(ctx, 3)
+        await ctx.send(f'```md\n#]BLACK JACK!``````diff\n+] {usrtxt}\n-] {cputxt}```')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##
@@ -79,4 +72,3 @@ def teardown(bot):
     print('-COM')
     bot.remove_command('blkjck')
     print('GOOD')
-

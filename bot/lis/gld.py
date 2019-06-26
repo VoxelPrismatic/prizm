@@ -6,7 +6,12 @@ import discord                    #python3.7 -m pip install -U discord.py
 import logging
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
-bot = commands.Bot(command_prefix=";]")
+def getPre(bot,msg):
+    id = msg.guild.id
+    try:return json.load(open('prefixes.json'))[str(id)]
+    except Exception as ex:print(ex);return ";]"
+
+bot = commands.Bot(command_prefix=getPre)
 
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
@@ -23,10 +28,25 @@ async def log(bot, head, text):
 ##///---------------------///##
 
 @bot.listen()
-async def on_guild_join(guild): await log(guild.me, "GUILD JOIN", f"SERVER // {guild}")
+async def on_guild_join(guild): 
+    await log(bot, "GUILD JOIN", f"SERVER // {guild}")
+    pre = json.load(open('prefixes.json'))
+    pre[guild.id]=';]'
+    open('prefixes.json','w').write(json.dumps(pre,sort_keys=True,indent=4))
+    com = json.load(open('servers.json'))
+    for g in bot.guilds:
+        try: x = com[str(g.id)]
+        except:
+            com[str(g.id)]={}
+            com[str(g.id)]["com"]={}
+            com[str(g.id)]["tag"]={}
+        for c in bot.commands:
+            try: x = com[str(g.id)]["com"][c]
+            except: com[str(g.id)]["com"][c] = True
+    open('servers.json','w').write(json.dumps(com,sort_keys=True,indent=4))
 
 @bot.listen()
-async def on_guild_remove(guild): await log(guild.me, "GUILD LEFT", f"SERVER // {guild}")
+async def on_guild_remove(guild): await log(bot, "GUILD LEFT", f"SERVER // {guild}")
 
 
 ##///---------------------///##

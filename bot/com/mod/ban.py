@@ -7,6 +7,7 @@ import logging
 import typing
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
+from chk.enbl import enbl
 
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
@@ -23,6 +24,7 @@ async def exc(ctx, code: int):
 ##///---------------------///##
 
 @commands.command()
+@commands.check(enbl)
 @has_permissions(ban_members=True)
 async def ban(ctx, members: commands.Greedy[discord.Member],
                 delete_days: typing.Optional[int] = 0, *,

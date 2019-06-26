@@ -6,13 +6,14 @@ import discord                    #python3.7 -m pip install -U discord.py
 import logging
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
-bot = commands.Bot(command_prefix=";]")
+from chk.enbl import enbl
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
 @commands.command()
+@commands.check(enbl)
 async def snd(ctx, cID: int, *, mCTX):
     await ctx.channel.purge(limit=1)
     try:

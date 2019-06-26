@@ -5,8 +5,10 @@
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
 import asyncio
+from util import pages
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
+from chk.enbl import enbl
 
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
@@ -24,9 +26,9 @@ async def exc(ctx, code: int):
 ##///---------------------///##
 
 @commands.command()
+@commands.check(enbl)
 async def gld(ctx):
     _gld = ctx.guild
-    result = 0
     chnls = []; rols = []; emjs = []
     def check(reaction, user): return user == ctx.author
     lit = [f"""
@@ -62,39 +64,7 @@ NUM MBRS // {_gld.member_count}"""]
             emjs = [];emjs.append(f"{emot.name}")
         else: emjs.append(f"{emot.name}")
     if len(emjs) > 0: lit.append(f"EMOJI // {', '.join(emjs)}")
-    msggld = await ctx.send(embed=embedify(f'''```md
-#] GUILD INFO``````
-{lit[result]}
-```''', _gld.icon_url))
-    await msggld.add_reaction('⏪')
-    await msggld.add_reaction('◀')
-    await msggld.add_reaction('⏹')
-    await msggld.add_reaction('▶')
-    await msggld.add_reaction('⏩')
-    while True:
-        try: reaction, user = await ctx.bot.wait_for('reaction_add', timeout=60.0, check=check)
-        except asyncio.TimeoutError: return await msggld.clear_reactions()
-        else:
-            if str(reaction.emoji) == '⏪':
-                result = 0
-                await msggld.remove_reaction('⏪', ctx.author)
-            elif str(reaction.emoji) == '◀':
-                await msggld.remove_reaction('◀', ctx.author)
-                result = result - 1
-                if result < 0: result = len(lit) - 1
-            elif str(reaction.emoji) == '⏹':
-                return await msggld.clear_reactions()
-            elif str(reaction.emoji) == '▶':
-                await msggld.remove_reaction('▶', ctx.author)
-                result = result+1
-                if result > (len(lit) - 1): result = 0
-            elif str(reaction.emoji) == '⏩':
-                result = len(lit) - 1
-                await msggld.remove_reaction('⏩', ctx.author)
-            await msggld.edit(embed=embedify(f'''```md
-#] GUILD INFO``````
-{lit[result]}
-```''', _gld.icon_url))
+    await pages.PageThis(ctx, lit, "GUILD INFO", thumb=str(_gld.icon_url))
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##
