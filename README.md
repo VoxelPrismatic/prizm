@@ -11,3 +11,7 @@ My first ever bot! Priz AI
 > In order to ensure that this bot works properly, its best just to `git-clone` this repo.
 If you don't want to, then just try downloading this repo as a zip.
 If you *still* don't want to, then you have a problem.
+
+## Emojis
+This bot uses custom emojis. To gain access to these emojis please send the invite link in
+the `#bot-invite-links` channel in the [emojis guild](https://discord.gg/eYMyfcd)
