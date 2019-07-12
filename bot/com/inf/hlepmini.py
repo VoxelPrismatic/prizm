@@ -4,7 +4,7 @@
 #/// DEPENDENCIES
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
-import asyncio
+import asyncio, json
 from util import pages
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
@@ -14,7 +14,7 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=["helpmini"])
+@commands.command(aliases=["helpmini","minihlep","minihelp","mini"])
 @commands.check(enbl)
 async def hlepmini(ctx):
     lit = ["""#] INFO
@@ -25,14 +25,17 @@ async def hlepmini(ctx):
 > hlepmod
 > info
 > os
-> ping""",
+> ping
+> bug {report}
+> inv""",
             """#] DISCORD CLASS
 > chnl {cID}
 > emj {eID}
 > gld
 > mbr {uID}
 > rol {rID}
-> usr {uID}""",
+> usr {uID}
+> msg {mID}""",
             """#] MATHS
 > fact {n}
 > fct {n}
@@ -40,18 +43,9 @@ async def hlepmini(ctx):
 > quad {a} {b} {c}
 > rad {n}
 > rto {x} {y}
-> stats {a} {b} {c} {...}""",
-            """#] MOD
-> ban {uID} {del} {reason}
-> clr {n}
-> clrin {mID} {mID}
-> kick {uID}
-> pin {mID}
-> unpin {mID}
-> enable {command}  // SERVER OWNER ONLY
-> disable {command} // SERVER OWNER ONLY
-> prefix {prefix}   // SERVER OWNER ONLY""",
-            """#] PUBLIC [1/2]
+> stats {a} {b} {c} {...}
+> rpn {eq}""",
+            """#] PUBLIC
 > md {mID}
 > dnd
 > snd {cID} {txt}
@@ -78,12 +72,15 @@ async def hlepmini(ctx):
 > tag + {name} {stuff}
 > tag - {name}         // TAG CREATOR ONLY
 > tag / {name} {stuff} // TAG CREATOR ONLY
+> slap {member} {?reason}
+> hug {member} {?reason}
+> mock {?mID}
 """]
-    await pages.PageThis(ctx, lit, "MINI COMMANDS LIST", '''```md
-#] To see mod commands, use ";]hlepmod"
-#] To have a conversation, use "]<your text here>""
-#] Some of your data is stored, use ";]data" to see more
-```''')
+    await pages.PageThis(ctx, lit, "MINI COMMANDS LIST", f"""```md
+#] {'{?stuff}'} - Optional argument
+#] To see mod commands, use "{json.load(open('prefixes.json'))[str(ctx.guild.id)] if isinstance(ctx.channel, discord.TextChannel) else ';]'}hlepmod"
+#] To have a conversation, use "]<txt>" or "{'}<txt>'}"
+#] Some of your data is stored, use "{json.load(open('prefixes.json'))[str(ctx.guild.id)] if isinstance(ctx.channel, discord.TextChannel) else ';]'}data" to see more```""")
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

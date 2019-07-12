@@ -25,6 +25,7 @@ async def exc(bot, ctx, code: int):
 
 async def on_message(bot, message):
     cont = message.content[1:]
+    if message.author == bot.user: return
     with open('PrismaticText','r') as a: txt = [txt.replace('\n','') for txt in a.readlines()]
     freq = {}
     for sent in txt:
@@ -42,6 +43,8 @@ async def on_message(bot, message):
                     sr = list(freq[start.split()[-y]].values())
                     st = list(freq[start.split()[-y]])[sr.index(max(sr))]
                     if st == start.split()[-1]:break
+                    elif start.endswith('you are') and st=='you': break
+                    elif start.endswith('are you') and st=='are': break
                     else: start+=f' {st}'
                     break
                 except:pass

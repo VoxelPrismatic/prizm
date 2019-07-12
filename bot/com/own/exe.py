@@ -55,14 +55,12 @@ async def exe(ctx, *, code: str):
         vl = str(out.getvalue())
         if rtn == None: rtn = 'None'
         head = f'''```md
-#] *.EXE 0.0
-] PYTHON V // {str(sysconfig.get_python_version())}
-> EXE TIME // {str(1000*ttl)[:10]}ms
-> TTL TIME // {str(1000*(time.monotonic()-st1))[:10]}ms
+#] *.PY 0.0 [{str(sysconfig.get_python_version())}]
+>  EXE TIME ] {str(1000*ttl)[:10]}ms, {str(1000*(time.monotonic()-st1))[:10]}ms
 '''
-        foot = f'''] ======== // ========
-> RETURNED // {rtn}
->  PRINTED // {"None" if vl == "" else f"{vl[:-1]}"}
+        foot = f'''----------- / -----------
+]   PRINTED ] {"None" if vl == "" else f"{vl[:-1]}"}
+>  RETURNED ] {rtn}
 ```'''
         print(head+foot)
         if len(vl)+len(rtn) > 1000:
@@ -83,8 +81,9 @@ async def exe(ctx, *, code: str):
     except Exception as exc:
         await ctx.send(f'''```diff
 -] ERROR
--] TYPE // {type(exc).__name__}
-> {str(exc)}
+-] TYPE ] {type(exc).__name__}
+=] {str(exc)}
+-
 {traceback.format_exc().replace('`','` ')}```''')
 
 

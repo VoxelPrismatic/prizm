@@ -11,8 +11,7 @@ from util import embedify
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 def getPre(bot,msg):
-    id = msg.guild.id
-    try:return json.load(open('prefixes.json'))[str(id)]
+    try:return json.load(open('prefixes.json'))[str(msg.guild.id)]
     except Exception as ex:print(ex);return ";]"
 
 bot = commands.Bot(command_prefix=getPre)
@@ -44,12 +43,12 @@ async def on_error(event, *args, **kwargs):
 @bot.listen()
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound): return await ctx.message.add_reaction('\u2753')
-    if not json.load(open('servers.json'))[str(ctx.guild.id)]["com"][ctx.command.name]:
+    if ctx.guild and not json.load(open('servers.json'))[str(ctx.guild.id)]["com"][ctx.command.name]:
         return await ctx.send('```diff\n-] ERROR\n=] THIS COMMAND ISNT ENABLED```')
     try: errr = error.original
     except: errr = error
-    st = str(type(errr)).split('.')[-1][:-2]
-    typ, obj, tb = sys.exc_info() 
+    st = str(type(errr)).split('.')[-1][:-2]; found = False
+    typ, obj, tb = sys.exc_info()
     errors = {
         'BadArgument': [400,'BAD ARGUMENT'],
         'BotMissingPermissions': [503,'BOT FORBIDDEN'],
@@ -75,15 +74,15 @@ async def on_command_error(ctx, error):
         "ExtensionNotFound": [404, "EXT[s] NOT FOUND xd"],
         "Forbidden": [403,'BOT FORBIDDEN'],
         "HTTPException": [409, 'HTTP ERROR'],
-        "NotFound": [400, 'NOT FOUND'],
+        "NotFound": [404, 'NOT FOUND'],
         "InvalidArgument": [406, 'INVALID ARG']
         }
     if st in errors: 
-        await ctx.send(f'```diff\n-]ERROR {errors[st][0]}\n=]{errors[st][1]}``````md\n#] {errr}```')
-        return
-    await handler(ctx.bot, "COMMAND FAILURE", errr, ctx=ctx)
+        await ctx.send(f'```diff\n-] ERROR {errors[st][0]}\n=] {errors[st][1]}``````md\n#] {errr}```')
+        found = True
+    await handler(ctx.bot, "COMMAND FAILURE", errr, ctx=ctx, found=found)
 
-async def handler(bot, exception_type, exception, event=None, message=None, ctx = None, *args, **kwargs):
+async def handler(bot, exception_type, exception, event=None, message=None, ctx = None, found=False,*args, **kwargs):
     if message is None and event is not None and hasattr(event, "message"): message = event.message
     if message is None and ctx is not None: message = ctx.message
     try:
@@ -98,9 +97,6 @@ async def handler(bot, exception_type, exception, event=None, message=None, ctx 
 #////////   KWARG   ////////#
 {ctx.kwargs}
 -
-#/////// STACK TRACE ///////#
-{"".join(traceback.format_tb(exception.__traceback__))}
--
 #////////   NAMES   ////////#
 {event}
 -
@@ -108,14 +104,17 @@ async def handler(bot, exception_type, exception, event=None, message=None, ctx 
    NAME // {ctx.command.name}
 CHANNEL // {'Private Message' if isinstance(ctx.channel, discord.abc.PrivateChannel) else f"{ctx.channel.name} [`{ctx.channel.id}`]"}
    USER // {str(ctx.author)} [`{ctx.author.id}`]
-"""
-        msgs = await log(bot, "GG MATE, SOMEBODY FUCKED IT ALL UP!",tb)
-        await log(bot, "GG MATE, SOMEBODY FUCKED IT ALL UP!",f"""See the message 0.0
+
 #////////  OG  MSG  ////////#
 ///>  {message.content}
 ///]  {message.channel}
+"""
+        msgs = await log(bot, "GG MATE, SOMEBODY FUCKED IT ALL UP!",tb)
+        await log(bot, "GG MATE, SOMEBODY FUCKED IT ALL UP!",f"""See the message 0.0
+#/////// STACK TRACE ///////#
+{"".join(traceback.format_tb(exception.__traceback__))}
 """)
-        await ctx.send(f"""```md
+        if not found:await ctx.send(f"""```md
 #] GG MATE, YOU FOUND A BUG!
 > But that's okay, cuz you finding bugs
 > is how I can get better at preventing

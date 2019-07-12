@@ -2,7 +2,8 @@ def faces():
     faces = ["0.0",">.<","0o0","9.6","@.@",
             ";-;","!-!","S:Γ","UωU",";]",
             ";n;",",,,;n;,,,",";u;","]].[[",
-            ">~<","=-=","B)",":D","q.p"]
+            ">~<","=-=","B)",":D","q.p",
+            ";P"]
     return faces
 
 def texts():
@@ -13,6 +14,8 @@ def texts():
              "the Prisms Shininess",
              "the Voxels Cubeness",
              "my creator sleep",
-             "my uptime approach 24hrs",
-             "you look at me"]
+             "you look at me",
+             "life pass me by",
+             "you UwU at me",
+             "nothing lul"]
     return texts

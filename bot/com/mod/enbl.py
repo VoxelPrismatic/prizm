@@ -25,9 +25,11 @@ async def exc(ctx, code: int):
 ##///---------------------///##
 
 @commands.command(aliases=['enable'])
+@commands.guild_only()
 async def enbl(ctx,nam):
     g=ctx.guild
-    if ctx.author!=ctx.guild.owner:return ctx.send('```diff\n-] ERROR\n=] Only the server owner can use this command```')
+    if f'{ctx.author.name}#{ctx.author.discriminator}' not in json.load(open('servers.json'))[str(ctx.guild.id)]["mod"] and ctx.author!=ctx.guild.owner:
+        return await ctx.send('```diff\n-] ERROR\n=] Only the server mods can use this command```')
     if nam not in [c.name for c in ctx.bot.commands]: return ctx.send('```diff\n-] ERROR\n=] That command doesn\'t exist```')
     com = json.load(open('servers.json'))
     com[str(g.id)]["com"][nam]=True
@@ -35,9 +37,11 @@ async def enbl(ctx,nam):
     await ctx.message.add_reaction('\N{OK HAND SIGN}')
 
 @commands.command(aliases=['disable'])
+@commands.guild_only()
 async def dsbl(ctx,nam):
     g=ctx.guild
-    if ctx.author!=ctx.guild.owner:return ctx.send('```diff\n-] ERROR\n=] Only the server owner can use this command```')
+    if f'{ctx.author.name}#{ctx.author.discriminator}' not in json.load(open('servers.json'))[str(ctx.guild.id)]["mod"] and ctx.author!=ctx.guild.owner:
+        return await ctx.send('```diff\n-] ERROR\n=] Only the server mods can use this command```')
     if nam not in [c.name for c in ctx.bot.commands]: return ctx.send('```diff\n-] ERROR\n=] That command doesn\'t exist```')
     com = json.load(open('servers.json'))
     com[str(g.id)]["com"][nam]=False
@@ -45,9 +49,11 @@ async def dsbl(ctx,nam):
     await ctx.message.add_reaction('\N{OK HAND SIGN}')
     
 @commands.command(aliases=['prefix'])
+@commands.guild_only()
 async def pre(ctx,nam):
     g=ctx.guild
-    if ctx.author!=ctx.guild.owner:return ctx.send('```diff\n-] ERROR\n=] Only the server owner can use this command```')
+    if f'{ctx.author.name}#{ctx.author.discriminator}' not in json.load(open('servers.json'))[str(ctx.guild.id)]["mod"] and ctx.author!=ctx.guild.owner:
+        return await ctx.send('```diff\n-] ERROR\n=] Only the server mods can use this command```')
     pr = json.load(open('prefixes.json'))
     pr[str(g.id)]=nam
     open('prefixes.json','w').write(json.dumps(pr,sort_keys=True,indent=4))
@@ -69,4 +75,3 @@ def teardown(bot):
     bot.remove_command('dsbl')
     bot.remove_command('pre')
     print('GOOD')
-

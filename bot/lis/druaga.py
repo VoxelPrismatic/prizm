@@ -10,8 +10,7 @@ from util import embedify, pages
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 def getPre(bot,msg):
-    id = msg.guild.id
-    try:return json.load(open('prefixes.json'))[str(id)]
+    try:return json.load(open('prefixes.json'))[str(msg.guild.id)]
     except Exception as ex:print(ex);return ";]"
 
 bot = commands.Bot(command_prefix=getPre)
@@ -37,13 +36,15 @@ async def druaga(dru):
             'druaga1screen': ['and this screen is reflective enough that you can see stuff... :C',
                               'and thats really annoying while im trying to film stuff'],
             'druaga1pb': ['*finger touches powerbook 170* 9.6',
-                          'OH SHIT! FUCK! IVE NEVER BLED SO MUCH IN MY LIFE XC']
+                          'OH SHIT! FUCK! IVE NEVER BLED SO MUCH IN MY LIFE XC'],
+            'druaga1ssd': ['*pulls out a quantum bigfoot out of a macintosh ii* 0.0',
+                              'Holy shit! It\'s so big! I wish all SSDs were this big... like a 600tb drive']
             }
         if ct in druagas:
             await dru.delete()
             await dru.channel.send(f'```md\n#] {druagas[ct][0]}\n> {druagas[ct][1]}```')
         else:
-            await dru.add_reaction("<:druaga1:579442502092849192>")
+            await dru.add_reaction("<:dr1:598520251684093973>")
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

@@ -8,7 +8,11 @@ import logging
 import json
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
-bot = commands.Bot(command_prefix=";]")
+def getPre(bot,msg):
+    try:return json.load(open('prefixes.json'))[str(msg.guild.id)]
+    except Exception as ex:print(ex);return ";]"
+
+bot = commands.Bot(command_prefix=getPre)
 
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##

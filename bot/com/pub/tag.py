@@ -15,6 +15,7 @@ from util.embedify import embedify
 
 @commands.command()
 @commands.check(enbl)
+@commands.guild_only()
 async def tag(ctx, *arg):
     try:
         dic = json.load(open('servers.json'))

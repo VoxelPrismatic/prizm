@@ -2,36 +2,29 @@
 # -*- coding: utf-8 -*
 
 #/// DEPENDENCIES
-import typing
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
-import traceback, json
-from util import embedify, jsonSave
 from discord.ext import commands
+from util.embedify import embedify
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
-
-def getPre(bot,msg):
-    try:return json.load(open('prefixes.json'))[str(msg.guild.id)]
-    except Exception as ex:print(ex);return ";]"
-
-bot = commands.Bot(command_prefix=getPre)
+from chk.enbl import enbl
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@bot.listen()
-async def on_command_completion(ctx): jsonSave.saver(ctx.bot)
+@commands.command(aliases=['invite'])
+async def inv(ctx): await ctx.send(embed=embedify(desc='```md\n#] INVITE ;]\n> Thanks for letting me be a part of your server!```[BOT ;]](https://discordapp.com/oauth2/authorize?client_id=555862187403378699&scope=bot&permissions=67497152) // [GUILD ;]](https://discord.gg/Z84Nm6n)'))
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##
 ##///---------------------///##
 def setup(bot):
-    print('+LIS')
-    bot.add_listener(on_command_completion)
+    print('+COM')
+    bot.add_command(inv)
     print('GOOD')
 
 def teardown(bot):
-    print('-LIS')
-    bot.remove_listener('on_command_completion')
+    print('-COM')
+    bot.remove_command('inv')
     print('GOOD')

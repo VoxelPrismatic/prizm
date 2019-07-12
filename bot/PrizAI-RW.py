@@ -33,11 +33,10 @@ print('##///  DONE  ///##')
 print('##/// DEFINE ///##')
 
 def getPre(bot,msg):
-    id = msg.guild.id
-    try:return json.load(open('prefixes.json'))[str(id)]
+    try:return json.load(open('prefixes.json'))[str(msg.guild.id)]
     except Exception as ex:print(ex);return ";]"
 
-bot = commands.Bot(command_prefix=getPre)
+bot = commands.Bot(command_prefix=getPre,case_insenitive=True)
 client = discord.Client()
 bot.remove_command("help")
 logging.basicConfig(level='INFO')
@@ -55,8 +54,11 @@ st = ''
 try: 
     from util import pages; pages.init();print('SUCCESS - PAGES')
     from util import embedify; print('SUCCESS - EMBED')
+    from util import vox; print('SUCCESS - VOX')
+    from chk import enbl; print('SUCCESS - ENBL')
     import PrizAI_CODE; print('SUCCESS - MAIN AI')
     import PrizAI_IMPROVED; print('SUCCESS - BETTER AI')
+    from util import jsonSave; print('SUCCESS - SAVER')
 except Exception as ex: st = ex; print(st)
 
 from dyn import refresh, faces
@@ -82,22 +84,7 @@ print('##///  DONE  ///##')
 
 print('##/// DEFINE ///##')
 
-def jsons():
-    pre = json.load(open('prefixes.json'))
-    com = json.load(open('servers.json'))
-    for g in bot.guilds:
-        try: x = pre[str(g.id)]
-        except: pre[str(g.id)] = ';]'
-        try: x = com[str(g.id)]
-        except:
-            com[str(g.id)]={}
-            com[str(g.id)]["com"]={}
-            com[str(g.id)]["tag"]={}
-        for c in bot.commands:
-            try: x = com[str(g.id)]["com"][c.name]
-            except: com[str(g.id)]["com"][c.name] = True
-    open('servers.json','w').write(json.dumps(com,sort_keys=True,indent=4))
-    open('prefixes.json','w').write(json.dumps(pre,sort_keys=True,indent=4))
+def jsons(bot): jsonSave.saver(bot)
 
 def FilesLoad(rw): #// Making life easy when the actual code comes
     global PrizM2MR, PrizM2MC, PrizTXT, PrizMATHl, PrizSCIl, PrizENGl, PrizMATHr, PrizSCIr, PrizENGr #Or this wont work at all
@@ -151,12 +138,12 @@ print('##// STARTING //##')
 @bot.listen()
 async def on_ready():
     global st
-    jsons()
     if st != '': await log('MODULE ERROR',st)
     await bot.change_presence(activity=discord.Activity(type=2,name="HDD clicking sounds",
                               url='https://discord.gg/Z84Nm6n'))
     for ext in range(len(allext)):
         for com in allext[ext]: lext(f'{lodtxt[ext]}{com}')
+    jsons(bot)
     print(time.time())
     FilesLoad('r')
     await ArraysLoad()
@@ -166,7 +153,7 @@ async def on_ready():
 
 {[bot.get_all_channels()]}
 
-GG! !] PRIZ AI ;] [! // v{discord.__version__} // RESTART - CTRL Z, [up], [enter]
+GG! PRIZM ;] // v{discord.__version__} // RESTART - CTRL Z, [up], [enter]
 ''')
     channel = bot.get_channel(556247032701124650)
     await channel.purge(limit=10)
@@ -192,11 +179,20 @@ GG! !] PRIZ AI ;] [! // v{discord.__version__} // RESTART - CTRL Z, [up], [enter
 @bot.listen()
 async def on_message(message):
     ct = message.content
+    #words = json.load(open('servers.json'))[str(message.guild.id)]["wrd"]
+    #for word in ct.split(): 
+        #if len(words['wrd']) == 0: break
+        #if word in words['wrd']:
+            #if words['act'].lower() == 'ban': await message.author.ban(reason='Used a word on the banned word list')
+            #elif words['act'].lower() == 'kick': await message.author.kick(reason='Used a word on the banned word list')
+            #await message.delete()
+            #break
+    
     if "<@481591703959240706>" in message.content or "<@!481591703959240706>" in message.content:
         await message.add_reaction("<:prizblu:574993427314376704>")
     elif bot.user != message.author:
-        if ct.startswith(']'): await PrizAI_CODE.on_message(bot, message)
-        elif ct.startswith('}'): await PrizAI_IMPROVED.on_message(bot, message)
+        if ct.startswith('}'): await PrizAI_CODE.on_message(bot, message)
+        elif ct.startswith(']'): await PrizAI_IMPROVED.on_message(bot, message)
         elif message.channel.id== 590691192430133269: open('PrismaticText','a').write(ct.lower()+'\n')
 
 @bot.command()
@@ -209,6 +205,9 @@ async def load(ctx):
     reload(embedify)
     reload(PrizAI_CODE)
     reload(PrizAI_IMPROVED)
+    reload(vox)
+    reload(enbl)
+    reload(jsonSave)
     pages.init()
     await ctx.message.add_reaction('\N{OK HAND SIGN}')
 
@@ -230,6 +229,9 @@ async def restart(ctx):
         reload(embedify)
         reload(PrizAI_CODE)
         reload(PrizAI_IMPROVED)
+        reload(vox)
+        reload(enbl)
+        reload(jsonSave)
         pages.init()
     except Exception as ex: await ctx.send(f'```diff\n-] MODULE ERROR\n=] {ex}```'); fail = True
     else: await msg.edit(content='```md\n#] LOADING COMMANDS```')
@@ -240,9 +242,10 @@ async def restart(ctx):
             except Exception as ex: 
                 await ctx.send(f'```diff\n-] COMMAND ERROR\n=] {ex}\n=] {com}```'); fail = True
     await msg.edit(content='```md\n#] REFRESHING JSONs```')
-    try: jsons()
+    try: jsons(ctx.bot)
     except Exception as ex: await ctx.send(f'```diff\n-] JSON ERROR\n=] {ex}```')
-    if not fail: await msg.edit(content='```md\n#] MODULES\n> Literally everything reloaded, successfully too :D```')
+    if not fail: await msg.edit(content='```md\n#] MODULES\n> Literally everything restarted, successfully too :D```')
+    else: await msg.edit(content='```md\n#] MODULES\n> Restarting completed```')
     
 
 ##///---------------------///##

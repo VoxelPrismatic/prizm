@@ -18,12 +18,12 @@ from chk.enbl import enbl
 @commands.check(enbl)
 async def dir(ctx, loc:str=""):
     if ".." in loc: return await ctx.send('```diff\n-]INVALID PATH```')
-    try: dr = os.listdir(path=f"/home/priz/Desktop/PrizAI/{loc}")
+    try: dr = os.listdir(path=f"/home/voxelprismatic/Desktop/PrizAI/{loc}")
     except: return await ctx.send('```diff\n-]THAT ISN\'T A DIRECTORY UwU```')
     dr.sort(key=len)
     di = ""
     for do in dr:
-        if '.' in do: 
+        if '.' in do:
             de = do.split('.')[0]; dp = do.split('.')[1].upper()
             if do == ".directory": de = "."
             if do == "..directory": de = ".."
@@ -35,8 +35,8 @@ async def dir(ctx, loc:str=""):
             da = do; tru = f"{loc}/{do}"
             if len(do) > 7: da = do[0:7]+f" ~{len(do)-7}"
             if loc == "": tru = do
-            try: 
-                os.listdir(path=f"/home/priz/Desktop/PrizAI/{tru}")
+            try:
+                os.listdir(path=f"/home/voxelprismatic/Desktop/PrizAI/{tru}")
                 di = di+f"> {da:>10} / DIR\n"
             except NotADirectoryError: di = di+f"> {da:>10} / TXT\n"
     await ctx.send(embed=embedify.embedify(desc=f'''```md

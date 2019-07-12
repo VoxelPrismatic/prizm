@@ -15,7 +15,7 @@ from discord.ext.commands import Bot, MissingPermissions, has_permissions
 
 @commands.command()
 @commands.is_owner()
-async def chng(ctx, *, name:str):
+async def chng(ctx, *, name:str=None):
     if len(name) != 0: 
         await ctx.bot.change_presence(activity=discord.Activity(type=3, name=name,url='https://discord.gg/Z84Nm6n'))
         return await ctx.message.add_reaction('\N{OK HAND SIGN}')

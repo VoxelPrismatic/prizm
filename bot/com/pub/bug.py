@@ -1,10 +1,10 @@
-#!/emj/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*
 
 #/// DEPENDENCIES
+import typing
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
-from util import embedify
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
@@ -12,6 +12,8 @@ from chk.enbl import enbl
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
 ##///---------------------///##
+
+def rand(ll,tt): return random.randint(ll,tt)
 
 async def exc(ctx, code: int):
     print('EXCEPTION!')
@@ -24,19 +26,11 @@ async def exc(ctx, code: int):
 ##///---------------------///##
 
 @commands.command()
-@commands.check(enbl)
-async def emj(ctx, _emj:discord.Emoji):
-    try:
-        await ctx.send(embed=embedify.embedify(desc=f'''```
-     ID // {_emj.id}
-   NAME // {_emj.name}
-  ROLES // {_emj.roles}
- COLONS // {_emj.require_colons}
-CREATED // {_emj.created_at}
-MANAGED // {_emj.managed}```''', thumb=str(_emj.url)))
-    except discord.HTTPException: await exc(ctx, 1)
-    except discord.Forbidden: await exc(ctx, 2)
-    except discord.NotFound: await exc(ctx, 3)
+async def bug(ctx, *, txt):
+    async with ctx.channel.typing():
+        try: st = f'```md\n#] BUG REPORT IN {ctx.channel.name} - {ctx.guild.name} BY {ctx.author.name}#{ctx.author.discriminator}\n> {txt}```'
+        except: st = f"```md\n#] BUG REPORT IN PRIVATE MESSAGE WITH {ctx.author.name}#{ctx.author.discriminator}\n> {txt}```"
+    await ctx.bot.get_channel(597577735065436171).send(st)
 
 
 ##///---------------------///##
@@ -44,10 +38,11 @@ MANAGED // {_emj.managed}```''', thumb=str(_emj.url)))
 ##///---------------------///##
 def setup(bot):
     print('+COM')
-    bot.add_command(emj)
+    bot.add_command(bug)
     print('GOOD')
 
 def teardown(bot):
     print('-COM')
-    bot.remove_command('emj')
+    bot.remove_command('bug')
     print('GOOD')
+

@@ -110,7 +110,7 @@ async def exc(bot, ctx, code: int):
 
 async def on_message(bot, message):
     if message.author ==  bot.user: return
-    elif message.content.startswith(']')==True:
+    else:
         await ArraysLoad()
         message.content = message.content[1:].strip(); blank = stop = False
         print(message.content)

@@ -25,9 +25,9 @@ async def exc(ctx, code: int):
 @commands.command()
 @has_permissions(manage_nicknames=True)
 @commands.check(enbl)
-async def nick(ctx, mbr: discord.Member, nm: str):
+async def nick(ctx, mbr: discord.Member, *, nm: str=''):
     await mbr.edit(nick=nm)
-    await ctx.send(f'```md\n#]SUCCESS\n> {mbr.name} >> {nm}```')
+    await ctx.send(f'```md\n#] SUCCESS\n> {mbr.name} >> {nm}```')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##
