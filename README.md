@@ -1,5 +1,6 @@
 # Priz AI
-My first ever bot! Priz AI
+My first ever bot! Prizm ;]
+> This repo is not updated very often, only big changes such as completely new code will be pushed weekly
 
 ## INSTALL
 `pip install -Ur requirements.txt`
