@@ -5,16 +5,17 @@ My first ever bot! Prizm ;]
 ## INSTALL
 `pip install -Ur req.txt`
 
-You must also install `ffmpeg` to actually play music
+You must also install `ffmpeg` to actually play music, it is not a library, but an app you need to install.
+
+For debian users: `sudo apt install ffmpeg`
 
 In order to use the `;]mix` command, you must also download [this file](https://mega.nz/#!9fh1iQzC!5d9zt6yKRbAXzgyxNMmoITua09b__zlU751KKOfpRSs)
 and place it in the `mix` folder
 
 ^ is ~500mb
 
-> If you have issues installing the requirements, get `pip` first
-> If you still have trouble, then idk whats happening
-> because the same issue happened with me a while back
+> If you have issues installing the requirements, get `pip` first.
+> If you still have trouble, then idk whats happening.
 
 ## Files
 > In order to ensure that this bot works properly, its best just to `git-clone` this repo.
