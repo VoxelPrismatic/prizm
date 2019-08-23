@@ -1,9 +1,9 @@
 def faces():
     faces = ["0.0",">.<","0o0","9.6","@.@",
-            ";-;","!-!","S:Γ","UωU",";]",
+            ";-;","!-!","S:Γ","UwU",";]",
             ";n;",",,,;n;,,,",";u;","]].[[",
             ">~<","=-=","B)",":D","q.p",
-            ";P"]
+            ";P",'OwO','O.o',';[',';V']
     return faces
 
 def texts():
@@ -17,5 +17,12 @@ def texts():
              "you look at me",
              "life pass me by",
              "you UwU at me",
-             "nothing lul"]
+             "nothing lul",
+             'for... oh hello!',
+             'my creators\' disapointment',
+             'not PornHub, trust me',
+             'im not too sure tbh',
+             '1s and 0s go by',
+             'my code get better',
+             'myself get rewritten... again']
     return texts

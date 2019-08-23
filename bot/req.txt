@@ -1,0 +1,14 @@
+numpy
+numexpr
+discord.py
+discord.py[voice]
+aiofiles
+matplotlib
+psutil
+dblpy
+nltk
+tensorflow
+chatterbot
+praw
+youtube_dl
+typing

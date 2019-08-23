@@ -1,20 +1,24 @@
 def refresh():
+    """
+    >>> PROVIDES EASY EXTENSION LOADING <<<
+    RETURNS - 2 LISTS
+    """
     owncom = ["exe",  "pwr",  "chng",
               "dump", "pin0", "clr0",
               "calc", "edit","nick0",
-              "shell", "clrin0", "unpin0",
+              "shell", "clrin0",
               "helpown","iedit","dl",
               "srvedit"]
 
     modcom = ["clr","pin","ban",
               "kick","nick","clrin",
-              "unpin","enbl","role",
+              "enbl","role",
               "mng",'audit']
 
     infcom = ["os","git","dir",
               "ping","info","hlep",
-              "data","hlepmod","hlepmini",
-              "inv"]
+              "data","hlepmod",
+              "inv",'find']
 
     pubcom = ["md","dnd","snd",
               "rng","rev","poll",
@@ -22,28 +26,37 @@ def refresh():
               "optn","echo","spam",
               "cool","emji","slots",
               "react","blkjck","binary",
-              "vox","djq","char",
+              "vox","djq", "8ball", "reddit",
               "mines","hman","mock",
-              "tag","bug"]
+              "bug", '2048', "captcha"]
 
     discom = ["chnl","emj","gld",
-              "mbr","rol","usr"]
+              "mbr","rol","usr",
+              'msg']
 
     mathcom = ["graph","quad","rto",
                "stats","fct","rad",
                "fact",'rpn']
-    
-    intcom = ["slap","hug"]
 
-    list_n = ["gld","err","mtn",
-              "com","rctf","druaga"]
+    intcom = ["slap","hug",'cuddle',
+              'throw','kiss']
+
+    othcom = ['mix','tag',"char", 'text']
+
+    muscom = ['play','leave','pause']
+
+    list_n = ["gld","err",
+              "com","rctf","druaga",
+              'log']
 
     allext = [owncom,modcom,infcom,
               pubcom,discom,mathcom,
-              intcom,list_n]
+              intcom,othcom,muscom,
+              list_n]
 
     lodtxt = ["com.own.","com.mod.","com.inf.",
               "com.pub.","com.dis.","com.math.",
-              "com.int.","lis."]
+              "com.int.","com.oth.","com.music.",
+              "lis."]
 
     return allext, lodtxt
