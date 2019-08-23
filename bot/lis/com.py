@@ -6,22 +6,19 @@ import typing
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
 import traceback, json
-from util import embedify, jsonSave
+from util import embedify, jsonSave, getPre
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 
-def getPre(bot,msg):
-    try:return json.load(open('prefixes.json'))[str(msg.guild.id)]
-    except Exception as ex:print(ex);return ";]"
-
-bot = commands.Bot(command_prefix=getPre)
+bot = commands.Bot(command_prefix=getPre.getPre)
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
 @bot.listen()
-async def on_command_completion(ctx): jsonSave.saver(ctx.bot)
+async def on_command_completion(ctx):
+    jsonSave.saver(ctx.bot)
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

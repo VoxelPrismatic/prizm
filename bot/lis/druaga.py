@@ -6,14 +6,11 @@ import typing
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
 import traceback
-from util import embedify, pages
+from util import embedify, pages, getPre
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
-def getPre(bot,msg):
-    try:return json.load(open('prefixes.json'))[str(msg.guild.id)]
-    except Exception as ex:print(ex);return ";]"
 
-bot = commands.Bot(command_prefix=getPre)
+bot = commands.Bot(command_prefix=getPre.getPre)
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
@@ -42,7 +39,7 @@ async def druaga(dru):
             }
         if ct in druagas:
             await dru.delete()
-            await dru.channel.send(f'```md\n#] {druagas[ct][0]}\n> {druagas[ct][1]}```')
+            await dru.channel.send(f'```md\n#] {druagas[ct][0]}\n>  {druagas[ct][1]}```')
         else:
             await dru.add_reaction("<:dr1:598520251684093973>")
 

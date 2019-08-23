@@ -7,14 +7,11 @@ import discord                    #python3.7 -m pip install -U discord.py
 import logging
 import traceback
 import asyncio, json
-from util import embedify
+from util import embedify, getPre
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
-def getPre(bot,msg):
-    try:return json.load(open('prefixes.json'))[str(msg.guild.id)]
-    except Exception as ex:print(ex);return ";]"
 
-bot = commands.Bot(command_prefix=getPre)
+bot = commands.Bot(command_prefix=getPre.getPre)
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
@@ -23,27 +20,32 @@ bot = commands.Bot(command_prefix=getPre)
 @bot.listen('on_message')
 async def on_msg(msg):
     ct = msg.content
-    if ("f" == ct or "F" == ct) and json.load(open('servers.json'))[str(msg.guild.id)]["rcf"]:
+    # Responds to 'F'
+    if ("f" == ct or "F" == ct) and json.load(open('json/servers.json'))[str(msg.guild.id)]["rcf"]:
         fcontent = f'#] TIME TO PAY RESPECTS\n> {msg.author}'
         fmessage = await msg.channel.send(embed=embedify.embedify(desc=f'```md\n{fcontent}```'))
-        await fmessage.add_reaction('<:rcf:598516101638520857>') 
-    elif ct == ']help': await msg.channel.send('```diff\n-] ERROR\n+] To see commands list, use ";]hlep"```')
-    elif ct == "no u" and json.load(open('servers.json'))[str(msg.guild.id)]["nou"]: await msg.channel.send("```md\n#] GOT \'EM\n> Get Got M8```")
+        await fmessage.add_reaction('<:rcf:598516101638520857>')
+
+    # When a user speaks to the AI
+    elif ct == ']help':
+        await msg.channel.send('```diff\n-] ERROR\n+] To see commands list, use ";]hlep"```')
+
+    # Responds to 'no u'
+    elif ct == "no u" and json.load(open('json/servers.json'))[str(msg.guild.id)]["nou"]:
+        await msg.channel.send("```md\n#] GOT \'EM\n> Get Got M8```")
+
+    # When Pinged
     elif ct == '<@!555862187403378699>' or ct == '<@555862187403378699>':
-        pre = json.load(open("prefixes.json"))[str(msg.guild.id)]
+        pre = json.load(open("json/prefixes.json"))[str(msg.guild.id)]
         await msg.channel.send(f'```md\n#] INFO\n> My prefix is "{pre}"\n> For example: "{pre}hlep"```')
 
 @bot.listen()
 async def on_reaction_add(reaction,user):
-    try:
-        if reaction.message.author.id == 555862187403378699 and user.id != 555862187403378699:
-            if len(reaction.message.embeds[0].description) > 34:
-                    og = reaction.message.embeds[0].description[5:-3]
-                    if str(user) not in og and 'PAY RESPECTS' in og:
-                        await reaction.message.edit(embed=embedify.embedify(desc=f'```md{og}\n> {user}```'))
-    except discord.HTTPException: await exc(ctx, 1)
-    except discord.Forbidden: await exc(ctx, 2)
-    except discord.NotFound: await exc(ctx, 3)
+    if reaction.message.author.id == 555862187403378699 and user.id != 555862187403378699:
+        if len(reaction.message.embeds[0].description) > 34:
+                og = reaction.message.embeds[0].description[5:-3]
+                if str(user) not in og and 'PAY RESPECTS' in og:
+                    await reaction.message.edit(embed=embedify.embedify(desc=f'```md{og}\n> {user}```'))
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##
