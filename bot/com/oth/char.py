@@ -13,9 +13,12 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(help='oth',
+                  brief = 'Shows unicode info on {char}',
+                  usage = ';]char {chars}',
+                  description = 'CHARS [STR] - The characters you want data on')
 @commands.check(enbl)
-async def char(ctx, *, txt): 
+async def char(ctx, *, txt):
     ls = []
     for t in txt:
         if t not in ls: ls.append(t)

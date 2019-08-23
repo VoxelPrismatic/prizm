@@ -13,7 +13,11 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=["choose"])
+@commands.command(aliases=["choose"],
+                  help = 'fun',
+                  brief = 'I choose something for you!',
+                  usage = ';]choose {arg1} "{multi word arg2}" {...}',
+                  description = 'ARGx [STR] - The choice itself')
 @commands.check(enbl)
 async def optn(ctx, *options):
     await ctx.send(f'```I choose >>{random.choice(options)}<< {random.choice(["0.0",">.<","9.6",":P",":D",";]"])}```')

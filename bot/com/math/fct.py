@@ -14,9 +14,13 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=['factor'])
+@commands.command(aliases=['fct'],
+                  help = 'math',
+                  brief = 'Finds the factors and prime factors of {num}',
+                  usage = ';]factor {num}',
+                  description = 'NUM [INT] - The number to find the factors of')
 @commands.check(enbl)
-async def fct(ctx, num:int):
+async def factor(ctx, num:int):
     fctr = []; prm = []
     async with ctx.channel.typing():
         for lel in range(1,int(num**.5)+1):
@@ -38,10 +42,10 @@ async def fct(ctx, num:int):
 ##///---------------------///##
 def setup(bot):
     print('+COM')
-    bot.add_command(fct)
+    bot.add_command(factor)
     print('GOOD')
 
 def teardown(bot):
     print('-COM')
-    bot.remove_command('fct')
+    bot.remove_command('factor')
     print('GOOD')

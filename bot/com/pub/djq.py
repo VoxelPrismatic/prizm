@@ -19,19 +19,24 @@ def rand(ll,tt): return random.randint(ll,tt)
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(help = 'fun',
+                  brief = 'In rememberance of DJ Quzingler [BOT]',
+                  usage = ';]djq',
+                  description = '[NO ARGS FOR THIS COMMAND]')
 @commands.check(enbl)
 async def djq(ctx):
     send = ""
-    data = "aeiou"
     s = True
+    data = "aeiou"
     cons = "bcdfghjklmnpqrstvwxyz"
     y = random.randint(1,10)
     for x in range(y):
         send = send+(cons[rand(0,len(cons)-1)])
         if x==y:
-            if random.randint(0,1): send = send+(data[rand(0,len(data)-1)])
-        else: send = send+(data[rand(0,len(data)-1)])
+            if random.randint(0,1):
+                send = send+(data[rand(0,len(data)-1)])
+        else:
+            send = send+(data[rand(0,len(data)-1)])
     await ctx.send(f'here you go friend, you can name it to anything you like, what about {send} ?')
 
 ##///---------------------///##

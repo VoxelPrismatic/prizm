@@ -16,7 +16,10 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(help = 'fun',
+                  brief = 'Just prints one of these cool ASCIImoji!',
+                  usage = ';]asci',
+                  description = '[NO ARGS FOR THIS COMMAND]')
 @commands.check(enbl)
 async def asci(ctx):
     face = ["0.0",">.<","0o0","9.6","@.@",

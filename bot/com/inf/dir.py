@@ -14,33 +14,48 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(help = 'inf',
+                  brief = 'C:\> dir',
+                  usage = ';]dir {?path}',
+                  description = '?PATH [STR] - OPTIONAL: Path')
 @commands.check(enbl)
 async def dir(ctx, loc:str=""):
-    if ".." in loc: return await ctx.send('```diff\n-]INVALID PATH```')
-    try: dr = os.listdir(path=f"/home/voxelprismatic/Desktop/PrizAI/{loc}")
-    except: return await ctx.send('```diff\n-]THAT ISN\'T A DIRECTORY UwU```')
+    if ".." in loc:
+        return await ctx.send('```diff\n-] INVALID PATH```')
+    try:
+        dr = os.listdir(path=f"/home/priz/Desktop/PRIZM/{loc}")
+    except:
+        return await ctx.send('```diff\n-]THAT ISN\'T A DIRECTORY UwU```')
     dr.sort(key=len)
     di = ""
     for do in dr:
         if '.' in do:
             de = do.split('.')[0]; dp = do.split('.')[1].upper()
-            if do == ".directory": de = "."
-            if do == "..directory": de = ".."
-            if len(de) > 7: de = de[0:7]+f" ~{len(de)-7}"
-            if dp == 'DIRECTORY': dp = 'DIR'
-            if len(dp) > 5: dp = dp[0:5]
+            if do == ".directory":
+                de = "."
+            if do == "..directory":
+                de = ".."
+            if len(de) > 7:
+                de = de[0:7]+f" ~{len(de)-7}"
+            if dp == 'DIRECTORY':
+                dp = 'DIR'
+            if len(dp) > 5:
+                dp = dp[0:5]
             di = di+f"> {de:>10} / {dp}\n"
         else:
-            da = do; tru = f"{loc}/{do}"
-            if len(do) > 7: da = do[0:7]+f" ~{len(do)-7}"
-            if loc == "": tru = do
+            da = do
+            tru = f"{loc}/{do}"
+            if len(do) > 7:
+                da = do[0:7]+f" ~{len(do)-7}"
+            if loc == "":
+                tru = do
             try:
-                os.listdir(path=f"/home/voxelprismatic/Desktop/PrizAI/{tru}")
+                os.listdir(path=f"/home/priz/Desktop/PRIZM/{tru}")
                 di = di+f"> {da:>10} / DIR\n"
-            except NotADirectoryError: di = di+f"> {da:>10} / TXT\n"
+            except NotADirectoryError:
+                di = di+f"> {da:>10} / TXT\n"
     await ctx.send(embed=embedify.embedify(desc=f'''```md
-#] !] PRIZ AI ;] [! DIR
+#] PRIZM DIR ;]
 {di}```'''))
 
 ##///---------------------///##

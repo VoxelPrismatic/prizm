@@ -22,7 +22,7 @@ def rand(ll,tt): return random.randint(ll,tt)
 @commands.is_owner()
 async def dl(ctx, file):
     os.remove(file)
-    await ctx.message.add_reaction('\N{OK HAND SIGN}')
+    await ctx.message.add_reaction('<:wrk:608810652756344851>')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

@@ -12,9 +12,13 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(help = 'inf',
+                  brief = 'Shows the git repo',
+                  usage = ';]git',
+                  description = '[NO ARGS FOR THIS COMMAND]')
 @commands.check(enbl)
-async def git(ctx): await ctx.send('`]GITHUB PAGE` https://github.com/VoxelPrismatic/prizai/')
+async def git(ctx):
+    await ctx.send('`]GITHUB PAGE` https://github.com/VoxelPrismatic/prizai/')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

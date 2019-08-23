@@ -15,37 +15,41 @@ from chk.enbl import enbl
 ##///---------------------///##
 
 def rand(ll,tt): return random.randint(ll,tt)
-def embedify(text): return discord.Embed(title="!] PRIZ AI ;] [!", description=text, color=0x069d9d)
-async def exc(ctx, code: int):
-    print('EXCEPTION!')
-    if code == 1: await ctx.send('```diff\n-]ERROR 400\n=]BAD REQUEST```')
-    elif code == 2: await ctx.send('```diff\n-]ERROR 403\n=]ALL FORBIDDEN```')
-    elif code == 3: await ctx.send('```diff\n-]ERROR 404\n=]ALL NOT FOUND```')
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(help = 'fun',
+                  brief = 'Flips a virtual coin {x} times!',
+                  usage = ';]coin {?num}',
+                  description = 'NUM [INT] - How many times the coin should be flipped')
 @commands.check(enbl)
-async def coin(ctx, *nums: int):
-        lit = []
-        if len(nums) == 0: num = 1
-        else: num = int(nums[0])
-        tcnt = y = hcnt = 0
-        outp = ""
-        if num > 5000:
-            await ctx.send('```]To prevent spam, MAX = 5000```')
-            num = 5000
-        for x in range(num):
-            if rand(0,1): tcnt+=1; outp = outp+"[T] "
-            else: hcnt+=1; outp = outp+"[H] "
-            if y == 200:
-                lit.append(str(outp))
-                outp = ""; y = 0
-            else: y+=1
-        if y != 0: lit.append(str(outp))
-        await pages.PageThis(ctx, lit, "COINS", low=f'```]HEAD // {hcnt}\n]TAIL // {tcnt}```')
+async def coin(ctx, num: int = 1):
+    lit = []
+    tcnt = 0
+    y = 0
+    hcnt = 0
+    outp = ""
+    if num > 5000:
+        await ctx.send('```]To prevent spam, MAX = 5000```')
+        num = 5000
+    for x in range(num):
+        if rand(0,1):
+            tcnt+=1
+            outp +="[T] "
+        else:
+            hcnt+=1
+            outp += "[H] "
+        if y == 200:
+            lit.append(str(outp))
+            outp = ""
+            y = 0
+        else:
+            y+=1
+    if y != 0:
+        lit.append(str(outp))
+    await pages.PageThis(ctx, lit, "COINS", low=f'```]HEAD // {hcnt}\n]TAIL // {tcnt}```')
 
 
 ##///---------------------///##

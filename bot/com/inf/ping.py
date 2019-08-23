@@ -13,14 +13,19 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(help = 'inf',
+                  brief = 'Sends the ping time',
+                  usage = ';]ping',
+                  description = '[NO ARGS FOR THIS COMMAND]')
 @commands.check(enbl)
 async def ping(ctx):
     b = time.monotonic()
     msg = await ctx.send('```md\n#] PINGING\n> Please wait...```')
-    ttl = time.monotonic()-b
+    ttl = time.monotonic() - b
     await msg.delete()
-    await ctx.send(embed=embedify.embedify(desc=f'```md\n#] PONG ;]\n> PING TIME // {str(float(ctx.bot.latency)*1000)[:10]}ms\n>  ACK TIME // {str(ttl*1000)[:10]}ms```'))
+    await ctx.send(embed=embedify.embedify(desc=f'''```md\n#] PONG ;]
+> PING // {str(float(ctx.bot.latency)*1000)[:10]}ms
+>  ACK // {str(ttl*1000)[:10]}ms```'''))
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

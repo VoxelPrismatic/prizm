@@ -30,7 +30,6 @@ async def exe(ctx, *, code: str):
         try: v,n = await ctx.bot.wait_for('reaction_add',check=ch,timeout=30)
         except: return await ms.delete()
         if str(v.emoji) != '\N{REGIONAL INDICATOR SYMBOL LETTER Y}': return await ms.delete()
-    st1 = time.monotonic()
     try:
         code = code.strip('\n')
         sub = {
@@ -45,46 +44,60 @@ async def exe(ctx, *, code: str):
             'channel': ctx.channel,
             'message': ctx.message,
         }
-        sub.update(globals())
-        out = io.StringIO()
-        rs = exec("async def fn():\n"+textwrap.indent(code, '    '), sub)
-        fn = sub['fn']
-        st2 = time.monotonic()
-        with redirect_stdout(out): rtn = str(await fn())
-        ttl = time.monotonic() - st2
-        vl = str(out.getvalue())
-        if rtn == None: rtn = 'None'
-        head = f'''```md
-#] *.PY 0.0 [{str(sysconfig.get_python_version())}]
->  EXE TIME ] {str(1000*ttl)[:10]}ms, {str(1000*(time.monotonic()-st1))[:10]}ms
-'''
-        foot = f'''----------- / -----------
-]   PRINTED ] {"None" if vl == "" else f"{vl[:-1]}"}
->  RETURNED ] {rtn}
-```'''
-        print(head+foot)
-        if len(vl)+len(rtn) > 1000:
-            r = rtn.split('\n'); v = vl.split('\n')
-            rr = []; vv = []; st = ""; lit = [head[6:]]
-            for x in r: rr.extend([x[i:i+1000] for i in range(0, len(x), 1000)])
-            for x in v: vv.extend([x[i:i+1000] for i in range(0, len(x), 1000)])
-            for x in rr:
-                if len(st) >= 500:lit.append('PRINTED // '+st);st=""
-                else: st=f"{st}{x}\n"
-            if st != "": lit.append('RETURNED // '+st)
-            for x in vv:
-                if len(st) >= 500:lit.append('PRINTED // '+st);st=""
-                else: st=f"{st}{x}\n"
-            if st != "": lit.append('RETURNED // '+st)
-            return await PageThis(ctx,lit,'it overflowed UwU')
-        else: await ctx.send(head+foot)
+        sub.update(globals()); out = io.StringIO(); timer = time.monotonic()
+        exec("async def fn():\n"+textwrap.indent(code, '    '), sub)
+        with redirect_stdout(out): rtn = await sub['fn']()
+        ttl = time.monotonic() - timer
+        vl = out.getvalue()
+        rnT = str(type(rtn)).split("'")[1].replace('`','\u200b`')
+        if type(rtn) == str: rtn = f"`{rtn}'"
+        vl, rtn = str(vl).replace('`','\u200b`'), str(rtn).replace('`','\u200b`')
+        interpreter = f"```md\n#] <{rnT}> {rtn.strip()} ~ [{1000*ttl:.5f}ms] py{str(sysconfig.get_python_version())}``````\n{vl.strip()} ```"
+        print(interpreter)
+        if len(interpreter) > 2000:
+            open('txt/interpreter.txt','w+').write(f"""\
+<{rnT}> {rtn.strip()} ~ [{1000*ttl:.5f}ms] py{str(sysconfig.get_python_version())}
+----------
+{vl}""")
+            await ctx.send('```diff\n-] IT OVERFLOWED```', file=discord.File(fp=open('txt/interpreter.txt')))
+        else: await ctx.send(interpreter)
     except Exception as exc:
-        await ctx.send(f'''```diff
--] ERROR
--] TYPE ] {type(exc).__name__}
-=] {str(exc)}
--
-{traceback.format_exc().replace('`','` ')}```''')
+        timer = time.monotonic()
+        good = False; lineno = len(code.splitlines())
+        while not good:
+            try:
+                exec("async def fn():\n"+textwrap.indent('\n'.join(code.splitlines()[0:lineno]), '    '), sub)
+                good = True;
+            except:
+               lineno -= 1; good = True if lineno == -1 else False
+        if lineno != -1:
+            with redirect_stdout(out): rtn = await sub['fn']()
+        ttl = time.monotonic() - timer
+        if lineno != -1:
+            vl = out.getvalue().replace('`','\u200b`')
+            rnT = str(type(rtn)).split("'")[1].replace('`','\u200b`')
+            if type(rtn) == str:
+                rtn = f"`{rtn}'".replace('`','\u200b`')
+            vl, rtn = str(vl), str(rtn)
+        else:
+            vl=''; rnT = "NoneType"; rtn = 'None'
+        rnV = str(type(exc)).split("'")[1]
+        interpreter = f"""```md
+#] <{rnT}> {rtn.strip()} ~ [{1000*ttl:.5f}ms] py{str(sysconfig.get_python_version())}``````diff
+-] <{rnV}> `{str(exc).strip()}'``````
+{vl}
+{traceback.format_exc().replace('`','` ')}```"""
+        if len(interpreter) > 2000:
+            open('txt/interpreter.txt','w+').write(f"""\
+<{rnT}> {rtn.strip()} ~ [{1000*ttl:.5f}ms] py{str(sysconfig.get_python_version())}
+<{rnV}> `{str(exc).strip()}'
+----------
+{vl}
+----------
+{traceback.format_exc()}
+""")
+            await ctx.send('```diff\n-] IT OVERFLOWED```',file=discord.File(fp=open('txt/interpreter.txt')))
+        else: await ctx.send(interpreter)
 
 
 ##///---------------------///##

@@ -14,51 +14,66 @@ from chk.enbl import enbl
 ##///---------------------///##
 
 def rand(ll,tt): return random.randint(ll,tt)
-async def exc(ctx, code: int):
-    print('EXCEPTION!')
-    if code == 1: await ctx.send('```diff\n-]ERROR 400\n=]BAD REQUEST```')
-    elif code == 2: await ctx.send('```diff\n-]ERROR 403\n=]ALL FORBIDDEN```')
-    elif code == 3: await ctx.send('```diff\n-]ERROR 404\n=]ALL NOT FOUND```')
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=["blackjack","bj"])
+@commands.command(aliases=["blackjack","bj"],
+                  help = 'fun',
+                  brief = 'Virtual Black Jack',
+                  usage = ';]blkjck',
+                  description = '[NO ARGS FOR THIS COMMAND]')
 @commands.check(enbl)
 async def blkjck(ctx):
-        heart = ['A<3','2<3','3<3','4<3','5<3','6<3','7<3','8<3','9<3','T<3','J<3','Q<3','K<3']
-        spade = ['A>)','2>)','3>)','4>)','5>)','6>)','7>)','8>)','9>)','T>)','J>)','Q>)','K>)']
-        diam = ['A<>','2<>','3<>','4<>','5<>','6<>','7<>','8<>','9<>','T<>','J<>','Q<>','K<>']
-        club = ['A>3','2>3','3>3','4>3','5>3','6>3','7>3','8>3','9>3','T>3','J>3','Q>3','K>3']
-        ttl1 = 0; ttl2 = 0; stu = 0; usr = ""; cpu = ""; cputxt = ""; usrtxt = ""
-        while ttl1 <= 18:
-            stu = rand(0,3)
-            if stu == 0: temp = random.randint(0, len(heart)-1); usr = usr+heart.pop(temp)+' '
-            elif stu == 1: temp = random.randint(0, len(spade)-1); usr = usr+spade.pop(temp)+' '
-            elif stu == 2: temp = random.randint(0, len(diam)-1); usr = usr+diam.pop(temp)+' '
-            elif stu == 3: temp = random.randint(0, len(club)-1); usr = usr+club.pop(temp)+' '
-            ttl1 += temp
-        while ttl2 <= 18:
-            stu = rand(0,3)
-            if stu == 0: temp = random.randint(0, len(heart)-1); cpu = cpu+heart.pop(temp)+' '
-            elif stu == 1: temp = random.randint(0, len(spade)-1); cpu = cpu+spade.pop(temp)+' '
-            elif stu == 2: temp = random.randint(0, len(diam)-1); cpu = cpu+diam.pop(temp)+' '
-            elif stu == 3: temp = random.randint(0, len(club)-1); cpu = cpu+club.pop(temp)+' '
-            ttl2 += temp
-        def rep(h): return h.replace('A','1').replace('T','10').replace('J','11').replace('Q','11').replace('K','11')
-        ttl1 = sum([int(x[:-2]) for x in rep(usr).split(' ')])
-        ttl2 = sum([int(x[:-2]) for x in rep(cpu).split(' ')])
-        if ttl1 > 21: usrtxt = f'USER // {usr} [{ttl1}] [BUST]'
-        elif ttl1 > ttl2: usrtxt = f'USER // {usr} [{ttl1}] [WIN]'
-        elif ttl1 < ttl2: usrtxt = f'USER // {usr} [{ttl1}] [LOSS]'
-        if ttl2 > 21: cputxt = f'COMP // {cpu} [{ttl2}] [BUST]'
-        elif ttl2 > ttl1: cputxt = f'COMP // {cpu} [{ttl2}] [WIN]'
-        elif ttl2 < ttl1: cputxt = f'COMP // {cpu} [{ttl2}] [LOSS]'
-        if ttl1 == ttl2:
-            usrtxt = f'USER // {usr} [{ttl1}] [TIE]'
-            cputxt = f'COMP // {cpu} [{ttl2}] [TIE]'
-        await ctx.send(f'```md\n#]BLACK JACK!``````diff\n+] {usrtxt}\n-] {cputxt}```')
+    deck = {'heart':[f'{x}<3' for x in ['A23456789TJQK']],
+            'spade':[f'{x}<)' for x in ['A23456789TJQK']],
+            'diamd':[f'{x}<>' for x in ['A23456789TJQK']],
+            'clubs':[f'{x}>3' for x in ['A23456789TJQK']]}
+    card2num = {'A':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'T':10,'J':11,'Q':11,'K':11}
+    TTLusr = 0
+    TTLcpu = 0
+    card_usr = []
+    card_cpu = []
+    while TTLusr <= 18:
+        suite = random.choice(['heart','spade','diamd','clubs'])
+        card = deck[suite].pop(deck[suite].index(random.choice(deck[suite])))
+        num = card2num[card[0]]
+        TTLusr += num
+        card_usr.append(card)
+
+    while ttl2 <= 18:
+        suite = random.choice(['heart','spade','diamd','clubs'])
+        card = deck[suite].pop(deck[suite].index(random.choice(deck[suite])))
+        num = card2num[card[0]]
+        TTLcpu += num
+        card_cpu.append(card)
+    STRusr = f'USER // {", ".join(card_usr)} [{TTLusr}] '
+    STRcpu = f'COMP // {", ".join(card_cpu)} [{TTLcpu}] '
+    if TTLusr == TTLcpu:
+        STRusr += '[TIE]'
+        STRcpu += '[TIE]'
+    elif TTLusr == 21:
+        STRusr += '[BLACK JACK]'
+        STRcpu += '[LOSS]'
+    elif TTLusr > 21:
+        STRusr += '[BUST]'
+    elif TTLusr > TTLcpu:
+        STRusr += '[WIN]'
+    elif TTLusr < TTLcpu:
+        STRusr += '[LOSS]'
+    if TTLusr == TTLcpu:
+        pass
+    elif TTLcpu == 21:
+        STRcpu += '[BLACK JACK]'
+        STRusr += '[LOSS]'
+    if TTLcpu > 21:
+        STRcpu += '[BUST]'
+    elif TTLcpu > TTLusr:
+        STRcpu += '[WIN]'
+    elif TTLcpu < TTLusr:
+        STRcpu += '[LOSS]'
+    await ctx.send(f'```md\n#] BLACK JACK!``````diff\n+] {usrtxt}\n-] {cputxt}```')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

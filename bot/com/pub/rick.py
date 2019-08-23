@@ -13,16 +13,21 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(help = 'fun',
+                  brief = 'Never gonna give you up!',
+                  usage = ';]rick',
+                  description = '[NO ARGS FOR THIS COMMAND]')
 @commands.check(enbl)
 async def rick(ctx):
-    try: await ctx.send(embed=embedify.embedify(title = "!] RICK ROLL ;] [!", desc='''Never gonna give you up!
+    try:
+        await ctx.send(embed=embedify.embedify(title = "RICK ROLL ;]", desc='''Never gonna give you up!
 Never gonna let you down!
 Never gonna run around and, desert you!
 Never gonna make you cry!
 Never gonna say goodbye!
 Never gonna run around and, desert you!'''))
-    except: ctx.send('''Never gonna give you up!
+    except:
+        await ctx.send('''Never gonna give you up!
 Never gonna let you down!
 Never gonna run around and, desert you!
 Never gonna make you cry!

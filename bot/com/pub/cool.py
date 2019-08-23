@@ -12,11 +12,14 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(help = 'fun',
+                  brief = 'Gives someone a sneaky surprise',
+                  usage = ';]cool {uID}',
+                  description = 'uID [INT] - The ID of the user you are willing to surprise')
 @commands.check(enbl)
 async def cool(ctx, user:int):
     strtemp = '////////'
-    await ctx.channel.purge(limit = 1)
+    await ctx.message.delete()
     coolthing = await ctx.send(strtemp)
     varslol = True
     rickroll = f'''
@@ -35,7 +38,8 @@ Never gonna run around, and, desert you!
             varslol = False
             await ctx.send(rickroll)
         except:
-            if not varslol: await coolthing.edit(rickroll)
+            if not varslol:
+                await coolthing.edit(rickroll)
             else:
                 await ctx.send('YOU WILL NOT END THIS!')
                 strtemp = '////////'

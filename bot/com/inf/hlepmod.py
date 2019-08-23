@@ -3,54 +3,69 @@
 
 #/// DEPENDENCIES
 import discord                    #python3.7 -m pip install -U discord.py
-import logging
+import logging, random
 import asyncio, json
 from util import pages
+from dyn.faces import faces
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
-
-##///---------------------///##
-##///   BOT DEFINITIONS   ///##
-##///---------------------///##
-
-def embedify(text): return discord.Embed(title="!] PRIZ AI ;] [!", description=text, color=0x00ffff)
+from pprint import pprint as pp
+def entry(lit,coms:list,lbl,mini) -> list:
+    """
+    >>> CREATES AN ENTRY IN THE HELP TABLE <<<
+    LIT  [LIST] - The Pages
+    COMS [LIST] - The Commands
+    LBL  [STR ] - Command Label
+    """
+    if len(coms) > (10 if not mini else 20):
+        x = 0
+        for y in coms:
+            if not x % (10 if not mini else 20):
+                lit.append(f'#] {lbl} [{int(x/(10 if not mini else 20))+1}/{len(range(0,len(coms),10))}]\n')
+            lit[-1] += y +'\n'
+            x += 1
+    else:
+        lit.append(f'#] {lbl}\n'+'\n'.join(coms))
+    return lit
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=["helpmod","modhlep","modhelp"])
-async def hlepmod(ctx):
-    lit = ["""
-] ";]hlepmod"
-> Brings up this message :)
-] ";]ban {user} {delete days} {?reason}"
-> Bans a {user} and removes messages from {delete days} ago for a {reason}
-] ";]kick {user}"
-> Kicks a {user} from the server
-] ";]clr {int}"
-> Deletes a {int} amount of messages
-] ";]clrin {messageID1} {messageID2}"
-> Deletes messages between {messageID1} and {messageID2}
-] ";]mng {word,mod} {+,-,act} {modName,words,action}"
-> Adds/removes/edits {modName,words,action} - given {+}, {-}, or {act}
-] ";]pin {mID}"
-> Pins {mID}
-] ";]unpin {mID}"
-> Unpins {mID}
-] ";]enable {name}"
-> Enables the {name} command // Server owner only
-] ";]disable {name}"
-> Disables the {name} command // Server owner only
-] ";]prefix {prefix}"
-> Sets the prefix to {prefix} // Server owner only
-] ";]role {user} {+,-} {role} {?reason}"
-> Adds or removes a {role} from {user} for {reason} - given {+} or {-}"""]
-    await pages.PageThis(ctx, lit, "MOD STUFF", f"""```md
+@commands.command(aliases=["helpmod","modhelp",'modhlep'],
+                  help = 'inf',
+                  brief = 'Brings up the mod help message',
+                  usage = ';]helpmod',
+                  description = '[NO ARGS FOR THIS COMMAND]')
+async def hlepmod(ctx, mini = ""):
+    mini = bool(mini)
+    lit = []
+    coms = {}
+    cats = ['MOD']
+    for cat in cats:
+        coms[cat] = []
+    for com in ctx.bot.commands:
+        if not mini:
+            com_desc = f'] "{com.usage}"\n>  {com.brief} '+random.choice(faces())
+        else:
+            com_desc = f'> {com.name}'
+        try:
+            if com.help not in ['mod']:
+                continue
+            coms[com.help.upper()].append(com_desc)
+        except:
+            pass
+
+    replce = {'MOD':'MODERATOR'}
+    for cat in coms:
+        lit = entry(lit,coms[cat],replce[cat],mini)
+
+    await pages.PageThis(ctx, lit, "COMMANDS LIST", f"""```diff
 -] {'{?stuff}'} - Optional argument
--] To see user commands, use "{json.load(open('prefixes.json'))[str(ctx.guild.id)] if isinstance(ctx.channel, discord.TextChannel) else ';]'}hlep"
+-] To see mod commands, use "{json.load(open('json/prefixes.json'))[str(ctx.guild.id)] if isinstance(ctx.channel, discord.TextChannel) else ';]'}hlepmod"
 -] To have a conversation, use "]<txt>" or "{'}<txt>'}"
--] Some of your data is stored, use "{json.load(open('prefixes.json'))[str(ctx.guild.id)] if isinstance(ctx.channel, discord.TextChannel) else ';]'}data" to see more```""")
+-] Some of your data is stored, use "{json.load(open('json/prefixes.json'))[str(ctx.guild.id)] if isinstance(ctx.channel, discord.TextChannel) else ';]'}data" to see more```""")
+
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

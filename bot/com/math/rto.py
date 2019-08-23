@@ -13,11 +13,15 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=['frac','ratio'])
+@commands.command(aliases=['frac','ratio'],
+                  help = 'math',
+                  brief = 'Reduces the ratio between {x} and {y}',
+                  usage = ';]rto {x} {y}',
+                  description = 'X [INT] - The first number\nY [INT] - The second number')
 @commands.check(enbl)
 async def rto(ctx, int1: int, int2: int):
     factor = math.gcd(int1, int2)
-    await ctx.send(f'```]FACT // {factor}\n]INT1 // {int1/factor}\n]INT2 // {int2/factor}```')
+    await ctx.send(f'```] FACT // {factor}\n] INT1 // {int1/factor}\n] INT2 // {int2/factor}```')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

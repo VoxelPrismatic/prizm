@@ -12,14 +12,16 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(aliases=['send'],
+                  help = 'fun',
+                  brief = 'I send {text} to a given {channel}',
+                  usage = ';]snd {cID} {mCTX}',
+                  description = 'cID  [INT] - The Channel ID\nmCTX [STR] - The text to send')
 @commands.check(enbl)
-async def snd(ctx, cID: int, *, mCTX):
-    await ctx.channel.purge(limit=1)
+async def snd(ctx, cID: discord.TextChannel, *, mCTX):
+    await ctx.message.delete()
     try:
-        chnl = ctx.guild.get_channel(cID)
-        print(chnl)
-        await chnl.send(content=mCTX)
+        await cID.send(content=mCTX)
     except:
         await ctx.send('```diff\n-]WOOPS\n=]Make sure i have access to that channel UwU```')
 
@@ -36,4 +38,3 @@ def teardown(bot):
     print('-COM')
     bot.remove_command('snd')
     print('GOOD')
-

@@ -16,13 +16,20 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=["factorial"])
+@commands.command(aliases=['fact'],
+                  help = 'math',
+                  brief = 'Factorial!',
+                  usage = ';]factorial {num}',
+                  description = 'NUM [INT] - The thing to factorialize')
 @commands.check(enbl)
-async def fact(ctx, num: int):
-    if num > 100000: return await ctx.send('```Do you really need that big of a number?```')
-    async with ctx.channel.typing(): string = str(math.factorial(num))
+async def factorial(ctx, num: int):
+    if num > 100000:
+        return await ctx.send('```Do you really need that big of a number?```')
+    async with ctx.channel.typing():
+        string = str(math.factorial(num))
     lit = []
-    for strt in range(0, len(string), 2000): lit.append(string[strt:strt+2000])
+    for strt in range(0, len(string), 2000):
+        lit.append(string[strt:strt+2000])
     await pages.PageThis(ctx, lit, "FACTORIAL")
 
 ##///---------------------///##
@@ -30,10 +37,10 @@ async def fact(ctx, num: int):
 ##///---------------------///##
 def setup(bot):
     print('+COM')
-    bot.add_command(fact)
+    bot.add_command(factorial)
     print('GOOD')
 
 def teardown(bot):
     print('-COM')
-    bot.remove_command('fact')
+    bot.remove_command('factorial')
     print('GOOD')

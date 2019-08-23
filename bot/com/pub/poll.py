@@ -14,7 +14,10 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(help = 'fun',
+                  brief = 'Creates a poll',
+                  usage = ';]poll {txt}',
+                  description = 'TEXT [STR] - The poll content')
 @commands.check(enbl)
 async def poll(ctx, *, txt):
         await ctx.channel.purge(limit=1)

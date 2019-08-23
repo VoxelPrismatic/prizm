@@ -15,8 +15,10 @@ from chk.enbl import enbl
 @commands.command()
 @commands.check(enbl)
 async def echo(ctx, *, mCTX):
-    try: await ctx.channel.purge(limit=1)
-    except: pass
+    try:
+        await ctx.message.delete()
+    except:
+        pass
     await ctx.send(content=mCTX)
 
 ##///---------------------///##

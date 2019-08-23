@@ -14,12 +14,17 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(help = 'math',
+                  brief = 'Gives statistics on inputed data',
+                  usage = ';]stats {x1} {x2} {x3} {...}',
+                  description = 'X [FLOAT] - A number or a statistic')
 @commands.check(enbl)
-async def stats(ctx, *data: int):
-    try: mod = str(statistics.mode(data))
-    except: mod = "[NONE]"
-    try: await ctx.send(embed=embedify.embedify(desc=f'''```md
+async def stats(ctx, *data: float):
+    try:
+        mod = str(statistics.mode(data))
+    except:
+        mod = "[NONE]"
+    await ctx.send(embed=embedify.embedify(desc=f'''```md
 #] STATS
 >   MAX // {max(data)}
 >   MIN // {min(data)}
@@ -31,18 +36,6 @@ async def stats(ctx, *data: int):
 > LOMED // {statistics.median_low(data)}
 > HIMED // {statistics.median_high(data)}
 ```'''))
-    except: await ctx.send(f'''```md
-#] STATS
->   MAX // {max(data)}
->   MIN // {min(data)}
->   AVG // {statistics.mean(data)}
->   MOD // {mod}
->   MED // {statistics.median(data)}
-> RANGE // {max(data)-min(data)}
-> STDEV // {statistics.stdev(data)}
-> LOMED // {statistics.median_low(data)}
-> HIMED // {statistics.median_high(data)}
-```''')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

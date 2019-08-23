@@ -9,29 +9,21 @@ from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
 
 ##///---------------------///##
-##///   BOT DEFINITIONS   ///##
-##///---------------------///##
-
-async def exc(ctx, code: int):
-    print('EXCEPTION!')
-    if code == 1: await ctx.send('```diff\n-]ERROR 400\n=]BAD REQUEST```')
-    elif code == 2: await ctx.send('```diff\n-]ERROR 403\n=]ALL FORBIDDEN```')
-    elif code == 3: await ctx.send('```diff\n-]ERROR 404\n=]ALL NOT FOUND```')
-
-##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
 @commands.command()
 @commands.has_permissions(manage_messages=True)
 @commands.check(enbl)
-async def pin(ctx, mID: int):
-    try:
-        message = await ctx.fetch_message(mID)
-        await message.pin()
-    except discord.HTTPException: await exc(ctx, 1)
-    except discord.Forbidden: await exc(ctx, 2)
-    except discord.NotFound: await exc(ctx, 3)
+async def pin(ctx, mID: discord.Message):
+    await message.pin()
+
+@commands.command()
+@commands.has_permissions(manage_messages=True)
+@commands.check(enbl)
+async def unpin(ctx, mID: discord.Message):
+    message = await ctx.fetch_message(mID)
+    await ctx.send('```md\n#] UNPINNED```')
 
 
 ##///---------------------///##
@@ -40,10 +32,12 @@ async def pin(ctx, mID: int):
 def setup(bot):
     print('+COM')
     bot.add_command(pin)
+    bot.add_command(unpin)
     print('GOOD')
 
 def teardown(bot):
     print('-COM')
     bot.remove_command('pin')
+    bot.remove_command('unpin')
     print('GOOD')
 

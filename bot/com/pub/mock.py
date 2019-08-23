@@ -12,12 +12,15 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(help = 'fun',
+                  brief = 'iM nOt MoCkInG yOu',
+                  usage = ';]mock {msg}',
+                  description = 'MSG [INT] - The ID of the message you want me to mock')
 @commands.check(enbl)
 async def mock(ctx,msg:discord.Message=None):
     await ctx.message.delete()
-    await asyncio.sleep(.5)
-    if not msg: msg = (await ctx.channel.history(limit=1).flatten())[0]
+    if not msg:
+        msg = (await ctx.channel.history(limit=1).flatten())[0]
     await ctx.send(''.join([x.upper() if random.randint(0,1) else x.lower() for x in msg.content]))
 
 ##///---------------------///##

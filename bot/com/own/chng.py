@@ -15,16 +15,18 @@ from discord.ext.commands import Bot, MissingPermissions, has_permissions
 
 @commands.command()
 @commands.is_owner()
-async def chng(ctx, *, name:str=None):
-    if len(name) != 0: 
-        await ctx.bot.change_presence(activity=discord.Activity(type=3, name=name,url='https://discord.gg/Z84Nm6n'))
-        return await ctx.message.add_reaction('\N{OK HAND SIGN}')
+async def chng(ctx, *, name:str=''):
+    if len(name) != 0:
+        await ctx.bot.change_presence(activity=discord.Activity(type=3,
+                                                                name=name,
+                                                                url='https://discord.gg/Z84Nm6n'))
+        return await ctx.message.add_reaction('<:wrk:608810652756344851>')
     face = faces.faces()
     texts = faces.texts()
     await ctx.bot.change_presence(activity=discord.Activity(type=3,
                               name=f"{random.choice(texts)} {random.choice(face)}",
                               url='https://discord.gg/Z84Nm6n'))
-    await ctx.message.add_reaction('\N{OK HAND SIGN}')
+    await ctx.message.add_reaction('<:wrk:608810652756344851>')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

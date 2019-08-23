@@ -2,9 +2,11 @@
 # -*- coding: utf-8 -*
 
 #/// DEPENDENCIES
+import typing
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
 from discord.ext import commands
+from discord.voice_client import VoiceClient
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
 
@@ -12,37 +14,35 @@ from chk.enbl import enbl
 ##///   BOT DEFINITIONS   ///##
 ##///---------------------///##
 
-async def exc(ctx, code: int):
-    print('EXCEPTION!')
-    if code == 1: await ctx.send('```diff\n-]ERROR 400\n=]BAD REQUEST```')
-    elif code == 2: await ctx.send('```diff\n-]ERROR 403\n=]ALL FORBIDDEN```')
-    elif code == 3: await ctx.send('```diff\n-]ERROR 404\n=]ALL NOT FOUND```')
+def rand(ll,tt): return random.randint(ll,tt)
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
-@commands.has_permissions(manage_messages=True)
+@commands.command(help='music',
+                  brief='Leaves the VC',
+                  usage=';]leave',
+                  description='[NO ARGS FOR THIS COMMAND]')
 @commands.check(enbl)
-async def unpin(ctx, mID: int):
+async def leave(ctx):
+    vcC = ctx.voice_client
     try:
-        message = await ctx.fetch_message(mID)
-        await message.unpin()
-        await ctx.send('`]UNPINNED`')
-    except discord.HTTPException: await exc(ctx, 1)
-    except discord.Forbidden: await exc(ctx, 2)
-    except discord.NotFound: await exc(ctx, 3)
+        await vcC.disconnect()
+    except:
+        pass
+    await ctx.message.add_reaction('<:wrk:608810652756344851>')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##
 ##///---------------------///##
 def setup(bot):
     print('+COM')
-    bot.add_command(unpin)
+    bot.add_command(leave)
     print('GOOD')
 
 def teardown(bot):
     print('-COM')
-    bot.remove_command('unpin')
+    bot.remove_command('leave')
     print('GOOD')
+

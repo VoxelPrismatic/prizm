@@ -9,32 +9,25 @@ from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
 
-##///---------------------///##
-##///   BOT DEFINITIONS   ///##
-##///---------------------///##
-
-async def exc(ctx, code: int):
-    print('EXCEPTION!')
-    if code == 1: await ctx.send('```diff\n-]ERROR 400\n=]BAD REQUEST```')
-    elif code == 2: await ctx.send('```diff\n-]ERROR 403\n=]ALL FORBIDDEN```')
-    elif code == 3: await ctx.send('```diff\n-]ERROR 404\n=]ALL NOT FOUND```')
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(help = 'mod',
+                  brief = 'Bans {member} for {reason} and deletes their messages from the past {x} days',
+                  usage = ';]ban {mbr1} {mbr2} {...} {?num} {?rsn}',
+                  description = '''\
+MBRx [MEMBER] - The target member, ID or ping or name
+NUM  [INT   ] - Delete messages from the past {x} days
+RSN  [STR   ] - The reason for the ban''')
 @commands.check(enbl)
 @has_permissions(ban_members=True)
 async def ban(ctx, members: commands.Greedy[discord.Member],
-                delete_days: typing.Optional[int] = 0, *,
-                reason: str):
+                delete_days: typing.Optional[int] = 0, *, reason: str):
     for member in members:
-        try: await member.ban
-        except discord.HTTPException: await exc(ctx, 1)
-        except discord.Forbidden: await exc(ctx, 2)
-        except discord.NotFound: await exc(ctx, 3)
-
+        await member.ban(reason=reason if reason else f'REQUESTED BY ] {str(ctx.author)}')
+    await ctx.message.add_reaction('<:wrk:608810652756344851>')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

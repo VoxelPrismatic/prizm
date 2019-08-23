@@ -9,29 +9,20 @@ from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
 
 ##///---------------------///##
-##///   BOT DEFINITIONS   ///##
-##///---------------------///##
-
-async def exc(ctx, code: int):
-    print('EXCEPTION!')
-    if code == 1: await ctx.send('```diff\n-]ERROR 400\n=]BAD REQUEST```')
-    elif code == 2: await ctx.send('```diff\n-]ERROR 403\n=]ALL FORBIDDEN```')
-    elif code == 3: await ctx.send('```diff\n-]ERROR 404\n=]ALL NOT FOUND```')
-
-##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(help='mod',
+                  brief = 'Kicks a {member}',
+                  usage = ';]kick {mbr1} {mbr2} {...}',
+                  description = 'MBRx [MEMBER] - The target member, ID or ping or name')
 @commands.check(enbl)
 @has_permissions(kick_members=True)
 async def kick(ctx, *members: discord.Member):
-    await ctx.channel.purge(limit=1)
     for member in members:
-        try: await kick(member, reason=f"REQUESTED BY {ctx.author}")
-        except discord.HTTPException: await exc(ctx, 1)
-        except discord.Forbidden: await exc(ctx, 2)
-        except discord.NotFound: await exc(ctx, 3)
+        await kick(member, reason=f"REQUESTED BY {ctx.author}")
+    await ctx.message.add_reaction('<:wrk:608810652756344851>')
+
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

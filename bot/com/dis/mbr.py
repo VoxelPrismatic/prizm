@@ -8,28 +8,22 @@ from util import embedify
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
-##///---------------------///##
-##///   BOT DEFINITIONS   ///##
-##///---------------------///##
-
-async def exc(ctx, code: int):
-    print('EXCEPTION!')
-    if code == 1: await ctx.send('```diff\n-]ERROR 400\n=]BAD REQUEST```')
-    elif code == 2: await ctx.send('```diff\n-]ERROR 403\n=]ALL FORBIDDEN```')
-    elif code == 3: await ctx.send('```diff\n-]ERROR 404\n=]ALL NOT FOUND```')
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(help='dis',
+                  brief='Shows info on a given {member}',
+                  usage=';]mbr {mbr}',
+                  description='MBR [MEMBER] - The target member, ID or ping or name')
 @commands.check(enbl)
 async def mbr(ctx, _mbr:discord.Member=None):
-    if _mbr==None: _mbr=ctx.author
-    try:
-        gperms = ', '.join(perm for perm, value in _mbr.guild_permissions if value)
-        cperms = ', '.join(perm for perm, value in _mbr.permissions_in(ctx.channel) if value)
-        await ctx.send(embed=embedify.embedify(desc=f'''```
+    if _mbr==None:
+        _mbr=ctx.author
+    gperms = ', '.join(perm for perm, value in _mbr.guild_permissions if value)
+    cperms = ', '.join(perm for perm, value in _mbr.permissions_in(ctx.channel) if value)
+    await ctx.send(embed=embedify.embedify(desc=f'''```
      ID // {_mbr.id}
     BOT // {_mbr.bot}
    USER // {_mbr.name}
@@ -42,10 +36,8 @@ async def mbr(ctx, _mbr:discord.Member=None):
 CREATED // {_mbr.created_at}
 DISCRIM // {_mbr.discriminator}``````diff
 + GLD PERM // {gperms}``````diff
-- CNL PERM // {cperms}```''', thumb=str(_mbr.avatar_url)))
-    except discord.HTTPException: await exc(ctx, 1)
-    except discord.Forbidden: await exc(ctx, 2)
-    except discord.NotFound: await exc(ctx, 3)
+- CNL PERM // {cperms}```''',
+        thumb = str(_mbr.avatar_url).replace('webp','png')))
 
 
 ##///---------------------///##
@@ -60,4 +52,3 @@ def teardown(bot):
     print('-COM')
     bot.remove_command('mbr')
     print('GOOD')
-

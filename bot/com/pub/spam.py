@@ -13,20 +13,24 @@ from chk.enbl import enbl
 ##///   BOT DEFINITIONS   ///##
 ##///---------------------///##
 
-def rand(ll,tt): return random.randint(ll,tt)
+def rand(ll,tt):
+    return random.randint(ll,tt)
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(help = 'fun',
+                  brief = 'Spams {x} chars!',
+                  usage = ';]spam {?x}',
+                  description = 'X [INT] - How many chars to spam DEFAULT: 10')
 @commands.check(enbl)
-async def spam(ctx, num: int):
+async def spam(ctx, num: int = 10):
     if num > 10000: num = 10000
     send = ""
     data = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcsdefghgijklmnopqrstuvwxyz1234567890!@#$%^&*()-_=+[]{}\"\'<,>./?\\|`~"
     for x in range(num):
-        send = send+(data[rand(0,len(data)-1)])
+        send += data[rand(0,len(data)-1)]
         if len(send) == 2000:
             await ctx.send(send)
             send = ""

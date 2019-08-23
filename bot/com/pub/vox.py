@@ -13,9 +13,13 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(help='fun',
+                  brief = 'Phoentically spells words',
+                  usage = ';]vox {text}',
+                  description = 'TEXT [STR] - The text')
 @commands.check(enbl)
-async def vox(ctx, *, sr: str): await ctx.send(vx(sr))
+async def vox(ctx, *, sr: str):
+    await ctx.send(vx(sr))
 
 
 ##///---------------------///##
