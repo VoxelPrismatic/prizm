@@ -4,8 +4,15 @@ My first ever bot! Prizm ;]
 
 ## INSTALL
 `pip install -Ur req.txt`
+
 You must also install `ffmpeg` to actually play music
-> If you have issues installing, get `pip` first
+
+In order to use the `;]mix` command, you must also download [this file](https://mega.nz/#!9fh1iQzC!5d9zt6yKRbAXzgyxNMmoITua09b__zlU751KKOfpRSs)
+and place it in the `mix` folder
+
+^ is ~500mb
+
+> If you have issues installing the requirements, get `pip` first
 > If you still have trouble, then idk whats happening
 > because the same issue happened with me a while back
 
