@@ -12,3 +12,5 @@ chatterbot
 praw
 youtube_dl
 typing
+scipy
+opencv-python
