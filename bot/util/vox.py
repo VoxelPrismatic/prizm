@@ -1,9 +1,15 @@
-def vox(sr):
+def vox(sr) -> str:
+    """
+    >>>turns words into their pronounciation form<<<
+    SR [STR] - the initial string
+    """
     say=[];
     punc = ';,./?\'"[]{}\\|-_=+~`!@#$%^&*()'
     nums = ['zero','one','two','three','four','five','six','seven','eight','nine']
-    for x in punc: sr = sr.replace(x,' ')
-    for x in range(10): sr = sr.replace(str(x),nums[x]+' ')
+    for x in punc:
+        sr = sr.replace(x,' ')
+    for x in range(10):
+        sr = sr.replace(str(x),nums[x]+' ')
     sf = sr.lower().split()
     words = {'er':['ur','ir','er','ear','ar '],
              'er':['ur','ir','er','ear','ar '],
@@ -53,16 +59,23 @@ def vox(sr):
     for sd in sf:
         st = f'{sd} ';w=0
         for x in range(len(st)):
-            if w>=len(st):break
+            if w>=len(st):
+                break
             for y in words:
                 for z in words[y]:
-                    try:v=z.replace('_',st[w:][z.find('_')])
-                    except:v=z
+                    try:
+                        v=z.replace('_',st[w:][z.find('_')])
+                    except:
+                        v=z
                     if st[w:].startswith(v):
-                        if z==' i':y=' '+y
-                        say.append(y);w+=len(z)
-                        if z.endswith(' ') and z.count('_'):w-=2
+                        if z==' i':
+                            y=' '+y
+                        say.append(y)
+                        w+=len(z)
+                        if z.endswith(' ') and z.count('_'):
+                            w-=2
                         break
-            if st[w:].startswith(v):break
+            if st[w:].startswith(v):
+                break
 
     return f"```md\n#] {''.join(say).strip()}```"
