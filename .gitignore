@@ -5,3 +5,6 @@
 secrets.txt
 prawUser.py
 *.json
+botlst.py
+*.mat
+~*.*
