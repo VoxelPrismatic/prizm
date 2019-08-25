@@ -2,3 +2,6 @@
 *.py~
 *.directory
 *.*~
+secrets.txt
+prawUser.py
+*.json
