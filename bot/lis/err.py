@@ -39,7 +39,7 @@ async def on_command_error(ctx, error):
     Only for discord errors, not syntax, out of bounds, etc
     """
     if isinstance(error, commands.CommandNotFound):
-        return await ctx.message.add_reaction('<:qtn:608684186936672284>')
+        return await ctx.invoke(ctx.bot.get_command('text'), convo=ctx.message.content[2:])
     try:
         if ctx.guild and not json.load(open('json/servers.json'))[str(ctx.guild.id)]["com"][ctx.command.name]:
             return await ctx.send('```diff\n-] ERROR\n=] THIS COMMAND ISNT ENABLED```')

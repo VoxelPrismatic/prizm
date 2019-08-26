@@ -15,6 +15,8 @@ import json
 from discord.ext import commands
 from discord.ext.commands import Bot
 from importlib import reload
+print('##///  [10]  ///###')
+import random
 
 print('##///  DONE  ///##')
 print('##/// DEFINE ///##')

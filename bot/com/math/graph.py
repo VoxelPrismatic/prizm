@@ -35,7 +35,6 @@ async def graph(ctx, xmin:int,xmax:int,*eqs):
                 eqs[a] = eqs[a].replace(z+b,z+'*'+b)
     async with ctx.channel.typing():
         styles = [('C4','--')]
-        x = np.array(np.arange(xmin, xmax+1,0.01))
 
         await msg.edit(content='```#] JUST A SEC\n> SETTING UP```')
         pyplt.style.use('dark_background')
@@ -44,12 +43,31 @@ async def graph(ctx, xmin:int,xmax:int,*eqs):
         ax.grid(b=True, color='#004444', linewidth=1)
         ax.tick_params(labelcolor='#00ffff')
         ax.set_facecolor=('#00ffff')
+        ax.set_ylim(top=xmax, bottom=xmin)
+        ax.set_xlim(left=xmin, right=xmax)
         #fig.add_subplot(ax)
 
         await msg.edit(content='```#] JUST A SEC\n> GRAPHING```')
         for eq in eqs:
-            y = ne.evaluate(eq.replace("^", "**").replace(')(',')*('))
-            ax.plot(x, y, label=f'y = {eq}')
+            eq = eq.replace("^", "**").replace(')(',')*(')
+            x = np.array(np.arange(xmin, xmax+1,0.01))
+            y = np.array(np.arange(xmin, xmax+1,0.01))
+            if 'x' in eq and 'y' in eq:
+                xp = []
+                yp = []
+                xx = np.array(np.arange(xmin, xmax+1,0.5))
+                yy = np.array(np.arange(xmin, xmax+1,0.5))
+                for x in xx:
+                    for y in yy:
+                        if ne.evaluate(eq.split('=')[0]) == ne.evaluate(eq.split('=')[-1]):
+                            xp.append(xx)
+                            yp.append(yy)
+                x, y = xp, yp
+            elif 'x' in eq:
+                y = ne.evaluate(eq)
+            else:
+                x = ne.evaluate(eq)
+            ax.plot(x, y, label=eq)
 
         await msg.edit(content='```#] JUST A SEC\n> CREATING LEGEND```')
         ax.legend(loc=3, fontsize='xx-small', facecolor='#005555', edgecolor='#001111')

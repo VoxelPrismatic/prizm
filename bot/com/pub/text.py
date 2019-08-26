@@ -40,22 +40,20 @@ last = []
                   brief='You can have a conversation with me!',
                   usage=';]text {convo}',
                   description='CONVO [STR] - The conversation',
-                  aliases = ['ai', 'chat',''])
+                  aliases = ['ai', 'chat'])
 @commands.check(enbl)
 async def text(ctx, *, convo):
-    global last
-    if not last:
-        last = [convo, time.monotonic(), ctx.author]
     async with ctx.channel.typing():
         replacements = [('\u2019', "'"), ('\u2018', "'"), ('\u201c', '"'), ('\u201d','"'), (':', '.')]
         for a, b in replacements:
             convo = convo.replace(a, b)
+        #if time.monotonic() - last[1] < 60 and ctx.author == last[2]:
+            #trainer.train([convo, last[0]])
         response = cbot.get_response(convo)
+        if len(convo.split()) != 1:
+            open('com/ai/itself.yml','a').write(f'- - {convo}\n  - {response}\n')
         await ctx.send(response)
-        if time.monotonic() - last[1] < 60 and ctx.author == last[2]:
-            trainer = ListTrainer(cbot)
-            trainer.train([convo, last[0]])
-    last = [str(response), time.monotonic(), ctx.author]
+    #last = [response, time.monotonic(), ctx.author]
 
 @commands.command(help='ai',
                   brief='You can help me learn!',
@@ -64,19 +62,19 @@ async def text(ctx, *, convo):
 @commands.check(enbl)
 async def learn(ctx, *, text:str = ""):
     trainer = ListTrainer(cbot)
-    if text and '--corpus' in text:
-        trainer = ChatterBotCorpusTrainer(cbot)
-        for corpus in text.replace('--corpus','').splitlines():
-            async with ctx.channel.typing():
-                trainer.train(corpus.strip())
-        return await ctx.send('```md\n#] THANKS!```')
-    elif text:
+    if text and '--corpus' not in text:
         if len(''.join(text).splitlines()) % 2 != 1:
             async with ctx.channel.typing():
                 trainer.train(''.join(text).splitlines())
             return await ctx.send('```md\n#] THANKS!```')
         else:
             return await ctx.send('```diff\n-] MUST BE A FULL CONVERSATION - AN EVEN AMOUNT OF MESSAGES```')
+    elif text and '--corpus' in text:
+        trainer = ChatterBotCorpusTrainer(cbot)
+        for corpus in text.replace('--corpus','').splitlines():
+            async with ctx.channel.typing():
+                trainer.train(corpus.strip())
+       return await ctx.send('```md\n#] THANKS!```')
     await ctx.send('''```md
 #] YOU ARE ALLOWING ME TO STORE SOME DATA
 >  This data is not identifiable, it is just

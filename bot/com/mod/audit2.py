@@ -232,7 +232,7 @@ async def audit2(ctx):
 
     #elif typ.lower() in ['catagory','cat']:
         #await ctx.guild.get_channel(iID).edit(**kwargs)
-
+    await msg.delete()
     await ctx.message.add_reaction('<:wrk:608810652756344851>')
 
 ##///---------------------///##
