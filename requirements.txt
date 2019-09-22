@@ -1,5 +1,0 @@
-discord.py
-numpy
-numexpr
-matplotlib
-aiofiles
