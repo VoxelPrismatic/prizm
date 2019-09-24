@@ -9,16 +9,15 @@ My first ever bot! Prizm ;]
 > This repo is not updated very often, only big changes such as completely new code will be pushed weekly
 
 ## INSTALL
-`pip install -Ur req.txt`
+`pip install -r req.txt`
 
 You must also install `ffmpeg` to actually play music, it is not a library, but an app you need to install.
 
-For debian users: `sudo apt install ffmpeg`
+For debian users: `sudo apt install ffmpeg -y`
 
 In order to use the `;]mix` command, you must also download [this file](https://mega.nz/#!9fh1iQzC!5d9zt6yKRbAXzgyxNMmoITua09b__zlU751KKOfpRSs)
-and place it in the `mix` folder
-
-^ is ~500mb
+and place it in the `mix` folder [~500mb], and you must have linux because
+TensorFlow won't actually install on windows from my experience
 
 > If you have issues installing the requirements, get `pip` first.
 > If you still have trouble, then idk whats happening.
