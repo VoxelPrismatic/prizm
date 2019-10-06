@@ -1,11 +1,11 @@
 # PRIZM
 My first ever bot! Prizm ;]
 
-[![Discord Bots](https://discordbots.org/api/widget/status/555862187403378699.svg)](https://discordbots.org/bot/555862187403378699)
-[![Discord Bots](https://discordbots.org/api/widget/servers/555862187403378699.svg)](https://discordbots.org/bot/555862187403378699)
-[![Discord Bots](https://discordbots.org/api/widget/upvotes/555862187403378699.svg)](https://discordbots.org/bot/555862187403378699)
-[![Discord Bots](https://discordbots.org/api/widget/lib/555862187403378699.svg)](https://discordbots.org/bot/555862187403378699)
-[![Discord Bots](https://discordbots.org/api/widget/owner/555862187403378699.svg)](https://discordbots.org/bot/555862187403378699)
+[![Discord Bots](https://discordbots.org/api/widget/status/555862187403378699.svg)]
+[![Discord Bots](https://discordbots.org/api/widget/servers/555862187403378699.svg)]
+[![Discord Bots](https://discordbots.org/api/widget/upvotes/555862187403378699.svg)]
+[![Discord Bots](https://discordbots.org/api/widget/lib/555862187403378699.svg)]
+[![Discord Bots](https://discordbots.org/api/widget/owner/555862187403378699.svg)]
 > This repo is not updated very often, only big changes such as completely new code will be pushed weekly
 
 ## INSTALL
@@ -23,7 +23,7 @@ TensorFlow won't actually install on windows from my experience
 > If you still have trouble, then idk whats happening.
 
 ## Files
-> In order to ensure that this bot works properly, its best just to `git-clone` this repo.
+In order to ensure that this bot works properly, its best just to `git-clone` this repo.
 If you don't want to, then just try downloading this repo as a zip.
 If you *still* don't want to, then you have a problem.
 
