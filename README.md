@@ -1,11 +1,11 @@
 # PRIZM
 My first ever bot! Prizm ;]
 
-[![Discord Bots](https://discordbots.org/api/widget/status/555862187403378699.svg)]
-[![Discord Bots](https://discordbots.org/api/widget/servers/555862187403378699.svg)]
-[![Discord Bots](https://discordbots.org/api/widget/upvotes/555862187403378699.svg)]
-[![Discord Bots](https://discordbots.org/api/widget/lib/555862187403378699.svg)]
-[![Discord Bots](https://discordbots.org/api/widget/owner/555862187403378699.svg)]
+![Discord Bots](https://discordbots.org/api/widget/status/555862187403378699.svg)
+![Discord Bots](https://discordbots.org/api/widget/servers/555862187403378699.svg)
+![Discord Bots](https://discordbots.org/api/widget/upvotes/555862187403378699.svg)
+![Discord Bots](https://discordbots.org/api/widget/lib/555862187403378699.svg)
+![Discord Bots](https://discordbots.org/api/widget/owner/555862187403378699.svg)
 > This repo is not updated very often, only big changes such as completely new code will be pushed weekly
 
 ## INSTALL
