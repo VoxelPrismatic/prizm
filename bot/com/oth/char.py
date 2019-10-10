@@ -23,7 +23,7 @@ async def char(ctx, *, txt):
     for t in txt:
         if t not in ls: ls.append(t)
     cata = [category(ch) for ch in ls]
-    table = '```'+'\n'.join([f'{ch} - U+%04x [{category(ch)} // {name(ch)}]' %ord(ch) for ch in ls])+'```'
+    table = '```'+'\n'.join([f'{ch} - {f"u_{ord(ch):04x}" if len(f"{ord(ch):04x}") == 4 else f"U_{ord(ch):08x}"} [{category(ch)} // {name(ch)}]' for ch in ls])+'```'
     key = '```'
     code = {'Cc': 'Control',
             'Cf': 'Format',

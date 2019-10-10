@@ -18,7 +18,7 @@ from chk.enbl import enbl
                   description = '[NO ARGS FOR THIS COMMAND]')
 @commands.check(enbl)
 async def git(ctx):
-    await ctx.send('`]GITHUB PAGE` https://github.com/VoxelPrismatic/prizai/')
+    await ctx.send('`]GITHUB PAGE` https://github.com/VoxelPrismatic/prizm/')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

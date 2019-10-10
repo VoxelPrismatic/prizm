@@ -9,8 +9,11 @@ dblpy
 nltk
 tensorflow
 chatterbot
+chatterbot-corpus
 praw
 youtube_dl
 typing
 scipy
 opencv-python
+logging
+pandas

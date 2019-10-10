@@ -4,8 +4,8 @@
 #/// DEPENDENCIES
 import discord                    #python3.7 -m pip install -U discord.py
 import logging, random
-import asyncio, json
-from util import pages
+import asyncio
+from util import pages, dbman
 from dyn.faces import faces
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
@@ -44,11 +44,10 @@ def entry(lit,coms:list,lbl,mini) -> list:
                   description = 'COM [command] - OPTIONAL: Brings up a help message for that specific command')
 async def hlep(ctx, com:str=''):
     mini = False
-    prefix = ';]'
-    try:
-        prefix = json.load(open('json/prefixes.json'))[str(ctx.guild.id)]
-    except:
-        pass
+    if ctx.guild:
+        prefix = dbman.get('pre', 'pre', id=ctx.guild.id)
+    else:
+        prefix = ';]'
     if '-m' in com:
         mini = True
         com = com.replace('-m','').strip()
@@ -61,7 +60,7 @@ async def hlep(ctx, com:str=''):
 #] HELP FOR {com.name.upper()} [CATAGORY: {com.help}]
 =] {com.brief}
 >  USAGE - '{com.usage.replace(';]',prefix)}'
->  ALIAS - {', '.join(com.aliases)}
+>  ALIAS - {'"'+'", "'.join(com.aliases)+'"' if len(com.aliases) else "[NONE]"}
 {com.description}
 ```''')
     lit = []
@@ -93,8 +92,8 @@ async def hlep(ctx, com:str=''):
         lit = entry(lit,coms[cat],replce[cat],mini)
     await pages.PageThis(ctx, lit, "COMMANDS LIST", f"""```md
 #] {'{?stuff}'} - Optional argument
-#] To see mod commands, use "{prefix}hlepmod"
-#] Some of your data is stored, use "{prefix}data" to see more```""")
+#] To see mod commands, use '{prefix}hlepmod'
+#] Use '{prefix} <text>' to have a conversation!```""")
 
 
 ##///---------------------///##

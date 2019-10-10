@@ -11,8 +11,10 @@ from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
 from PIL import Image
-try:from StringIO import StringIO
-except ImportError:from io import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##

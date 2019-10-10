@@ -2,19 +2,15 @@
 # -*- coding: utf-8 -*
 
 #/// DEPENDENCIES
-import os, psutil, tensorflow
-import typing
+import os, psutil, tensorflow, dbl, scipy, cv2
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
 import numpy as np                #python3.7 -m pip install -U numpy
 import numexpr as ne              #python3.7 -m pip install -U numexpr
 import aiofiles, io, asyncio      #python3.7 -m pip install -U aiofiles
-import matplotlib.pyplot as pyplt #python3.7 -m pip install -U matplotlib // SEE SITE FOR MORE
 import matplotlib
-import platform, sys, sysconfig
-from util import embedify
+import platform, sys, sysconfig, praw
 from discord.ext import commands
-from discord.voice_client import VoiceClient
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
 from util.pages import PageThis
@@ -90,7 +86,7 @@ async def _sysinfo(ctx):
     byte = 0
     types = {'txt':0}
     folders = []
-    home = os.scandir('/home/priz/Desktop/PrizAI')
+    home = os.scandir('/home/priz/Desktop/PRIZM')
     for itm in home:
         itms(itm)
 
@@ -105,34 +101,39 @@ async def _sysinfo(ctx):
     tpu = psutil.sensors_temperatures()['coretemp']
     swap = psutil.swap_memory()
     ram = psutil.virtual_memory()
-    await PageThis(ctx,[f'''  PLATFORM // {platform}
-    PYTHON // {pyver}
-> --------
-     NUMPY // {np.__version__}
-   NUMEXPR // {ne.__version__}
-   LOGGING // {logging.__version__}
-  AIOFILES // {aiofiles.__version__}
-DISCORD.PY // {discord.__version__}
-MATPLOTLIB // {matplotlib.__version__}
-TENSORFLOW // {tensorflow.__version__}''',
-f'''      DIRS // {dirs}
-     LINES // {lines}
-     BLANK // {blank}
-     FILES // {files}
-     BYTES // {byte/1024:.5f} KiB
-  COMMENTS // {comment}
-CODE LINES // {lines-blank-comment}
-> --------
-      *.PY // {types['py']}
-     *.TXT // {types['txt']}
-    *.JSON // {types['json']}''',
-f'''     CPU 0 // {cpu[0]}% [{spu[0].current} Mhz - {tpu[0].current}C]
-     CPU 1 // {cpu[1]}% [{spu[1].current} Mhz - {tpu[0].current}C]
-     CPU 2 // {cpu[2]}% [{spu[2].current} Mhz - {tpu[1].current}C]
-     CPU 3 // {cpu[3]}% [{spu[3].current} Mhz - {tpu[1].current}C]
-> --------
- RAM USAGE // {ram.used/1048576:.2f} MiB/{ram.total/1048576:.2f} MiB [{ram.percent}%]
-SWAP USAGE // {swap.used/1048576:.2f} MiB/{swap.total/1048576:.2f} MiB [{swap.percent}%]
+    await PageThis(ctx,[f'''#] SYSTEM
+  PLATFORM ] {platform}
+    PYTHON ] {pyver}
+#] DEPENDENCIES
+       CV2 ] {cv2.__version__}
+      PRAW ] {praw.__version__}
+     NUMPY ] {np.__version__}
+     DBLPY ] {dbl.__version__}
+     SCIPY ] {scipy.__version__}
+    PSUTIL ] {psutil.__version__}
+   NUMEXPR ] {ne.__version__}
+   LOGGING ] {logging.__version__}
+  AIOFILES ] {aiofiles.__version__}
+DISCORD.PY ] {discord.__version__}
+MATPLOTLIB ] {matplotlib.__version__}
+TENSORFLOW ] {tensorflow.__version__}''',
+f'''      DIRS ] {dirs}
+     LINES ] {lines}
+     BLANK ] {blank}
+     FILES ] {files}
+     BYTES ] {byte/(1024**2):.3f} MiB
+  COMMENTS ] {comment}
+CODE LINES ] {lines-blank-comment}
+>
+      *.PY ] {types['py']}
+     *.TXT ] {types['txt']}
+    *.JSON ] {types['json']}''',
+f'''     CPU 0 ] {cpu[0]}% [{spu[0].current} Mhz - {tpu[0].current}C]
+     CPU 1 ] {cpu[1]}% [{spu[1].current} Mhz - {tpu[0].current}C]
+     CPU 2 ] {cpu[2]}% [{spu[2].current} Mhz - {tpu[1].current}C]
+     CPU 3 ] {cpu[3]}% [{spu[3].current} Mhz - {tpu[1].current}C]
+ RAM USAGE ] {ram.used/1048576:.2f} MiB/{ram.total/1048576:.2f} MiB [{ram.percent}%]
+SWAP USAGE ] {swap.used/1048576:.2f} MiB/{swap.total/1048576:.2f} MiB [{swap.percent}%]
 '''],'SYSTEM INFO')
 
 ##///---------------------///##

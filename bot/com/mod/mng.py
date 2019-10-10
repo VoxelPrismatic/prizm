@@ -4,11 +4,12 @@
 #/// DEPENDENCIES
 import typing, asyncio
 import discord                    #python3.7 -m pip install -U discord.py
-import logging, json
+import logging
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
 from util.embedify import embedify
+from util import dbman
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
@@ -20,9 +21,9 @@ from util.embedify import embedify
                   description = '[NO ARGS FOR THIS COMMAND]')
 @commands.guild_only()
 async def mng(ctx):
-    if ctx.author != ctx.guild.owner and str(ctx.author) not in json.load(open('json/servers.json'))[str(ctx.guild.id)]['mod']:
-        return await ctx.send('```diff\n-] ERROR\n=] Only the server mods can use this command```')
-    com = json.load(open('json/servers.json')); gID = str(ctx.guild.id)
+    if str(ctx.author.name) not in dbman.get('mod', 'name', id=ctx.guild.id) and ctx.author != ctx.guild.owner:
+        return await ctx.send('```diff\n-] SERVER MODS ONLY```')
+    gID = int(ctx.guild.id)
     msg = await ctx.send(embed=embedify(title='SERVER MANAGEMENT ;]', desc='''```md
 #] MANAGE SERVER
 >  Logging ---- [L]
@@ -36,18 +37,17 @@ async def mng(ctx):
     def chc(msg):
         return msg.author==ctx.author and msg.channel==ctx.channel
 
-
     try:
         rct, mbr = await bot.wait_for('reaction_add',timeout=60.0,check=chk)
     except asyncio.TimeoutError:
         return await ctx.send("```diff\n-] TIMEOUT```")
     else:
-        lis = com[gID]
         if rct.emoji == '\N{REGIONAL INDICATOR SYMBOL LETTER M}':
+            lis = dbman.get('mod','name',id=gID, return_as_list = True)
             await msg.clear_reactions()
             await msg.edit(embed=embedify(title='SERVER MANAGEMENT ;]',
                         desc = '```md\n#] CURRENT MODS\n>  '+(
-                        '\n>  '.join(lis['mod']) if len(lis['mod']) else '[NONE]') + '\n=] PING/TYPE USER\'s NAME TO ADD/REMOVE FROM LIST [SEP BY NEW LINE]```'))
+                        '\n>  '.join(lis) if len(lis) else '[NONE]') + '\n=] PING/TYPE USER\'s NAME TO ADD/REMOVE FROM LIST [SEP BY NEW LINE]```'))
             try:
                 msg2 = await bot.wait_for('message',timeout=60.0,check=chc)
             except asyncio.TimeoutError:
@@ -69,29 +69,39 @@ async def mng(ctx):
                             usr = ctx.guild.get_member_named(arg)
                     if not usr:
                         await ctx.send(f'```diff\n-] ERROR\n=] Member "{arg}" not found```')
-                    if str(usr) in com[gID]["mod"]:
-                        com[gID]["mod"].remove(str(usr))
+                    if str(usr) in lis:
+                        dbman.remove('mod', name=str(usr), id=ctx.guild.id)
                     else:
-                        com[gID]["mod"].append(str(usr))
+                        dbman.insert('mod', id=ctx.guild.id, name=str(usr))
 
         elif rct.emoji == '\N{REGIONAL INDICATOR SYMBOL LETTER W}':
+            lis = dbman.get('wrd','word',id=gID, return_as_list = True)
+            if lis == None:
+                lis = []
             await msg.clear_reactions()
             await msg.edit(embed=embedify(title='SERVER MANAGEMENT ;]',
-                        desc='```md\n#] CURRENT BAN WORDS\n>  '+('\n>  '.join(lis['wrd']['wrd']) if len(lis['wrd']['wrd']) else '[NONE]') + '\n=] SEND WORDS TO ADD/REMOVE FROM LIST [SEP BY NEW LINE]```'))
+                        desc='```md\n#] CURRENT BAN WORDS\n>  '+('\n>  '.join(lis) if len(lis) else '[NONE]') \
+                            + '\n=] SEND WORDS TO ADD/REMOVE FROM LIST [SEP BY NEW LINE]```'))
             try:
                 msg2 = await bot.wait_for('message',timeout=60.0,check=chc)
             except asyncio.TimeoutError:
                 await msg.delete()
                 return await ctx.send('```diff\n-] TIMEOUT```')
             else:
+                dbman.remove('wrd',)
                 args = msg2.content.splitlines()
                 await msg2.delete()
                 for arg in args:
-                    if arg in com[gID]['wrd']['wrd']:
-                        com[gID]['wrd']['wrd'].remove(arg)
+                    if arg in lis:
+                        dbman.remove('wrd', id = ctx.guild.id, word = arg)
                     else:
-                        com[gID]['wrd']['wrd'].append(arg)
+                        dbman.insert('wrd', id = ctx.guild.id, word=arg)
         elif rct.emoji == '\N{REGIONAL INDICATOR SYMBOL LETTER L}':
+            logs = dbman.getCols('log')
+            lis = {}
+            for typ in logs:
+                lis[typ] = dbman.get('log',typ,id=ctx.guild.id)
+            lCH = dbman.get('oth','lCH',id=ctx.guild.id)
             await msg.clear_reactions()
             st = "```diff\n"
             rep = {'blk':'[BULK DELETE]',
@@ -119,9 +129,9 @@ async def mng(ctx):
                    'bn+':'[MEMBER BANNED]',
                    'bn-':'[MEMBER UNBANNED]',
                    'bot':'[LOG BOT ACTIONS]'}
-            for x in com[gID]['log']:
-                st += f'{"+" if com[gID]["log"][x] else "-"}] {x} - {"Enabled" if com[gID]["log"][x] else "Disabled"} {rep[x]}'+'\n'
-            st+=f'=] LOG CHANNEL - {str(await ctx.bot.fetch_channel(com[gID]["lCH"])) if com[gID]["lCH"] else "[NONE]"} [PING CHANNEL TO CHANGE]\n'
+            for x in lis:
+                st += f'{"+" if lis[x] else "-"}] {x} - {"Enabled" if lis[x] else "Disabled"} {rep[x]}'+'\n'
+            st+=f'=] LOG CHANNEL - {str(await ctx.bot.fetch_channel(lCH)) if lCH else "[NONE]"} [PING CHANNEL TO CHANGE]\n'
             await msg.edit(embed=embedify(title='SERVER MANAGEMENT ;]',
                             desc=st+'=] TYPE CODE [ON LEFT] TO EN/DISABLE [SEP BY NEW LINE]```'))
             try:
@@ -134,15 +144,16 @@ async def mng(ctx):
                 await msg2.delete()
                 for arg in args:
                     if '<#' in arg and '>' in arg:
-                        com[gID]['lCH'] = int(arg[2:-1]); continue
+                        dbman.update('oth','lCH',int(arg[2:-1]),id=ctx.guild.id)
+                        continue
                     try:
-                        com[gID]["log"][arg] = not com[gID]["log"][arg]
-                    except:
+                        curLog = dbman.get('log',arg,id=ctx.guild.id)
+                        dbman.update('log',arg,int(not curLog),id=ctx.guild.id)
+                    except KeyError:
                         await ctx.send(f'```diff\n-] TOKEN "{arg}" NOT FOUND```')
-        else: return await ctx.send('```diff\n-] INVALID REACTION, ABORTED```')
+        else:
+            return await ctx.send('```diff\n-] INVALID REACTION, ABORTED```')
 
-
-    open('json/servers.json','w').write(json.dumps(com,sort_keys=True,indent=4))
     await msg.delete()
     await ctx.send('```diff\n+] COMPLETE```')
 
@@ -158,4 +169,3 @@ def teardown(bot):
     print('-COM')
     bot.remove_command('mng')
     print('GOOD')
-

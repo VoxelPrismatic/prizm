@@ -11,22 +11,16 @@ import datetime
 import time
 print('##///  [05]  ///##')
 import asyncio
-import json
 from discord.ext import commands
 from discord.ext.commands import Bot
 from importlib import reload
 print('##///  [10]  ///###')
 import random
+from util.getPre import getPre
+from util import dbman
 
 print('##///  DONE  ///##')
 print('##/// DEFINE ///##')
-
-def getPre(bot,msg):
-    try:
-        return json.load(open('json/prefixes.json'))[str(msg.guild.id)]
-    except Exception as ex:
-        print(ex)
-        return ";]"
 
 bot = commands.Bot(command_prefix=getPre,case_insenitive=True)
 bot.remove_command("help")
@@ -147,7 +141,7 @@ GG! PRIZM ;] // v{discord.__version__} // RESTART - CTRL Z, [up], [enter]
 async def on_disconnect():
     print('ATTEMPT LOGIN')
     await bot.connect()
-    await asyncio.sleep(5)
+    time.sleep(5)
 
 ##///---------------------///##
 ##///      BOT EVENT      ///##
@@ -217,11 +211,11 @@ async def restart(ctx):
             except Exception as ex:
                 await ctx.send(f'```diff\n-] COMMAND ERROR\n=] {ex}\n=] {com}```')
                 fail = True
-    await msg.edit(content='```md\n#] REFRESHING JSONs```')
+    await msg.edit(content='```md\n#] REFRESHING DB```')
     try:
         jsons(ctx.bot)
     except Exception as ex:
-        await ctx.send(f'```diff\n-] JSON ERROR\n=] {ex}```')
+        await ctx.send(f'```diff\n-] DB ERROR\n=] {ex}```')
         fail = True
     if not fail:
         await msg.edit(content='```md\n#] MODULES\n> Literally everything restarted, successfully too :D```')

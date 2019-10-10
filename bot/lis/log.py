@@ -6,7 +6,7 @@ import typing
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
 import traceback, json
-from util import pages, getPre
+from util import pages, getPre, dbman
 from util.embedify import embedify
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
@@ -14,18 +14,19 @@ from discord.ext.commands import Bot, MissingPermissions, has_permissions
 bot = commands.Bot(command_prefix=getPre.getPre)
 
 def rtn(gID, nam, mbr:discord.Member=None):
-    gID = str(gID)
-    itm = json.load(open('json/servers.json'))
+    itm = dbman.get('log','bot',id=int(gID), rtn = bool)
     if not mbr:
         bt = False
     else:
         bt = mbr.bot
     lBOT = True
-    if itm[gID]['log']['bot'] == False and bt == True:
+    if not itm and bt:
         lBOT = False
     try:
-        return itm[gID]['log'][nam] and itm[gID]['lCH'] and lBOT, itm[gID]['lCH']
-    except:
+        return dbman.get('log','bot',id=int(gID), rtn=bool) and dbman.get('oth','lCH',id=int(gID),rtn=int) \
+               and lBOT, dbman.get('oth','lCH',id=int(gID),rtn=int)
+    except Exception as ex:
+        print(ex)
         return False, None
 
 def lnk(msg):

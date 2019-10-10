@@ -4,8 +4,8 @@
 #/// DEPENDENCIES
 import discord                    #python3.7 -m pip install -U discord.py
 import logging, random
-import asyncio, json
-from util import pages
+import asyncio
+from util import pages, dbman
 from dyn.faces import faces
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
@@ -42,6 +42,11 @@ async def hlepmod(ctx, mini = ""):
     lit = []
     coms = {}
     cats = ['MOD']
+    if ctx.guild:
+        prefix = dbman.get('pre', 'pre', id=ctx.guild.id)
+    else:
+        prefix = ';]'
+
     for cat in cats:
         coms[cat] = []
     for com in ctx.bot.commands:
@@ -62,9 +67,8 @@ async def hlepmod(ctx, mini = ""):
 
     await pages.PageThis(ctx, lit, "COMMANDS LIST", f"""```diff
 -] {'{?stuff}'} - Optional argument
--] To see mod commands, use "{json.load(open('json/prefixes.json'))[str(ctx.guild.id)] if isinstance(ctx.channel, discord.TextChannel) else ';]'}hlepmod"
--] To have a conversation, use "]<txt>" or "{'}<txt>'}"
--] Some of your data is stored, use "{json.load(open('json/prefixes.json'))[str(ctx.guild.id)] if isinstance(ctx.channel, discord.TextChannel) else ';]'}data" to see more```""")
+-] To see mod commands, use '{prefix}hlep'
+-] Use '{prefix} <text>' to have a conversation!```""")
 
 
 ##///---------------------///##

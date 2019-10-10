@@ -4,10 +4,9 @@
 #/// DEPENDENCIES
 import typing
 import discord                    #python3.7 -m pip install -U discord.py
-import logging
+import logging, json
 import traceback, sys
-import json
-from util import embedify, getPre
+from util import embedify, getPre, dbman
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 
@@ -41,7 +40,7 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         return await ctx.invoke(ctx.bot.get_command('text'), convo=ctx.message.content[2:])
     try:
-        if ctx.guild and not json.load(open('json/servers.json'))[str(ctx.guild.id)]["com"][ctx.command.name]:
+        if ctx.guild and not dbman.get('com', ctx.command.name, id=ctx.guild.id):
             return await ctx.send('```diff\n-] ERROR\n=] THIS COMMAND ISNT ENABLED```')
     except:
         pass
@@ -93,34 +92,35 @@ async def handler(bot, exception_type, exception, event=None, message=None, ctx 
     try:
         tb = "".join(traceback.format_tb(exception.__traceback__)).replace('`',' `')
         open('txt/tb','w+').write(tb)
-        await bot.get_channel(569698278271090728).send(embed=embedify.embedify(title='AN ERROR OCCURED ;[',
-                                                      desc = '```md\n#] SEE BELOW FOR DETAILS```',
-                                                      fields = [['`EXCEPTION ---`',
-                                                                 f"```diff\n-] {type(exception)} '{str(exception)}'```",
-                                                                 False],
-                                                                ['`ARGS --------`',
-                                                                 '```'+str(ctx.args)+'```',
-                                                                 False],
-                                                                ['`KWARGS ------`',
-                                                                 '```'+json.dumps(ctx.kwargs,indent=4)+'```',
-                                                                 False],
-                                                                ['`EVENT INFO --`',
-                                                                 '```'+str(event)+'```',
-                                                                 False],
-                                                                ['`COMMAND -----`',
-                                                                 f"""```NAME // {ctx.command.name}
+        await bot.get_channel(569698278271090728).send(
+            embed=embedify.embedify(title='AN ERROR OCCURED ;[',
+                desc = '```md\n#] SEE BELOW FOR DETAILS```',
+                fields = [['`EXCEPTION ---`',
+                            f"```diff\n-] {type(exception)} '{str(exception)}'```",
+                            False],
+                        ['`ARGS --------`',
+                            '```'+str(ctx.args)+'```',
+                            False],
+                        ['`KWARGS ------`',
+                            '```'+json.dumps(ctx.kwargs,indent=4)+'```',
+                            False],
+                        ['`EVENT INFO --`',
+                            '```'+str(event)+'```',
+                            False],
+                        ['`COMMAND -----`',
+                            f"""```NAME // {ctx.command.name}
 CHANNEL // {'Private Message' if isinstance(ctx.channel, discord.abc.PrivateChannel) else f"{ctx.channel.name} [`{ctx.channel.id}`]"}
    USER // {str(ctx.author)} [`{ctx.author.id}`]```""",
-                                                                 False],
-                                                                ['`MESSAGE -----`',
-                                                                 '```'+message.content+'```',
-                                                                 False],
-                                                                ['`TRACEBACK ---`',
-'```'+(tb if len(tb) <= 1024 else 'IN ATTACHED FILE')+'```',
-                                                                 False]]
-                                                        ),
-                                    file = discord.File(fp=open('txt/tb','rb')) if len(tb) > 1024 else None
-                            )
+                            False],
+                        ['`MESSAGE -----`',
+                            '```'+message.content+'```',
+                            False],
+                        ['`TRACEBACK ---`',
+    '```'+(tb if len(tb) <= 1024 else 'IN ATTACHED FILE')+'```',
+                            False]]
+                ),
+            file = discord.File(fp=open('txt/tb','rb')) if len(tb) > 1024 else None
+        )
         if not found:
             await ctx.send(f"""```md
 #] GG MATE, YOU FOUND A BUG!

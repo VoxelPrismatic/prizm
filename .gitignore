@@ -1,10 +1,29 @@
+#PYTHON THINGS
 *.pyc
-*.py~
+*/*/*/__pycache__
+*/*/__pycache__
+*/__pycache__
+
+#LINUX THINGS
 *.directory
+..*.kate-swp
+
+#BACKUPS
 *.*~
-secrets.txt
-prawUser.py
-*.json
-botlst.py
-*.mat
 ~*.*
+*.py~
+
+#SENSITIVE INFO
+bot/secrets.txt
+bot/util/prawUser.py
+bot/util/botlst.py
+bot/txt/interpreter.txt
+
+#SERVER DATA
+*.json
+*.sqlite3
+
+#UNIMPORTANT FILES
+*.mat
+*.png
+*.jpg

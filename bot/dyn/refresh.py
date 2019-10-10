@@ -5,58 +5,58 @@ def refresh():
     """
     owncom = ["exe",  "pwr",  "chng",
               "dump", "pin0", "clr0",
-              "calc", "edit","nick0",
-              "shell", "clrin0",
-              "helpown","iedit","dl",
-              "srvedit"]
+              "edit","nick0", "shell",
+              "clrin0", "srvedit",
+              "helpown", "iedit", "dl"]
 
-    modcom = ["clr","pin","ban",
-              "kick","nick","clrin",
-              "enbl","role",
-              "mng",'audit']
+    modcom = ["clr", "pin", "ban",
+              "kick", "nick", "enbl",
+              "role", "mng", 'audit']
 
-    infcom = ["os","git","dir",
-              "ping","info","hlep",
-              "data","hlepmod",
-              "inv",'find']
+    infcom = ["os", "git", "dir",
+              "ping", "info", "hlep",
+              "data", "hlepmod", "inv",
+              'find']
 
-    pubcom = ["md","dnd","snd",
-              "rng","rev","poll",
-              "rick","coin","asci",
-              "optn","echo","spam",
-              "cool","emji","slots",
-              "react","blkjck","binary",
-              "vox","djq", "8ball", "reddit",
-              "mines","hman","mock",
-              "bug", '2048', "captcha"]
+    pubcom = ["md", "dnd", "snd",
+              "rng", "rev", "poll",
+              "rick", "coin", "asci",
+              "optn", "echo", "spam",
+              "cool", "emji", "slots",
+              "react", "blkjck", "binary",
+              "vox", "djq", "8ball",
+              "reddit", "mines","hman",
+              "mock", "bug", '2048',
+              "captcha"]
 
-    discom = ["chnl","emj","gld",
-              "mbr","rol","usr",
+    discom = ["chnl", "emj", "gld",
+              "mbr", "rol", "usr",
               'msg']
 
-    mathcom = ["graph","quad","rto",
-               "stats","fct","rad",
-               "fact",'rpn']
+    mathcom = ["graph", "quad", "rto",
+               "stats", "fct", "rad",
+               "fact", 'rpn', 'simple',
+               'calc', 'substitute']
 
-    intcom = ["slap","hug",'cuddle',
-              'throw','kiss']
+    intcom = ["slap", "hug", 'cuddle',
+              'throw', 'kiss']
 
-    othcom = ['mix','tag',"char", 'text']
+    othcom = ['mix', 'tag', "char",
+              'text', 'code']
 
-    muscom = ['play','leave','pause']
+    muscom = ['play', 'leave', 'pause']
 
-    list_n = ["gld","err",
-              "com","rctf","druaga",
-              'log']
+    list_n = ["err", "com", "rctf",
+              "druaga", 'log']
 
-    allext = [owncom,modcom,infcom,
-              pubcom,discom,mathcom,
-              intcom,othcom,muscom,
+    allext = [owncom, modcom, infcom,
+              pubcom, discom, mathcom,
+              intcom, othcom, muscom,
               list_n]
 
-    lodtxt = ["com.own.","com.mod.","com.inf.",
-              "com.pub.","com.dis.","com.math.",
-              "com.int.","com.oth.","com.music.",
+    lodtxt = ["com.own.", "com.mod.", "com.inf.",
+              "com.pub.", "com.dis.", "com.math.",
+              "com.int.", "com.oth.", "com.music.",
               "lis."]
 
     return allext, lodtxt

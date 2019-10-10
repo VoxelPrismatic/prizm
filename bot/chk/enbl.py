@@ -1,4 +1,4 @@
-import json
+from util import dbman
 def enbl(ctx) -> bool:
     """
     >>> RETURNS TRUE IF THE COMMAND IS ENABLED <<<
@@ -7,7 +7,7 @@ def enbl(ctx) -> bool:
     """
     try:
         if ctx.guild:
-            return json.load(open('json/servers.json'))[str(ctx.guild.id)]["com"][ctx.command.name] # Command is en/disabled
+            return dbman.get('com', ctx.command.name, id=int(ctx.guild.id)) # Command is en/disabled
         else: # In DMs
             return True
     except: # Just in case

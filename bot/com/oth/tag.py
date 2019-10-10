@@ -3,7 +3,8 @@
 
 #/// DEPENDENCIES
 import discord                    #python3.7 -m pip install -U discord.py
-import logging, json
+import logging
+from util import dbman
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
@@ -27,44 +28,44 @@ ACTION [STR] - The action you want to take
 @commands.check(enbl)
 @commands.guild_only()
 async def tag(ctx, *arg):
-    try:
-        dic = json.load(open('json/servers.json'))
-        tags = dic[str(ctx.guild.id)]["tag"]
+    if len(arg) > 1:
+        curTag = dbman.get('tag', 'stuff', id = ctx.guild.id, name = arg[1])
+    if len(arg) == 0:
+        await ctx.send(embed=embedify(desc='```md\n#] CREATED TAGS\n> '+"\n> ".join(dbman.get('tag', 'name', id = ctx.guild.id, return_as_list = True))+'```'))
+    elif len(arg) == 1:
+        itm = dbman.get('tag', 'stuff', id = ctx.guild.id, name = arg[0], return_null = True)
+        if itm:
+            return await ctx.send(itm)
+        else:
+            return await ctx.send('```diff\n-] TAG DOESN\'T EXIST```')
 
-        if len(arg) == 0:
-            if len(tags) > 0: await ctx.send(embed=embedify(desc='```md\n#] CREATED TAGS\n> '+"\n> ".join(list(tags))+'```'))
-            else: await ctx.send('```diff\n-] NO TAGS CREATED YET```')
-        elif len(arg) == 1: await ctx.send(tags[arg[0]][0])
-
-        elif arg[0] in ['-','destroy','remove','delete','kill']:
-            if tags[arg[1]][1] == ctx.author.id:
-                del dic[str(ctx.guild.id)]["tag"][arg[1]]
-                open('json/servers.json','w').write(json.dumps(dic,sort_keys=True,indent=4))
-                return await ctx.message.add_reaction('<:wrk:608810652756344851>')
-            else: return await ctx.send('```diff\n-] YOU DIDNT MAKE THIS TAG```')
-
-        elif arg[0] in ['+','make','add','create','new'] and arg[1] not in tags:
-            dic[str(ctx.guild.id)]["tag"][arg[1]] = [ctx.message.content.split(maxsplit=3)[-1], ctx.author.id]
-            open('json/servers.json','w').write(json.dumps(dic,sort_keys=True,indent=4))
+    elif arg[0] in ['-','destroy','remove','delete','kill'] and curTag:
+        if dbman.get('tag', 'auth', id=ctx.guild.id, name=arg[1]) == ctx.author.id:
+            dbman.remove('tag', id = ctx.guild.id, name = arg[1])
             return await ctx.message.add_reaction('<:wrk:608810652756344851>')
+        else:
+            return await ctx.send('```diff\n-] YOU DIDNT MAKE THIS TAG```')
 
-        elif arg[0] in ['/','edit'] and arg[1] in tags:
-            if tags[arg[1]][1] == ctx.author.id:
-                del dic[str(ctx.guild.id)]["tag"][arg[1]]
-                open('json/servers.json','w').write(json.dumps(dic,sort_keys=True,indent=4))
-                dic = json.load(open('json/servers.json'))
-                dic[str(ctx.guild.id)]["tag"][arg[1]] = [ctx.message.content.split(maxsplit=3)[-1], ctx.author.id]
-                open('json/servers.json','w').write(json.dumps(dic,sort_keys=True,indent=4))
-                return await ctx.message.add_reaction('<:wrk:608810652756344851>')
-            else: return await ctx.send('```diff\n-] YOU DIDNT MAKE THIS TAG```')
 
-        elif arg[0] in ['+','make','add','create','new'] and arg[1] in tags: await ctx.send('```diff\n-] TAG ALREADY EXISTS```')
+    elif arg[0] in ['+','make','add','create','new'] and not curTag:
+        dbman.insert('tag', id = ctx.guild.id, name = arg[1], stuff = ' '.join(arg[2:]), auth = ctx.author.id)
+        return await ctx.message.add_reaction('<:wrk:608810652756344851>')
 
-        elif arg[0] in ['/','edit'] and arg[1] not in tags: await ctx.send('```diff\n-] TAG DOESN\'T EXIST```')
+    elif arg[0] in ['/','edit'] and curTag:
+        if dbman.get('tag', 'auth', id = ctx.guild.id, name = arg[1]) == ctx.author.id:
+            dbman.update('tag', 'stuff', ' '.join(arg[2:]), id = ctx.guild.id, name = arg[1])
+            return await ctx.message.add_reaction('<:wrk:608810652756344851>')
+        else:
+            return await ctx.send('```diff\n-] YOU DIDNT MAKE THIS TAG```')
 
-        else: await ctx.send('```diff\n-] TAG MODIFY ALIAS NOT FOUND```')
+    elif arg[0] in ['+','make','add','create','new'] and curTag:
+        await ctx.send('```diff\n-] TAG ALREADY EXISTS```')
 
-    except KeyError: await ctx.send('```diff\n-] TAG DOESN\'T EXIST```')
+    elif arg[0] in ['/','edit', '-','destroy','remove','delete','kill'] and not curTag:
+        await ctx.send('```diff\n-] TAG DOESN\'T EXIST```')
+
+    else:
+        await ctx.send('```diff\n-] TAG MODIFY ALIAS NOT FOUND```')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

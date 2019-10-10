@@ -5,18 +5,10 @@
 import typing
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
-import math, cmath, numpy, decimal
-from decimal import Decimal as dec
+import math, cmath, numpy
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
-from decimal import *
-
-##///---------------------///##
-##///   BOT DEFINITIONS   ///##
-##///---------------------///##
-
-def rand(ll,tt): return random.randint(ll,tt)
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
@@ -28,30 +20,33 @@ def rand(ll,tt): return random.randint(ll,tt)
                   description = 'EQ [STR] - The RPN equation')
 @commands.check(enbl)
 async def rpn(ctx, *, expression):
-    msg = await ctx.send('`CALCULATING`')
+    msg = await ctx.send('```md\n#] CALCULATING```')
     async with ctx.channel.typing():
         ops = {
-        "+": (lambda a, b: a + b),
+        "+": (lambda a, b: a + b), 
         "-": (lambda a, b: a - b),
-        "*": (lambda a, b: a * b),
+        "*": (lambda a, b: a * b), 
         "/": (lambda a, b: a / b),
-        "^": (lambda a, b: a ** b),
-        '**': (lambda a, b: a ** b),
-        '%': (lambda a, b: a % b),
+        "^": (lambda a, b: a ** b), 
+        "**": (lambda a, b: a ** b),
+        '%': (lambda a, b: a % b), 
         '&': (lambda a, b: a & b),
-        '<<': (lambda a, b: int(a) << int(b)),
-        '>>': (lambda a, b: int(a) >> int(b)),
-        '<': (lambda a, b: int(bool(a < b))),
-        '>': (lambda a, b: int(bool(a > b))),
-        '<=': (lambda a, b: int(bool(a <= b))),
-        '>=': (lambda a, b: int(bool(a >= b))),
-        '!=': (lambda a, b: int(bool(a != b))),
-        '==': (lambda a, b: int(bool(a == b))),
-        '<>': (lambda a, b: int(bool(a != b))),
-        '&&': (lambda a, b: int(bool(a and b))),
-        '||': (lambda a, b: int(bool(a or b))),
-        'and': (lambda a, b: int(bool(a and b))),
-        'or': (lambda a, b: int(bool(a or b))),
+        '<<': (lambda a, b: int(a) << int(b)), 
+        '<': (lambda a, b: a < b),
+        '>>': (lambda a, b: int(a) >> int(b)), 
+        '>': (lambda a, b: int(a > b)),
+        '<=': (lambda a, b: int(a <= b)), 
+        '>=': (lambda a, b: int(a >= b)),
+        '=<': (lambda a, b: int(a <= b)), 
+        '=>': (lambda a, b: int(a >= b)),
+        '!=': (lambda a, b: int(a != b)),
+        '=!': (lambda a, b: int(a != b)),
+        '==': (lambda a, b: int(a == b)),
+        '<>': (lambda a, b: int(a != b)),
+        '&&': (lambda a, b: int(a and b)),
+        '||': (lambda a, b: int(a or b)),
+        'and': (lambda a, b: int(a and b)),
+        'or': (lambda a, b: int(a or b)),
         'gcd': (lambda a, b: math.gcd(a,b)),
         'lcm': (lambda a, b: math.lcm(a,b)),
         'root': (lambda a, b: a ** (b**-1)),
@@ -68,30 +63,27 @@ async def rpn(ctx, *, expression):
         'infj': cmath.infj,
         'nanj': cmath.nanj,
         'c': 299792458,               # SPEED OF LIGHT
-        'G': dec('6.67408e-11'),    # GRAV CONSTANT
-        'h': dec('1.05457148e-34'), # PLANCK CONSTANT
-        'mPl': dec('1.2209e22'),    # PLANCK MASS ENERGY
-        'B': dec('1836.15')**-1,  # RATIO ELECTRON TO PROTON MASS
-        'me': dec('0.51'),    # MASS OF ELECTRON
-        'mp': dec('983.3'),   # MASS OF PROTON
-        'mn': dec('939.6'),   # MASS OF NEUTRON
-        'mu': dec('2.4'),     # MASS OF UP QUARK
-        'md': dec('4.8'),     # MASS OF DOWN QUARK
-        'ms': dec('104'),     # MASS OF STRANGE QUARK
-        'aG': dec('5.9e-39'), # GRAV COUPLING CONSTANT
-        'a1': 1/dec('98.4'),           # HYPER COUPLING CONSTANT
-        'a2': 1/dec('29.6'),           # WEAK COUPLING CONSTANT
-        'a3': dec('0.1187'),           # STRONG COUPLING CONSTANT
-        'as': dec('0.1187'),
+        'G': 6.67408e-11,    # GRAV CONSTANT
+        'h': 1.05457148e-34, # PLANCK CONSTANT
+        'mPl': 1.2209e22,    # PLANCK MASS ENERGY
+        'B': 1836.15**-1,  # RATIO ELECTRON TO PROTON MASS
+        'me': 0.51,    # MASS OF ELECTRON
+        'mp': 983.3,   # MASS OF PROTON
+        'mn': 939.6,   # MASS OF NEUTRON
+        'mu': 2.4,     # MASS OF UP QUARK
+        'md': 4.8,     # MASS OF DOWN QUARK
+        'ms': 104,     # MASS OF STRANGE QUARK
+        'aG': 5.9e-39, # GRAV COUPLING CONSTANT
+        'a1': 1/98.4,           # HYPER COUPLING CONSTANT
+        'a2': 1/29.6,           # WEAK COUPLING CONSTANT
+        'a3': 0.1187,           # STRONG COUPLING CONSTANT
+        'as': 0.1187,
         }
 
         mat = {
-        'sin': (lambda a: math.sin(math.radians(a))),
-        'cos': (lambda a: math.cos(math.radians(a))),
-        'tan': (lambda a: math.tan(math.radians(a))),
-        'rsin': (lambda a: math.sin(a)),
-        'rcos': (lambda a: math.cos(a)),
-        'rtan': (lambda a: math.tan(a)),
+        'sin': (lambda a: math.sin(a)),
+        'cos': (lambda a: math.cos(a)),
+        'tan': (lambda a: math.tan(a)),
         'exp': (lambda a: math.exp(a)),
         'floor': (lambda a: math.floor(a)),
         'ceil': (lambda a: math.ceil(a)),
@@ -101,6 +93,8 @@ async def rpn(ctx, *, expression):
         'fact': (lambda a: math.factorial(a)),
         'deg': (lambda a: math.degrees(a)),
         'rad': (lambda a: math.radians(a)),
+        '°': (lambda a: math.radians(a)),
+        'd': (lambda a: math.radians(a)),
         'acosh': (lambda a: math.acosh(a)),
         'asinh': (lambda a: math.asinh(a)),
         'atanh': (lambda a: math.atanh(a)),
@@ -139,19 +133,17 @@ async def rpn(ctx, *, expression):
                     try: stack.append(ops[token](arg1, arg2))
                     except ZeroDivisionError:
                         stack.append(math.nan)
-                else: stack.append(dec(token))
+                else: stack.append(float(token))
                 if stack[-1] > 20**100:
                     return await ctx.send('```diff\n-] TOO LARGE [20^100 MAX]```')
         except IndexError:
             return await ctx.send('```diff\n-] ERROR - POP FROM EMPTY STACK\n=] TOO MANY OPERATORS?```')
         except KeyError:
             return await ctx.send(f'```diff\n-] ERROR - TOKEN UNRECOGNIZED\n=] TOKEN {token} IS UNRECOGNIZED```')
-        except decimal.ConversionSyntax:
-            return await ctx.send(f'```diff\n-] ERROR - TOKEN UNRECOGNIZED\n=] TOKEN {token} IS UNRECOGNIZED```')
         else:
             if len(stack) != 1:
                 return await ctx.send('```diff\n-] ERROR - TOO MANY VALUES\n=] TOO LITTLE OPERATORS?```')
-    await ctx.send(content='`'+str(stack.pop())+'`')
+    await ctx.send(content=f'```md\n#] {round(stack.pop(),8)}```')
     await msg.delete()
 
 ##///---------------------///##

@@ -3,7 +3,8 @@
 
 #/// DEPENDENCIES
 import discord                    #python3.7 -m pip install -U discord.py
-import logging, json
+import logging
+from util import dbman
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl as en
@@ -19,14 +20,11 @@ from chk.enbl import enbl as en
                   description = 'COM NAME [STR] - The name of the target command')
 @commands.guild_only()
 async def enbl(ctx,nam):
-    g=ctx.guild
-    if f'{ctx.author.name}#{ctx.author.discriminator}' not in json.load(open('json/servers.json'))[str(ctx.guild.id)]["mod"] and ctx.author!=ctx.guild.owner:
-        return await ctx.send('```diff\n-] ERROR\n=] Only the server mods can use this command```')
-    if nam not in [c.name for c in ctx.bot.commands]:
-        return ctx.send('```diff\n-] ERROR\n=] That command doesn\'t exist```')
-    com = json.load(open('json/servers.json'))
-    com[str(g.id)]["com"][nam]=True
-    open('json/servers.json','w').write(json.dumps(com,sort_keys=True,indent=4))
+    if str(ctx.author.name) not in dbman.get('mod', 'name', id=ctx.guild.id) and ctx.author != ctx.guild.owner:
+        return await ctx.send('```diff\n-] SERVER MODS ONLY```')
+    if not ctx.bot.get_command(nam):
+        return ctx.send('```diff\n-] COMMAND DOESNT EXIST```')
+    dbman.update('com', ctx.bot.get_command(nam).name, 1, id=ctx.guild.id)
     await ctx.message.add_reaction('<:wrk:608810652756344851>')
 
 @commands.command(aliases=['disable'],
@@ -36,14 +34,11 @@ async def enbl(ctx,nam):
                   description = 'COM NAME [STR] - The name of the target command')
 @commands.guild_only()
 async def dsbl(ctx,nam):
-    g=ctx.guild
-    if f'{ctx.author.name}#{ctx.author.discriminator}' not in json.load(open('json/servers.json'))[str(ctx.guild.id)]["mod"] and ctx.author!=ctx.guild.owner:
-        return await ctx.send('```diff\n-] ERROR\n=] Only the server mods can use this command```')
-    if nam not in [c.name for c in ctx.bot.commands]:
-        return ctx.send('```diff\n-] ERROR\n=] That command doesn\'t exist```')
-    com = json.load(open('json/servers.json'))
-    com[str(g.id)]["com"][nam]=False
-    open('json/servers.json','w').write(json.dumps(com,sort_keys=True,indent=4))
+    if str(ctx.author.name) not in dbman.get('mod', 'name', id=ctx.guild.id) and ctx.author != ctx.guild.owner:
+        return await ctx.send('```diff\n-] SERVER MODS ONLY```')
+    if not ctx.bot.get_command(nam):
+        return ctx.send('```diff\n-] COMMAND DOESNT EXIST```')
+    dbman.update('com', ctx.bot.get_command(nam).name, 0, id=ctx.guild.id)
     await ctx.message.add_reaction('<:wrk:608810652756344851>')
 
 @commands.command(aliases=['prefix'],
@@ -53,12 +48,9 @@ async def dsbl(ctx,nam):
                   description = 'PRE [STR] - The new prefix')
 @commands.guild_only()
 async def pre(ctx,nam):
-    g=ctx.guild
-    if f'{ctx.author.name}#{ctx.author.discriminator}' not in json.load(open('json/servers.json'))[str(ctx.guild.id)]["mod"] and ctx.author!=ctx.guild.owner:
-        return await ctx.send('```diff\n-] ERROR\n=] Only the server mods can use this command```')
-    pr = json.load(open('json/prefixes.json'))
-    pr[str(g.id)]=nam
-    open('json/prefixes.json','w').write(json.dumps(pr,sort_keys=True,indent=4))
+    if str(ctx.author.name) not in dbman.get('mod', 'name', id=ctx.guild.id) and ctx.author != ctx.guild.owner:
+        return await ctx.send('```diff\n-] SERVER MODS ONLY```')
+    dbman.update('com', 'pre', pre, id=ctx.guild.id)
     await ctx.message.add_reaction('<:wrk:608810652756344851>')
 
 ##///---------------------///##

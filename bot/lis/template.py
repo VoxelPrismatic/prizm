@@ -9,9 +9,9 @@ import traceback
 from util import embedify, pages, json, getPre
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
-=
 
 bot = commands.Bot(command_prefix=getPre.getPre)
+
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
 ##///---------------------///##

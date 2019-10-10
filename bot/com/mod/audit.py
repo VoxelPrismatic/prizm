@@ -2,121 +2,242 @@
 # -*- coding: utf-8 -*
 
 #/// DEPENDENCIES
-import typing
+import typing, ast
 import discord                    #python3.7 -m pip install -U discord.py
-import logging, json, re
+import logging, re
+from util import dbman
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
 from util.pages import PageThis
+from util.embedify import embedify
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
+def getArgs(st:str):
+    kwargs = {}
+    for arg in st.splitlines():
+        if '__' in arg.split('=')[1].strip():
+            pass
+        kwargs[arg.split('=')[0].strip()] = eval(arg.split('=')[1].strip(), {}, {'discord':discord})
+    return kwargs
+
 @commands.command(help = 'mod',
-                  brief = 'Edits channels and things - Will change to an interface rather than a command',
-                  usage = ';]audit {typ} {iID} {*args}',
-                  description = 'TYP [OBJECT] - What to edit\niID [INT   ] - The ID of that object, must be the ID\n*ARGS - Type ";]audit help" to see them')
+                  brief = 'Edits channels and things',
+                  usage = ';]audit',
+                  description = '[NO ARGS FOR THIS COMMAND]')
 @commands.check(enbl)
 @commands.guild_only()
-async def audit(ctx, typ, iID:int=None, *args):
-    kwargs = {}
-    for arg in args: kwargs[arg.split('=')[0]]=eval(arg.split('=')[1])
+async def audit(ctx):
 
-    try:
-        rsn = kwargs['reason']
-    except:
-        rsn = f'REQUESTED BY ] {ctx.author.name}#{ctx.author.discriminator}'
-    kwargs['reason'] = rsn
-
-    if ctx.author.name+'#'+str(ctx.author.discriminator) not in json.load(open('json/servers.json'))[str(ctx.guild.id)]['mod'] and ctx.author!=ctx.guild.owner:
+    if str(ctx.author.name) not in dbman.get('mod', 'name', id=ctx.guild.id) and ctx.author != ctx.guild.owner:
         return await ctx.send('```diff\n-] SERVER MODS ONLY```')
 
-    elif typ.lower() in ['channel','txt','ch','chnl','text','textchannel']:
-        await ctx.guild.get_channel(iID).edit(**kwargs)
+    msg = await ctx.send(embed=embedify(title='MANAGEMENT ;]',
+                                        desc='''```md
+#] AUDIT MANAGER ;]
+>  Edit TextChannel -- [T]
+>  Edit VoiceChannel - [V]
+>  Edit Member/User -- [M]
+>  Edit Guild -------- [G]
+>  Edit Role --------- [R]
+>  Edit Emoji -------- [E]
+>  Edit Catagory ----- [C]```'''))
+    for x in ['T', 'V', 'M', 'G', 'R', 'E', 'C']:
+        await msg.add_reaction(eval("'\\N{REGIONAL INDICATOR SYMBOL LETTER "+x+"}'"))
+    bot = ctx.bot
+    def chk(rct,mbr):
+        return mbr==ctx.author
+    def chc(msg):
+        return msg.author==ctx.author and msg.channel==ctx.channel
 
-    elif typ.lower() in ['vc','voice','voicechannel']:
-        await ctx.guild.get_channel(iID).edit(*kwargs)
-
-    elif typ.lower() in ['mbr','user','usr','member','plr','player']:
-        await ctx.guild.get_member(iID).edit(**kwargs)
-
-    elif typ.lower() in ['gld','guild','srv','server','srvr']:
-        await ctx.guild.edit(**kwargs)
-
-    elif typ.lower() in ['role','rol']:
-        await ctx.guild.get_role(iID).edit(**kwargs)
-
-    elif typ.lower() in ['emoji','emj','emji']:
-        await emj.edit(**kwargs)
-
-    elif typ.lower() in ['catagory','cat']:
-        await ctx.guild.get_channel(iID).edit(**kwargs)
-
-    elif typ.lower() == 'help':
-        await PageThis(ctx,[
-'''#] GUILD
-> name [str]
-> description [str]
-> icon [bytes]
-> banner [bytes]
-> splash [bytes]
-> region [VoiceRegion]
-> afk_channel [VoiceChannel]
-> afk_timeout [int]
-> owner [Member]
-> verification_level [VerificationLevel]
-> default_notifications [NotificationLevel]
-> explicit_content_filter [ContentFilter]
-> vanity_code [str]
-> system_channel [TextChannel]
-> system_channel_flags [SystemChannelFlags]''',
-'''#] TEXT CHANNEL
-> name [str]
-> topic [str]
-> position [int]
-> nsfw [bool]
-> sync_permissions [bool]
-> catagory [CatagoryChannel]
-> slowmode_delay [int]
--
-#] CATAGORY
-> name [str]
-> position [int]
-> nsfw [bool]''',
-'''#] VC
-> name [str]
-> bitrate [int]
-> user_limit [int]
-> position [int]
-> sync_permissions [bool]
-> catagory [CatagoryChannel]
--
-#] MEMBER
-> nick [str]
-> mute [bool]
-> deafen [bool]
-> roles [LIST: Role]
-> voice_channel [VoiceChannel]''',
-'''#] ROLE
-> name [str]
-> permissions [Permissions]
-> color [Color]
-> hoist [bool]
-> mentionable [bool]
-> position [int]
--
-#] EMOJI
-> name [str]
-> roles [LIST: Role]'''], low='```md\n> reason [str]\n#] SYNTAX\n> <kwarg>=<value>\n#] HAVING TROUBLE WITH STRINGS? USE `\\u0020` INSTEAD!```',
-    name='AUDIT HELP')
-
+    try:
+        rct, mbr = await bot.wait_for('reaction_add',timeout=60.0,check=chk)
+    except asyncio.TimeoutError:
+        return await ctx.send("```diff\n-] TIMEOUT```")
     else:
-        return await ctx.send(f'```diff\n-] ALIAS \'{typ}\' NOT FOUND [chnl, vc, gld, mbr, emoji, catagory, role]```')
 
+        if rct.emoji == '\N{REGIONAL INDICATOR SYMBOL LETTER T}':
+            await msg.clear_reactions()
+            await msg.edit(embed=embedify(title='TEXT CHANNEL MANAGEMENT ;]',
+                                          desc = '```md\n#] PLEASE PING A CHANNEL TO CONTINUE```'))
+            try:
+                msg2 = await bot.wait_for('message',timeout=60.0,check=chc)
+            except asyncio.TimeoutError:
+                return await ctx.send("```diff\n-] TIMEOUT```")
+            else:
+                target = discord.utils.find(lambda c: c.name == msg2.content or f'<#{c.id}>' == msg2.content \
+                                            or str(c.id) == msg2.content, ctx.guild.text_channels)
+                await msg2.delete()
+                if not target:
+                    return await ctx.send(f'```diff\n-] TEXT CHANNEL NOT FOUND```')
+                await msg.edit(embed=embedify(title=f'#{target.name} MANAGEMENT ;]',
+                                              desc = f'''```md
+#] OPTIONS FOR TEXT CHANNEL #{target.name}
+> [STR ] name      [is currently '{target.name}']
+> [STR ] topic
+> [INT ] position  [is currently {target.position}]
+> [BOOL] nsfw      [is currently {target.nsfw}]
+> [BOOL] sync_permissions
+> [INT ] slowmode_delay [is currently {target.slowmode_delay}]
+> [STR ] reason    [DEFAULT: 'REQUESTED BY ] {str(ctx.author)}']
+#] SYNTAX: 'arg=bool', 'arg="String"', 'arg=int', sep args by new line```'''))
+                try:
+                    msg2 = await bot.wait_for('message',timeout=60.0,check=chc)
+                except asyncio.TimeoutError:
+                    return await ctx.send("```diff\n-] TIMEOUT```")
+                else:
+                    kwargs = getArgs(msg2.content)
+                    await msg2.delete()
+                    try:
+                        kwargs['reason']
+                    except:
+                        kwargs['reason'] = f'REQUESTED BY ] {str(ctx.author)}'
+                    await target.edit(**kwargs)
+
+        elif rct.emoji == '\N{REGIONAL INDICATOR SYMBOL LETTER V}':
+            await msg.clear_reactions()
+            await msg.edit(embed=embedify(title='VOICE CHANNEL MANAGEMENT ;]',
+                                          desc = '```md\n#] PLEASE TYPE THE NAME OF A VOICE CHANNEL TO CONTINUE```'))
+            try:
+                msg2 = await bot.wait_for('message',timeout=60.0,check=chc)
+            except asyncio.TimeoutError:
+                return await ctx.send("```diff\n-] TIMEOUT```")
+            else:
+                target = discord.utils.find(lambda c: c.name == msg2.content or str(c.id) == msg2.content, ctx.guild.voice_channels)
+                await msg2.delete()
+                if not target:
+                    return await ctx.send(f'```diff\n-] VOICE CHANNEL NOT FOUND```')
+                await msg.edit(embed=embedify(title=f'#{target.name} MANAGEMENT ;]',
+                                              desc = f'''```md
+#] OPTIONS FOR VOICE CHANNEL #{target.name}
+> [STR ] name       [is currently '{target.name}']
+> [INT ] bitrate    [is currently {target.bitrate}]
+> [INT ] user_limit [is currently {target.user_limit}]
+> [INT ] position   [is currently {target.position}]
+> [BOOL] sync_permissions
+> [STR ] reason     [DEFAULT: 'REQUESTED BY ] {str(ctx.author)}']
+#] SYNTAX: 'arg=bool', 'arg="String"', 'arg=int', sep args by new line```'''))
+                try:
+                    msg2 = await bot.wait_for('message',timeout=60.0,check=chc)
+                except asyncio.TimeoutError:
+                    return await ctx.send("```diff\n-] TIMEOUT```")
+                else:
+                    kwargs = getArgs(msg2.content)
+                    await msg2.delete()
+                    try:
+                        kwargs['reason']
+                    except:
+                        kwargs['reason'] = f'REQUESTED BY ] {str(ctx.author)}'
+                    await target.edit(**kwargs)
+
+        elif rct.emoji == '\N{REGIONAL INDICATOR SYMBOL LETTER M}':
+            await msg.clear_reactions()
+            await msg.edit(embed=embedify(title='MEMBER MANAGEMENT ;]',
+                                          desc = '```md\n#] PLEASE PING A MEMBER TO CONTINUE```'))
+            try:
+                msg2 = await bot.wait_for('message',timeout=60.0,check=chc)
+            except asyncio.TimeoutError:
+                return await ctx.send("```diff\n-] TIMEOUT```")
+            else:
+                target = discord.utils.find(lambda c: c.name == msg2.content or f'<@{c.id}>' == msg2.content or str(c.id) == msg2.content or \
+                                                      f'{c.name}#{c.discriminator}' == msg2.content or c.nick == msg2.content, ctx.guild.members)
+                await msg2.delete()
+                if not target:
+                    return await ctx.send(f'```diff\n-] MEMBER NOT FOUND```')
+                await msg.edit(embed=embedify(title=f'@{target.name} MANAGEMENT ;]',
+                                              desc = f'''```md
+#] OPTIONS FOR MEMBER @{target.name}
+> [STR ] nick      [is currently '{target.name}']
+> [BOOL] mute      [is currently {target.voice.mute if target.voice else "None"}]
+> [BOOL] deafen    [is currently {target.voice.deaf if target.voice else "None"}]
+> [ROLE] roles     [use the ';]role' command]
+> [STR ] reason    [DEFAULT: 'REQUESTED BY ] {str(ctx.author)}']
+#] SYNTAX: 'arg=bool', 'arg="String"', 'arg=int', sep args by new line```'''))
+                try:
+                    msg2 = await bot.wait_for('message',timeout=60.0,check=chc)
+                except asyncio.TimeoutError:
+                    return await ctx.send("```diff\n-] TIMEOUT```")
+                else:
+                    kwargs = getArgs(msg2.content)
+                    await msg2.delete()
+                    try:
+                        kwargs['reason']
+                    except:
+                        kwargs['reason'] = f'REQUESTED BY ] {str(ctx.author)}'
+                    await target.edit(**kwargs)
+
+        elif rct.emoji == '\N{REGIONAL INDICATOR SYMBOL LETTER G}':
+            await msg.clear_reactions()
+            target = ctx.guild
+            await msg.edit(embed=embedify(title=f'GUILD MANAGEMENT ;]',
+                                            desc = f'''```md
+#] OPTIONS FOR GUILD
+> [STR ] name        [is currently '{target.name}']
+> [STR ] description
+> [INT ] afk_timeout [is currently {target.afk_timeout}]
+> [STR ] vanity_code [is currently {target.vanity_code}]
+> [STR ] reason      [DEFAULT: 'REQUESTED BY ] {str(ctx.author)}']
+#] SYNTAX: 'arg=bool', 'arg="String"', 'arg=int', sep args by new line```'''))
+            try:
+                msg2 = await bot.wait_for('message',timeout=60.0,check=chc)
+            except asyncio.TimeoutError:
+                return await ctx.send("```diff\n-] TIMEOUT```")
+            else:
+                kwargs = getArgs(msg2.content)
+                await msg2.delete()
+                try:
+                    kwargs['reason']
+                except:
+                    kwargs['reason'] = f'REQUESTED BY ] {str(ctx.author)}'
+                await target.edit(**kwargs)
+
+        elif rct.emoji == '\N{REGIONAL INDICATOR SYMBOL LETTER R}':
+            await msg.clear_reactions()
+            await msg.edit(embed=embedify(title='ROLE MANAGEMENT ;]',
+                                          desc = '```md\n#] PLEASE PING A ROLE TO CONTINUE```'))
+            try:
+                msg2 = await bot.wait_for('message',timeout=60.0,check=chc)
+            except asyncio.TimeoutError:
+                return await ctx.send("```diff\n-] TIMEOUT```")
+            else:
+                target = discord.utils.find(lambda c: c.name == msg2.content or f'<@&{c.id}>' == msg2.content or str(c.id) == msg2.content or \
+                                                      f'@{c.name}' == msg2.content or f'<&{c.id}>' == msg2.content, ctx.guild.roles)
+                await msg2.delete()
+                if not target:
+                    return await ctx.send(f'```diff\n-] ROLE NOT FOUND```')
+                await msg.edit(embed=embedify(title=f'@&{target.name} MANAGEMENT ;]',
+                                              desc = f'''```md
+#] OPTIONS FOR ROLE @{target.name}
+> [STR ] name        [is currently '{target.name}']
+> [COL ] color       [is currently {target.color}]
+> [BOOL] hoist       [is currently {target.hoist}]
+> [BOOL] mentionable [is currently {target.mentionable}]
+> [INT ] position    [is currently {target.position}]
+> [STR ] reason      [DEFAULT: 'REQUESTED BY ] {str(ctx.author)}']
+#] SYNTAX: 'arg=bool', 'arg="String"', 'arg=int', sep args by new line```'''))
+                try:
+                    msg2 = await bot.wait_for('message',timeout=60.0,check=chc)
+                except asyncio.TimeoutError:
+                    return await ctx.send("```diff\n-] TIMEOUT```")
+                else:
+                    kwargs = getArgs(msg2.content)
+                    await msg2.delete()
+                    try:
+                        kwargs['reason']
+                    except:
+                        kwargs['reason'] = f'REQUESTED BY ] {str(ctx.author)}'
+                    await target.edit(**kwargs)
+
+    #elif typ.lower() in ['emoji','emj','emji']:
+        #await emj.edit(**kwargs)
+
+    #elif typ.lower() in ['catagory','cat']:
+        #await ctx.guild.get_channel(iID).edit(**kwargs)
+    await msg.delete()
     await ctx.message.add_reaction('<:wrk:608810652756344851>')
-
 ##///---------------------///##
 ##///     OTHER STUFF     ///##
 ##///---------------------///##

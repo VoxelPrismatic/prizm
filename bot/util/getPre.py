@@ -1,7 +1,7 @@
-import json
+from util import dbman
 def getPre(bot,msg):
     try:
-        return json.load(open('json/prefixes.json'))[str(msg.guild.id)]
+        return dbman.get('pre','pre',id=int(msg.guild.id))
     except Exception as ex:
         print(ex)
         return ";]"
