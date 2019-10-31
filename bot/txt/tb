@@ -1,8 +1,0 @@
-  File "/home/priz/.local/lib/python3.7/site-packages/discord/ext/commands/core.py", line 79, in wrapped
-    ret = await coro(*args, **kwargs)
-  File "/home/priz/Desktop/PRIZM/com/math/graph.py", line 156, in graph
-    label, gr = await labels(ctx, x, y, eq, maximum, minimum, zeros, yinter)
-  File "/home/priz/Desktop/PRIZM/com/math/graph.py", line 67, in labels
-    st = ', '.join(f'[{round(z, 4)}, 0.0]' for z in sp.solve(eq, x))
-  File "/home/priz/Desktop/PRIZM/com/math/graph.py", line 67, in <genexpr>
-    st = ', '.join(f'[{round(z, 4)}, 0.0]' for z in sp.solve(eq, x))
