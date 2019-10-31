@@ -18,7 +18,7 @@ __pycache__
 #SENSITIVE INFO
 bot/secrets.txt
 bot/util/prawUser.py
-#bot/util/praw_util.py
+bot/util/praw_util.py
 bot/util/botlst.py
 bot/txt/interpreter.txt
 
