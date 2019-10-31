@@ -2,14 +2,15 @@ import discord                    #python3.7 -m pip install -U discord.py
 import logging
 import asyncio
 import datetime
-from util import embedify
+from util.embedify import emb
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 
 def init():
     global _inst
     _inst = dict()
-async def PageThis(ctx, lit, name, low="", thumb=None, mono = True,typ = 'md'):
+
+async def PageThis(ctx, lit, name, low = "", thumb = None, mono = True, typ = 'md'):
     """
     >>> MAIN PAGINATOR FOR MOST COMMANDS <<<
       CTX - [CTX ] Context, allows this paginator to grab the author, channel, and other things
@@ -24,14 +25,6 @@ async def PageThis(ctx, lit, name, low="", thumb=None, mono = True,typ = 'md'):
     num = 0
     usr = ctx.author
 
-    def emb(text, thumb=None, foot=None):
-        "EMBED MAKER"
-        return embedify.embedify(title="PRIZM ;]",
-                                 desc=text,
-                                 color=0x00ffff,
-                                 thumb=thumb,
-                                 foot=foot)
-
     def check(reaction, user):
         """
         CHECKS IF THE REACTION AUTHOR IS THE SAME AS THE PERSON WHO
@@ -40,7 +33,7 @@ async def PageThis(ctx, lit, name, low="", thumb=None, mono = True,typ = 'md'):
         try: return user == _inst[reaction.message.id]['usr']
         except: pass
 
-    def save(msg,lit,num,usr,low,name,thumb,mono,typ):
+    def save(msg, lit, num, usr, low, name, thumb, mono, typ):
         """
         >>> SAVES THE CONTENTS TO A DICT <<<
       CTX - [CTX ] Context, allows this paginator to grab the author, channel, and other things
@@ -80,25 +73,29 @@ async def PageThis(ctx, lit, name, low="", thumb=None, mono = True,typ = 'md'):
         mID - [INT] The message ID
         """
         itm = _inst[mID]
-        return f"```md\n#] PRIZM {itm['nam']} ;]```"+('```'+itm['typ']+'\n' if itm['mono'] else '')+itm['lit'][itm['num']]+('```' if itm['mono'] else '\n')+itm['end']
+        return f"```md\n#] PRIZM {itm['nam']} ;]```" + ('```' + itm['typ'] + '\n' if itm['mono'] else '')\
+               + itm['lit'][itm['num']] + ('```' if itm['mono'] else '\n') + itm['end']
 
-    if [list(foo.values())[3] for foo in _inst.values()].count(ctx.author) > 2:return await ctx.send('''```md
+    if [list(foo.values())[3] for foo in _inst.values()].count(ctx.author) > 2:
+        return await ctx.send('''```md
 #] TOO MANY INSTANCES
-> You already have 3 commands open
-> Please close one to continue
-> This helps prevent spam :D```''')
+>  You already have 3 commands open
+>  Please close one to continue
+>  This helps prevent spam :D```''')
 
     if len(lit) == 1:
-        return await ctx.send(embed=emb(f"```md\n#] PRIZM {name} ;]```"+('```'+typ+'\n' if mono else '')+lit[num]+('```' if mono else '\n')+low,
+        return await ctx.send(embed=emb(desc=f"```md\n#] PRIZM {name} ;]```" + ('```'+typ+'\n' if mono else '')\
+                                        + lit[num] + ('```' if mono else '\n')+low,
                                         foot=f"[1/{len(lit)}] // PRIZM ;]",
                                         thumb=thumb))
 
-    msg = await react(await ctx.send(embed=embedify.embedify(title='LOADING ;]',
-                                                             desc='```md\n#] STARTING... PLEASE WAIT```')))
+    msg = await react(await ctx.send(embed=emb(title='LOADING ;]',
+                                               desc='```md\n#] STARTING... PLEASE WAIT```')))
 
-    await msg.edit(embed=emb(f"```md\n#] PRIZM {name} ;]```"+('```'+typ+'\n' if mono else '')+lit[num]+('```' if mono else '\n')+low,
-                         foot=f"[1/{len(lit)}] // PRIZM ;]",
-                         thumb=thumb))
+    await msg.edit(embed=emb(desc=f"```md\n#] PRIZM {name} ;]```" + ('```'+typ+'\n' if mono else '')\
+                             + lit[num] + ('```' if mono else '\n') + low,
+                             foot=f"[1/{len(lit)}] // PRIZM ;]",
+                             thumb=thumb))
 
     if len(lit) > 1 and msg.id not in _inst:
         save(msg,lit,num,usr,low,name,thumb,mono,typ)
@@ -115,9 +112,10 @@ async def PageThis(ctx, lit, name, low="", thumb=None, mono = True,typ = 'md'):
                         tm = imsg.edited_at.timestamp()
                     if float(datetime.datetime.utcnow().timestamp()-tm) > 59:
                         delet.append(tmsg)
-                        await imsg.edit(embed=emb(page(imsg.id),foot=f"[{num+1}/{len(lit)}] // TIMEOUT", thumb=thumb))
+                        await imsg.edit(embed=emb(desc=page(imsg.id),foot=f"[{num+1}/{len(lit)}] // TIMEOUT", thumb=thumb))
                         await imsg.clear_reactions()
-                for m in delet: del _inst[m]
+                for m in delet:
+                    del _inst[m]
             else:
                 if reaction.message.id in _inst:
                     msg, lit, num, usr, low, name, thumb, mono, typ = _inst[reaction.message.id].values()
@@ -131,7 +129,7 @@ async def PageThis(ctx, lit, name, low="", thumb=None, mono = True,typ = 'md'):
                         num -= 1
 
                     elif s == r[2]: #Stop
-                        await msg.edit(embed=emb(page(msg.id),foot=f"[{num+1}/{len(lit)}] // STOPPED", thumb=thumb))
+                        await msg.edit(embed=emb(desc=page(msg.id), foot=f"[{num+1}/{len(lit)}] // STOPPED", thumb=thumb))
                         try:
                             await msg.clear_reactions()
                         except:
@@ -140,6 +138,7 @@ async def PageThis(ctx, lit, name, low="", thumb=None, mono = True,typ = 'md'):
                             del _inst[reaction.message.id]
                         except:
                             pass
+                        return
 
                     elif s == r[6]: #Recycle
                         del _inst[reaction.message.id]
@@ -152,14 +151,14 @@ async def PageThis(ctx, lit, name, low="", thumb=None, mono = True,typ = 'md'):
                         num = len(lit) - 1
 
                     elif s == r[5]: #Numbers
-                        ms = await ctx.send('```md\n#]ENTER PAGE NUMBER```')
+                        ms = await ctx.send('```md\n#] ENTER PAGE NUMBER```')
                         def chk(ms1):
-                            return ms1.author==user
+                            return ms1.author == user
                         try:
                             ms1 = await bot.wait_for('message', timeout=10.0, check=chk)
                         except asyncio.TimeoutError:
                             await ms.delete()
-                            await ctx.send('```diff\n-]TIMEOUT [10s]```', delete_after=3.0)
+                            await ctx.send('```diff\n-] TIMEOUT [10s]```', delete_after=3.0)
                         else:
                             try:
                                 await ms.delete(); await ms1.delete()
@@ -181,8 +180,8 @@ async def PageThis(ctx, lit, name, low="", thumb=None, mono = True,typ = 'md'):
                     except:
                         pass
 
-                    save(msg,lit,num,usr,low,name,thumb,mono,typ)
+                    save(msg, lit, num, usr, low, name, thumb, mono, typ)
 
-                    await msg.edit(embed=emb(page(msg.id),
-                                             foot=f'[{num+1}/{len(lit)}] // '+('PLEASE RE-REACT' if type(msg.channel)==discord.DMChannel else 'PRIZM ;]'),
+                    await msg.edit(embed=emb(desc=page(msg.id),
+                                             foot=f'[{num+1}/{len(lit)}] // '+ ('PLEASE RE-REACT' if type(msg.channel) == discord.DMChannel else 'PRIZM ;]'),
                                              thumb=thumb))
