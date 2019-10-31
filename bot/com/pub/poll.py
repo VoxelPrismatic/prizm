@@ -14,16 +14,21 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'fun',
+@commands.command(aliases = [],
+                  help = 'fun',
                   brief = 'Creates a poll',
-                  usage = ';]poll {txt}',
-                  description = 'TEXT [STR] - The poll content')
+                  usage = ';]poll {text}',
+                  description = '''\
+TEXT [TEXT] - The poll description
+''')
 @commands.check(enbl)
-async def poll(ctx, *, txt):
-        await ctx.channel.purge(limit=1)
+async def poll(ctx, *, text = ""):
+        await ctx.message.delete()
+        if not text:
+            text = f"@{str(ctx.author)} should probably add a better description here..."
         msg = await ctx.send(embed=embedify.embedify(desc=f'```md\n#] POLL!\n> {txt}```',foot="React √ If You Agree ;]"))
-        await msg.add_reaction('\u2705')
-        await msg.add_reaction('\u274C')
+        await msg.add_reaction('<:yes:614129663693946884>')
+        await msg.add_reaction('<:no:614129709197819908>')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

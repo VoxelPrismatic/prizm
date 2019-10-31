@@ -5,8 +5,11 @@
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
 import typing
+from typing import Optional as Opt
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
+from discord.ext.commands import Greedy as Grab
+from util.ez import ifstr
 from chk.enbl import enbl
 
 
@@ -14,19 +17,19 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'mod',
-                  brief = 'Bans {member} for {reason} and deletes their messages from the past {x} days',
-                  usage = ';]ban {mbr1} {mbr2} {...} {?num} {?rsn}',
-                  description = '''\
-MBRx [MEMBER] - The target member, ID or ping or name
-NUM  [INT   ] - Delete messages from the past {x} days
-RSN  [STR   ] - The reason for the ban''')
+@commands.command(aliases = [],
+                      help = 'mod',
+                      brief = 'Bans {member} for {reason} and deletes their messages from the past {x} days',
+                      usage = ';]ban {member1} {member2} {...} {memberX} {?num} {?reason}',
+                      description = '''\
+MEMBERx [MEMBER] - The target member[s], name or ping or ID
+NUM     [NUMBER] - Delete messages from the past {x} days
+REASON  [TEXT  ] - The reason for the ban
+''')
 @commands.check(enbl)
-@has_permissions(ban_members=True)
-async def ban(ctx, members: commands.Greedy[discord.Member],
-                delete_days: typing.Optional[int] = 0, *, reason: str):
+async def ban(ctx, members: Grab[discord.Member], delete_days: Opt[int] = 0, *, reason: str = None):
     for member in members:
-        await member.ban(reason=reason if reason else f'REQUESTED BY ] {str(ctx.author)}')
+        await member.ban(reason = ifstr(reason, f'REQUESTED BY ] {str(ctx.author)}'))
     await ctx.message.add_reaction('<:wrk:608810652756344851>')
 
 ##///---------------------///##

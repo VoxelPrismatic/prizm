@@ -12,10 +12,13 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'fun',
+@commands.command(aliases = [],
+                  help = 'fun',
                   brief = 'esreveR',
                   usage = ';]rev {phrase}',
-                  description = 'PHRASE [STR] - The stuff to reverse')
+                  description = '''\
+PHRASE [TEXT] - The stuff to reverse
+''')
 @commands.check(enbl)
 async def rev(ctx, *, phrase):
     await ctx.send(phrase[::-1])

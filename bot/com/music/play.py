@@ -53,18 +53,19 @@ class Video:
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help='music',
-                  brief='Plays Music',
-                  usage=';]play {vc} {link}',
-                  description='''\
-LINK [STR] - Link to some file, youtube video, or is a youtube search
-           - YOUTUBE SEARCH
-             > SYNTAX: ";]play {vc} yt-{search}"
-             > SEARCH RESULT: append "-i={search result number}"
-                              to get that result playing
-VC   [VC ] - The VC I should join''')
+@commands.command(aliases = [],
+                  help = 'music',
+                  brief = 'Plays Music',
+                  usage = ';]play {vc} {link}',
+                  description = '''\
+LINK [TEXT] - Link to some file, youtube video, or is a youtube search
+> YOUTUBE SEARCH---
+> > Syntax ] ";]play {vc} yt-{search}"
+> > Add "-i={video number}" to get that result playing
+VC   [VC  ] - The VC I should join, name or ID
+''')
 @commands.check(enbl)
-async def play(ctx,vc:discord.VoiceChannel, *, link):
+async def play(ctx, vc: discord.VoiceChannel, *, link):
     vcC = ctx.voice_client
     if not vcC:
         await vc.connect() # vcC is None if it doesnt exist

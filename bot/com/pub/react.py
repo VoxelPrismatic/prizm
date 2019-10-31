@@ -12,10 +12,14 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'fun',
+@commands.command(aliases = [],
+                  help = 'fun',
                   brief = 'Adds reactions quickly and easily',
-                  usage = ';]react {mID} {rct1} {rct2} {...}',
-                  description = 'mID  [INT] - The message\nRCTx [ANY] - The reaction[s]')
+                  usage = ';]react {message} {reactions...}',
+                  description = '''\
+MESSAGE   [MESSAGE] - The message, URL or ID
+REACTIONS [ANY    ] - The reaction[s], can be letters, custom, or default
+    ''')
 @commands.check(enbl)
 async def react(ctx, mID: discord.Message, *reactions):
     await ctx.message.delete()

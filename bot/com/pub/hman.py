@@ -18,14 +18,14 @@ games = {}; count = 0
                   help = 'fun',
                   brief = 'DONT Hang the man',
                   usage = ';]hangman',
-                  description = '[NO ARGS FOR THIS COMMAND]')
+                  description = '[NO INPUT FOR THIS COMMAND]')
 @commands.check(enbl)
 async def hangman(ctx):
     global games
     if ctx.author.id in list(games):
         return await ctx.send('```diff\n-] YOUR ALREADY PLAYING SOMEWHERE UwU```')
     if ctx.channel.id in [x[1] for x in list(games)]:
-        return await ctx.send('```A GAME IS ALREADY IN THIS CHANNEL UwU```')
+        return await ctx.send('```diff\n-] A GAME IS ALREADY IN THIS CHANNEL UwU```')
     st = ch([x[:-1] for x in open('/usr/share/dict/words','r').readlines()]).upper()
 
     while "'" in st or len(st)<5:
@@ -68,11 +68,11 @@ async def hangman(ctx):
         elif v.content == st:
             st2 == st
 
-        await games[v.author.id][0].edit(embed=embedify.embedify(desc=st2,foot=f"LIVES // {6-guess} || GUESSES // {','.join(ltr)} || Send 'stop' to stop"))
+        await games[v.author.id][0].edit(embed=embedify.embedify(desc=st2,foot=f"LIVES ] {6-guess} // GUESSES ] {','.join(ltr)} // Send 'stop' to stop"))
     if guess >= 6:
-        await ctx.send(f'```diff\n-] YOU LOST\n-] WORD // {st}```')
+        await ctx.send(f'```diff\n-] YOU LOST\n-] WORD ] {st}```')
     elif y == 'STOP':
-        await ctx.send(f'```diff\n-] FORCE GAME END\n-] WORD // {st}```')
+        await ctx.send(f'```diff\n-] YOU QUIT\n-] WORD ] {st}```')
     elif st == st2.replace(' ',''):
         await ctx.send('```md\n#] YOU WON!```')
     del games[v.author.id]

@@ -6,23 +6,27 @@ import discord                    #python3.7 -m pip install -U discord.py
 import logging
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
+from discord.ext.commands import Greedy as Grab
+from util.ez import ifstr
 from chk.enbl import enbl
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help='mod',
-                  brief = 'Kicks a {member}',
-                  usage = ';]kick {mbr1} {mbr2} {...}',
-                  description = 'MBRx [MEMBER] - The target member, ID or ping or name')
+@commands.command(aliases = [],
+                      help = 'mod',
+                      brief = 'Kicks {member} for {reason}',
+                      usage = ';]kick {member1} {member2} {...} {memberX} {?reason}',
+                      description = '''\
+MEMBERx [MEMBER] - The target member[s], name or ping or ID
+REASON  [TEXT  ] - The reason for the ban
+''')
 @commands.check(enbl)
-@has_permissions(kick_members=True)
-async def kick(ctx, *members: discord.Member):
+async def kick(ctx, members: Grab[discord.Member], *, reason: str = None):
     for member in members:
-        await kick(member, reason=f"REQUESTED BY {ctx.author}")
+        await member.kick(reason = ifstr(reason, f'REQUESTED BY ] {str(ctx.author)}'))
     await ctx.message.add_reaction('<:wrk:608810652756344851>')
-
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

@@ -12,10 +12,12 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'inf',
-                  brief = 'Shows aditional bot info',
-                  usage = ';]info',
-                  description = '[NO ARGS FOR THIS COMMAND]')
+@commands.command(aliases = [], 
+                      help = 'inf',
+                      brief = 'Shows aditional bot info',
+                      usage = ';]info',
+                      description = '''    [NO ARGS FOR THIS COMMAND]
+    ''')
 @commands.check(enbl)
 async def info(ctx):
     await ctx.send('''```md

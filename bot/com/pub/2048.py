@@ -102,7 +102,9 @@ games = {}
                   help='fun',
                   brief='2048 but in Discord',
                   usage=';]2048 {?size}',
-                  description='SIZE [INT] - The size [is square] DEFAULT: 4')
+                  description='''\
+SIZE [INT] - The size [is square] DEFAULT: 4
+''')
 @commands.check(enbl)
 async def _2048(ctx, size:int=4):
     grid = [[0 for x in range(size)] for y in range(size)]
@@ -133,7 +135,7 @@ async def _2048(ctx, size:int=4):
     while len(games):
         try:
             rct, usr = await ctx.bot.wait_for('reaction_add', timeout = 60.0, check = verify)
-            try: 
+            try:
                 score, msg, usr, grid, updated = games[rct.message.id].values()
             except:
                 raise asyncio.TimeoutError

@@ -12,14 +12,20 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
+@commands.command(aliases=[],
+                  help = "fun",
+                  brief = "Echo echo echo!",
+                  usage = ";]echo {text}",
+                  description = '''\
+TEXT [TEXT] - What to echo
+''')
 @commands.check(enbl)
-async def echo(ctx, *, mCTX):
+async def echo(ctx, *, text):
     try:
         await ctx.message.delete()
     except:
         pass
-    await ctx.send(content=mCTX)
+    await ctx.send(content=text)
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

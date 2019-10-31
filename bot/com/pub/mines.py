@@ -14,10 +14,14 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help='fun',
+@commands.command(aliases = [],
+                  help = 'fun',
                   brief = 'Sweep mines away',
                   usage = ';]mines {?size} {?mines}',
-                  description = 'SIZE  [INT] - X by X tiles DEFAULT: 10\nMINES [INT] - How many mines DEFAULT: 10')
+                  description = '''\
+SIZE  [NUMBER] - X by X tiles
+MINES [NUMBER] - How many mines
+''')
 @commands.check(enbl)
 async def mines(ctx, size:int=10, mines:int=10):
     if mines >= size*size-1:
@@ -43,24 +47,25 @@ async def mines(ctx, size:int=10, mines:int=10):
         table[x][y] = 'X'
     for x in range(size):
         for y in range(size):
-            try: table = add(x,y+1,x,y,table);print(x,y)
+            try:
+                table = add(x,y+1,x,y,table)
             except: pass
             try: table = add(x,y-1,x,y,table)
             except: pass
-            try: table = add(x+1,y,x,y,table)
-            except: pass
-            try: table = add(x-1,y,x,y,table)
-            except: pass
-            try: table = add(x+1,y+1,x,y,table)
-            except: pass
-            try: table = add(x+1,y-1,x,y,table)
-            except: pass
-            try: table = add(x-1,y+1,x,y,table)
-            except: pass
-            try: table = add(x-1,y-1,x,y,table)
-            except: pass
+            try:
+                table = add(x+1,y,x,y,table)
+                table = add(x+1,y+1,x,y,table)
+                table = add(x+1,y-1,x,y,table)
+            except:
+                pass
+            try:
+                table = add(x-1,y,x,y,table)
+                table = add(x-1,y+1,x,y,table)
+                table = add(x-1,y-1,x,y,table)
+            except:
+                pass
     await ctx.send(embed=embedify.embedify(desc='||`['+']`||\n||`['.join(']`||||`['.join(x) for x in table)+']`||',
-                                           foot=f'SIZE // {size}x{size} || MINES // {mines}'))
+                                           foot=f'SIZE ] {size}x{size} || MINES ] {mines}'))
 
 
 ##///---------------------///##

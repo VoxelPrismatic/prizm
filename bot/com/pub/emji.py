@@ -12,19 +12,20 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'fun',
+@commands.command(aliases = ["steal"],
+                  help = 'fun',
                   brief = 'Steals an emoji for you',
-                  usage = ';]emji {emj1} {emj2} {...}',
-                  description = 'EMJx [EMOJI] - The emoji you want to steal')
+                  usage = ';]emji {emoji1} {emoji2} {...}',
+                  description = '''\
+EMOJIx [EMOJI] - The emoji you want to steal, must be custom
+''')
 @commands.check(enbl)
 async def emji(ctx, *emot:discord.Emoji):
     for icon in emot:
         try:
-            await ctx.author.send(icon.url)
-        except discord.NotFound:
-            await ctx.send(f'```diff\n-] I couldn\'t find that emoji >~< [{str(icon)}]\n=] Make sure it is a custom emoji and I am in it\'s respective server```')
+            await ctx.author.send('https://cdn.discordapp.com/emojis/'+icon.split(':')[1]+('.gif' if '<a:' in icon else '.png'))
         except:
-            await ctx.send('```Something wrong happened... Make sure your DMs are open 0.0```')
+            await ctx.send('```diff\n-] MAKE SURE YOUR DMS ARE OPEN```')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##
@@ -38,4 +39,3 @@ def teardown(bot):
     print('-COM')
     bot.remove_command('emji')
     print('GOOD')
-

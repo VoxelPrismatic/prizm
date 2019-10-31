@@ -4,6 +4,7 @@
 #/// DEPENDENCIES
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
+import random
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
@@ -12,13 +13,16 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help='fun',
-                  brief='Are you a bot?',
-                  usage=';]captcha {mbr}',
-                  description='MBR [MEMBER] A member, ping or name or ID')
+@commands.command(aliases = [],
+                  help = 'fun',
+                  brief = 'Are you a bot?',
+                  usage = ';]captcha {member}',
+                  description = '''\
+MEMBER [MEMBER] - The member to test, they may fail
+''')
 @commands.check(enbl)
 async def captcha(ctx, mbr: discord.Member):
-    if mbr.bot:
+    if mbr.bot or not random.randint(0, 2):
         await ctx.send('''```diff
 - ______________________________
 - |                            |
@@ -30,6 +34,7 @@ async def captcha(ctx, mbr: discord.Member):
 # |                            |
 # | [\u221a] You are a human        |
 # |____________________________|```''')
+
 ##///---------------------///##
 ##///     OTHER STUFF     ///##
 ##///---------------------///##

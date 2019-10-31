@@ -13,11 +13,17 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=["exec"],
-                  help='oth',
-                  brief='A public exec command to test your code!',
-                  usage=';]code {lang} {code}',
-                  description='LANG [STR] - The language to use, js or py\nCODE [STR] - The code to execute')
+@commands.command(aliases = ['exec'],
+                      help = 'oth',
+                      brief = 'A public exec command to test your code!',
+                      usage = ';]code {lang} {code}',
+                      description = '''\
+LANG [STR] - The language to use
+> 'js' for JavaScript
+> 'py' for Python
+> 'tr' for Boolean Logic
+CODE [STR] - The code to execute
+''')
 @commands.check(enbl)
 async def code(ctx, lang, *, code):
     code = code.replace('\n','\\n')

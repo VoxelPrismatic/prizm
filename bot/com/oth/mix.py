@@ -20,22 +20,25 @@ except ImportError:
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'ai',
-                  brief = 'A noise generator with 2 inputs',
-                  usage = ';]mix {action} {?args}',
-                  description = '''\
-ACTION [STR] - [slot1, slot2, imgs, view, slots, kill]
-                slot1 - Load an attached image into the "image" file
-                slot2 - Load an attached image into the "pattern" file
-                imgs  - View currently loaded images
-                view  - View the status of the current mix
-                slots - Start the mixing
-                kill  - Kills the current process if you started it
-ARGS   [STR] - [-iter=,-np]
-                -iter= - Set the number of iterations [max 120, min 5]
-                -np    - Do not ping when finished''')
+@commands.command(aliases = [],
+                      help = 'ai',
+                      brief = 'A noise generator with 2 inputs',
+                      usage = ';]mix {action} {?args}',
+                      description = '''\
+ACTION [TEXT] - [slot1, slot2, imgs, view, slots, kill]
+> slot1 - Load an attached image into the "image" file
+> slot2 - Load an attached image into the "pattern" file
+> imgs  - View currently loaded images
+> view  - View the status of the current mix
+> slots - Start the mixing
+> kill  - Kills the current process if you started it
+ARGS   [TEXT] - [-iter=, -np]
+> -iter= - Set the number of iterations [max 120, min 5]
+>    -np - Do not ping when finished
+
+    ''')
 @commands.check(enbl)
-async def mix(ctx,*, arg):
+async def mix(ctx, *, action):
 
     if arg.split()[0] in ['slot1','s1','1','img1']:
         if open('mix/status').read() != 'DONE':

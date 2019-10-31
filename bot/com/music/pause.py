@@ -20,11 +20,11 @@ def rand(ll,tt): return random.randint(ll,tt)
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=['resume','continue','stop'],
-                  help='music',
-                  brief='Toggles the music',
-                  usage=';]pause',
-                  description='[NO ARGS FOR THIS COMMAND]')
+@commands.command(aliases = ['resume', 'continue', 'stop'],
+                  help = 'music',
+                  brief = 'Toggles the music',
+                  usage = ';]pause',
+                  description = '''[NO INPUT FOR THIS COMMAND]''')
 @commands.check(enbl)
 async def pause(ctx):
     vcC = ctx.voice_client

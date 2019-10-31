@@ -12,10 +12,14 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'fun',
+@commands.command(aliases = [],
+                  help = 'fun',
                   brief = 'iM nOt MoCkInG yOu',
-                  usage = ';]mock {msg}',
-                  description = 'MSG [INT] - The ID of the message you want me to mock')
+                  usage = ';]mock {?message}',
+                  description = '''\
+MESSAGE [MESSAGE] - The message you want me to mock, ID or URL
+> Will use the latest message in chat if not specified
+''')
 @commands.check(enbl)
 async def mock(ctx,msg:discord.Message=None):
     await ctx.message.delete()

@@ -13,23 +13,26 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'fun',
+@commands.command(aliases = [],
+                  help = 'fun',
                   brief = 'Converts binary to text, and text to binary',
-                  usage = ';]binary {st}',
-                  description = 'ST [STR] - The stuff to convert to/from binary')
+                  usage = ';]binary {text}',
+                  description = '''\
+TEXT [TEXT] - The stuff to convert to/from binary
+''')
 @commands.check(enbl)
-async def binary(ctx, *, st):
+async def binary(ctx, *, text):
     try:
         try:
-           sr = st.replace(' ', '')
-           await ctx.send(embed=embedify.embedify(desc=f'{"".join([chr(int(sr[i:i+8], 2)) for i in range(0, len(sr), 8)])}'))
+            sr = text.replace(' ', '')
+            await ctx.send(embed=embedify.embedify(desc=f'{"".join([chr(int(sr[i:i+8], 2)) for i in range(0, len(sr), 8)])}'))
         except:
             await ctx.send(f'{"".join([chr(int(sr[i:i+8], 2)) for i in range(0, len(sr), 8)])}')
     except ValueError:
         try:
-            await ctx.send(embed=embedify.embedify(desc=f'{"".join((bin(ord(x))[2:].zfill(8) for x in st))}'))
+            await ctx.send(embed=embedify.embedify(desc=f'{" ".join((bin(ord(x))[2:].zfill(8) for x in text))}'))
         except:
-            await ctx.send(f'{"".join((bin(ord(x))[2:].zfill(8) for x in st))}')
+            await ctx.send(f'{" ".join((bin(ord(x))[2:].zfill(8) for x in text))}')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

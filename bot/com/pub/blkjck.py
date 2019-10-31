@@ -19,11 +19,13 @@ def rand(ll,tt): return random.randint(ll,tt)
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=["blackjack","bj"],
-                  help = 'fun',
-                  brief = 'Virtual Black Jack',
-                  usage = ';]blkjck',
-                  description = '[NO ARGS FOR THIS COMMAND]')
+@commands.command(aliases = ['blackjack', 'bj'],
+                      help = 'fun',
+                      brief = 'Virtual Black Jack',
+                      usage = ';]blkjck',
+                      description = '''\
+[NO INPUT FOR THIS COMMAND]
+''')
 @commands.check(enbl)
 async def blkjck(ctx):
     deck = {'heart':[f'{x}<3' for x in ['A23456789TJQK']],

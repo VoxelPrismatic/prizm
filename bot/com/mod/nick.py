@@ -13,15 +13,18 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help='mod',
-                  brief = 'Changes the nickname of a {member} to {this}',
-                  usage = ';]nick {mbr} {this}',
-                  description = 'MBR  [MEMBER] - The target member, ID or ping or name\nTHIS [STR   ] - The nickname')
-@has_permissions(manage_nicknames=True)
+@commands.command(aliases = [],
+                      help = 'mod',
+                      brief = 'Changes the nickname of a {member} to {this}',
+                      usage = ';]nick {member} {nickname}',
+                      description = '''\
+MEMBER   [MEMBER] - The target member, name or ping or ID
+NICKNAME [TEXT  ] - The nickname
+''')
 @commands.check(enbl)
-async def nick(ctx, mbr: discord.Member, *, nm: str=''):
-    await mbr.edit(nick=nm)
-    await ctx.send(f'```md\n#] SUCCESS\n> {mbr.name} >> {nm}```')
+async def nick(ctx, member: discord.Member, *, nickname: str=''):
+    await mbr.edit(nick=nickname)
+    await ctx.send(f'```md\n#] SUCCESS\n> @{str(member)} >> {nickname}```')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

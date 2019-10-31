@@ -8,6 +8,7 @@ import logging
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
+from chk.gen import is_mod
 from util.embedify import embedify
 from util import dbman
 
@@ -15,21 +16,23 @@ from util import dbman
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=['manage','tor'],
-                  help = 'mod',
-                  brief = 'Brings up a management interface',
-                  description = '[NO ARGS FOR THIS COMMAND]')
-@commands.guild_only()
+@commands.command(aliases = ['manage', 'tor'],
+                      help = 'mod',
+                      brief = 'Brings up a management interface',
+                      usage = ';]mng',
+                      description = '''\
+[NO INPUT FOR THIS COMMAND]
+''')
+@commands.check(enbl)
+@commands.check(is_mod)
 async def mng(ctx):
-    if str(ctx.author.name) not in dbman.get('mod', 'name', id=ctx.guild.id) and ctx.author != ctx.guild.owner:
-        return await ctx.send('```diff\n-] SERVER MODS ONLY```')
     gID = int(ctx.guild.id)
     msg = await ctx.send(embed=embedify(title='SERVER MANAGEMENT ;]', desc='''```md
 #] MANAGE SERVER
 >  Logging ---- [L]
 >  Moderators - [M]
 >  Ban Words -- [W]```'''))
-    for x in ['L','M','W']:
+    for x in ['L', 'M', 'W']:
         await msg.add_reaction(eval("'\\N{REGIONAL INDICATOR SYMBOL LETTER "+x+"}'"))
     bot = ctx.bot
     def chk(rct,mbr):

@@ -13,10 +13,12 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help='inf',
-                  brief='Shows the data usage',
-                  usage = ';]data',
-                  description = '[NO ARGS FOR THIS COMMAND]')
+@commands.command(aliases = [], 
+                      help = 'inf',
+                      brief = 'Shows the data usage',
+                      usage = ';]data',
+                      description = '''    [NO ARGS FOR THIS COMMAND]
+    ''')
 @commands.check(enbl)
 async def data(ctx): await ctx.send(embed=embedify.embedify(desc='''```md
 #] HOW YOUR DATA IS USED

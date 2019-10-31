@@ -30,7 +30,10 @@ def uext(name, bot): bot.unload_extension(name); print(f'>Uext {name}')
 async def pwr(ctx):
         allext, lodtxt = refresh.refresh()
         for ext in range(len(allext)):
-            for com in allext[ext]: uext(f"{lodtxt[ext]}{com}", ctx.bot)
+            for com in allext[ext]: 
+                try:
+                    uext(f"{lodtxt[ext]}{com}", ctx.bot)
+                except: pass
         msg = await ctx.send('```md\n#] UNLOADING EXTENSIONS```')
         channel = ctx.bot.get_channel(556247032701124650)
         await channel.purge(limit=10)

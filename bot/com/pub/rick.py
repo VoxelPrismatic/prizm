@@ -4,7 +4,7 @@
 #/// DEPENDENCIES
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
-from util import embedify
+from util.embedify import embedify
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
@@ -13,26 +13,26 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'fun',
+@commands.command(aliases = [],
+                  help = 'fun',
                   brief = 'Never gonna give you up!',
                   usage = ';]rick',
-                  description = '[NO ARGS FOR THIS COMMAND]')
+                  description = '''\
+[NO INPUT FOR THIS COMMAND]
+''')
 @commands.check(enbl)
 async def rick(ctx):
+    rick = '''\
+Never gonna give you up!
+Never gonna let you down!
+Never gonna run around and, desert you!
+Never gonna make you cry!
+Never gonna say goodbye!
+Never gonna run around and, desert you!'''
     try:
-        await ctx.send(embed=embedify.embedify(title = "RICK ROLL ;]", desc='''Never gonna give you up!
-Never gonna let you down!
-Never gonna run around and, desert you!
-Never gonna make you cry!
-Never gonna say goodbye!
-Never gonna run around and, desert you!'''))
+        await ctx.send(embed=embedify(title = "RICK ROLL ;]", desc = rick))
     except:
-        await ctx.send('''Never gonna give you up!
-Never gonna let you down!
-Never gonna run around and, desert you!
-Never gonna make you cry!
-Never gonna say goodbye!
-Never gonna run around and, desert you!''')
+        await ctx.send(rick)
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

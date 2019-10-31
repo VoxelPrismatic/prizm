@@ -12,14 +12,17 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'fun',
-                  brief = 'Sends the escaped contents of {messageID}',
-                  usage = ';]md {mID}',
-                  description = 'mID [INT] - Message ID')
+@commands.command(aliases = [],
+                      help = 'fun',
+                      brief = 'Sends the escaped contents of {message}',
+                      usage = ';]md {message}',
+                      description = '''\
+MESSAGE [MESSAGE] - The target message, ID or URL
+''')
 @commands.check(enbl)
-async def md(ctx, mID: discord.Message):
-    special = "*_~|`\\"
-    x = mID.content
+async def md(ctx, message: discord.Message):
+    special = "*_~|`\\:#"
+    x = message.content
     for y in special: x.replace(y,'\\'+y)
     await ctx.send(x)
 

@@ -4,48 +4,38 @@
 #/// DEPENDENCIES
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
-import random
+from random import randint as rand
 from util import pages
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
-
-##///---------------------///##
-##///   BOT DEFINITIONS   ///##
-##///---------------------///##
-
-def rand(ll,tt): return random.randint(ll,tt)
+from util.ez import wrap
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'fun',
-                  brief = 'Prints rng from {x} to {y}, {z} times!',
-                  usage = ';]rng {x} {y} {?z}',
-                  description = 'X [INT] - Minimum number\nY [INT] - Maximum number\nZ [INT] - OPTIONAL: Number of numbers')
+@commands.command(aliases = [],
+                  help = 'fun',
+                  brief = 'Prints rng from {min} to {max}, {count} times!',
+                  usage = ';]rng {min} {max} {?count}',
+                  description = '''\
+MIN   [NUMBER] - Minimum number
+MAX   [NUMBER] - Maximum number
+COUNT [NUMBER] - Number of numbers
+''')
 @commands.check(enbl)
-async def rng(ctx, rngl: int, rngh: int, nums: int = 1):
+async def rng(ctx, min: int, max: int, count: int = 1):
     lit = []
     if num > 2000:
-        await ctx.send('```]To prevent spam, MAX = 2000```')
+        await ctx.send('```diff\n-] TO PREVENT SPAM, MAXIMUM NUMBERS IS 2000```')
         num = 2000
-    send = ""
-    temp = 0
-    ttl = []
-    await ctx.send(f'```diff\n-] RNG BETWEEN {rngl} & {rngh}```')
-    for x in range(num):
-        temp = random.randint(rngl,rngh)
-        if len(f'{send} {temp} ')<=1000:
-            send += f'{temp} '
-            ttl.append(temp)
-        else:
-            lit.append(send)
-            send = f'{temp} '
-            ttl.append(temp)
-    if len(send) != 0:
-        lit.append(send)
-    await pages.PageThis(ctx, lit, "RNG", low=f'```COUNT // {len(ttl)}\nAVRGE // {sum(ttl)/len(ttl)}\nRANGE // {max(ttl)-min(ttl)}```')
+    lit = wrap(" ".join(str(rand(min, max)) for x in range(count)))
+    await pages.PageThis(ctx, lit, "RNG", low=f'''```md
+#] RNG BETWEEN {min} AND {max}
+COUNT ] {len(ttl)}
+  AVG ] {sum(ttl)/len(ttl):.4f}
+RANGE ] {max(ttl)-min(ttl)}```''')
 
 
 ##///---------------------///##

@@ -36,11 +36,13 @@ last = []
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help='ai',
-                  brief='You can have a conversation with me!',
-                  usage=';]text {convo}',
-                  description='CONVO [STR] - The conversation',
-                  aliases = ['ai', 'chat',''])
+@commands.command(aliases = ['ai', 'chat', ''],
+                  help = 'ai',
+                  brief = 'You can have a conversation with me!',
+                  usage = ';]text {convo}',
+                  description = '''\
+CONVO [TEXT] - The conversation
+''')
 @commands.check(enbl)
 async def text(ctx, *, convo):
     global last
@@ -60,7 +62,9 @@ async def text(ctx, *, convo):
 @commands.command(help='ai',
                   brief='You can help me learn!',
                   usage=';]learn {?text}',
-                  description='TEXT [STR] - OPTIONAL: Preset conversation, new message on new line')
+                  description='''\
+TEXT [TEXT] - Preset conversation, each message on new line
+''')
 @commands.check(enbl)
 async def learn(ctx, *, text:str = ""):
     trainer = ListTrainer(cbot)

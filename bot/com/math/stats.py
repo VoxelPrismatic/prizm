@@ -14,10 +14,13 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'math',
-                  brief = 'Gives statistics on inputed data',
-                  usage = ';]stats {x1} {x2} {x3} {...}',
-                  description = 'X [FLOAT] - A number or a statistic')
+@commands.command(aliases = [],
+                      help = 'math',
+                      brief = 'Gives statistics on inputed data',
+                      usage = ';]stats {data1} {data2} {...}',
+                      description = '''\
+DATAx [NUMBER] - A number or a statistic
+''')
 @commands.check(enbl)
 async def stats(ctx, *data: float):
     try:
@@ -26,15 +29,15 @@ async def stats(ctx, *data: float):
         mod = "[NONE]"
     await ctx.send(embed=embedify.embedify(desc=f'''```md
 #] STATS
->   MAX // {max(data)}
->   MIN // {min(data)}
->   AVG // {statistics.mean(data)}
->   MOD // {mod}
->   MED // {statistics.median(data)}
-> RANGE // {max(data)-min(data)}
-> STDEV // {statistics.stdev(data)}
-> LOMED // {statistics.median_low(data)}
-> HIMED // {statistics.median_high(data)}
+>   MAX ] {max(data)}
+>   MIN ] {min(data)}
+>   AVG ] {statistics.mean(data)}
+>   MOD ] {mod}
+>   MED ] {statistics.median(data)}
+> RANGE ] {max(data)-min(data)}
+> STDEV ] {statistics.stdev(data)}
+> LOMED ] {statistics.median_low(data)}
+> HIMED ] {statistics.median_high(data)}
 ```'''))
 
 ##///---------------------///##

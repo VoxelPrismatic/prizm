@@ -19,10 +19,13 @@ def rand(ll,tt): return random.randint(ll,tt)
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'fun',
-                  brief = 'In rememberance of DJ Quzingler [BOT]',
-                  usage = ';]djq',
-                  description = '[NO ARGS FOR THIS COMMAND]')
+@commands.command(aliases = [],
+                      help = 'fun',
+                      brief = 'In rememberance of DJ Quzingler [BOT]',
+                      usage = ';]djq',
+                      description = '''\
+[NO INPUT FOR THIS COMMAND]
+''')
 @commands.check(enbl)
 async def djq(ctx):
     send = ""

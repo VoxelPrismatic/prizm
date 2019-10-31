@@ -16,9 +16,11 @@ from chk.enbl import enbl
                   help='fun',
                   brief='I definitely predict the future',
                   usage=';]8ball {question}',
-                  description='QUESTION [STR] What do you want me to answer')
+                  description='''\
+QUESTION [STR] What do you want me to answer
+''')
 @commands.check(enbl)
-async def ball8(ctx, txt):
+async def ball8(ctx, question = ""):
     choices = ['As I see it, yee',
                'Ask again later',
                'I shouldn\'t tell you',

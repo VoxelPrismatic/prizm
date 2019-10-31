@@ -10,6 +10,7 @@ from dyn.faces import faces
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from pprint import pprint as pp
+from chk.enbl import enbl
 def entry(lit,coms:list,lbl,mini) -> list:
     """
     >>> CREATES AN ENTRY IN THE HELP TABLE <<<
@@ -32,11 +33,13 @@ def entry(lit,coms:list,lbl,mini) -> list:
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=["helpmod","modhelp",'modhlep'],
-                  help = 'inf',
-                  brief = 'Brings up the mod help message',
-                  usage = ';]helpmod',
-                  description = '[NO ARGS FOR THIS COMMAND]')
+@commands.command(aliases = ['helpmod', 'modhelp', 'modhlep'], 
+                      help = 'inf',
+                      brief = 'Brings up the mod help message',
+                      usage = ';]helpmod',
+                      description = '''    [NO ARGS FOR THIS COMMAND]
+    ''')
+@commands.check(enbl)
 async def hlepmod(ctx, mini = ""):
     mini = bool(mini)
     lit = []

@@ -6,6 +6,7 @@ import typing, ast
 import discord                    #python3.7 -m pip install -U discord.py
 import logging, re
 from util import dbman
+from chk.gen import is_mod
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
@@ -24,17 +25,16 @@ def getArgs(st:str):
         kwargs[arg.split('=')[0].strip()] = eval(arg.split('=')[1].strip(), {}, {'discord':discord})
     return kwargs
 
-@commands.command(help = 'mod',
-                  brief = 'Edits channels and things',
-                  usage = ';]audit',
-                  description = '[NO ARGS FOR THIS COMMAND]')
+@commands.command(aliases = [],
+                      help = 'mod',
+                      brief = 'Edits channels and things',
+                      usage = ';]audit',
+                      description = '''\
+[NO INPUT FOR THIS COMMAND]
+''')
 @commands.check(enbl)
-@commands.guild_only()
+@commands.check(is_mod)
 async def audit(ctx):
-
-    if str(ctx.author.name) not in dbman.get('mod', 'name', id=ctx.guild.id) and ctx.author != ctx.guild.owner:
-        return await ctx.send('```diff\n-] SERVER MODS ONLY```')
-
     msg = await ctx.send(embed=embedify(title='MANAGEMENT ;]',
                                         desc='''```md
 #] AUDIT MANAGER ;]

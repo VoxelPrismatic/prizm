@@ -9,6 +9,7 @@ from cmath import *
 from numpy import *
 from numexpr import *
 import sympy as sp
+from chk.enbl import enbl
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 
@@ -16,10 +17,13 @@ from discord.ext.commands import Bot, MissingPermissions, has_permissions
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help='math',
-                  brief='It is a calculator',
-                  usage=';]calc {eq}',
-                  description='EQ [STR] - The thing to solve')
+@commands.command(aliases = [], 
+                      help = 'math',
+                      brief = 'It is a calculator',
+                      usage = ';]calc {eq}',
+                      description = '''    EQ [STR] - The thing to solve
+    ''')
+@commands.check(enbl)
 async def calc(ctx, *, eq: str):
     async with ctx.channel.typing():
         await ctx.send(f'''```md

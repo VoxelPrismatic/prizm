@@ -4,83 +4,154 @@
 #/// DEPENDENCIES
 import discord                    #python3.7 -m pip install -U discord.py
 import logging, random, typing
-import praw
+import praw, re, time, prawcore as craw
+from util.priz_err import *
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
-from util.prawUser import usr
+from util.praw_util import *
+from util.praw_util import reddit as red
 from util.embedify import embedify
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases = ["rd"],
-                  help='fun',
-                  brief='Gives you a random post from a given {subreddit}',
-                  usage=';]reddit {?subreddit} {?search}',
-                  description='''SUBREDDIT [STR] - The name of the subreddit, /r/ not needed
-                - /u/ is required to redditor feeds
-                - also can be a link to a submission
-SEARCH    [STR] - What to search for''')
+def grab_nsfw(sbd):
+    try:
+        ls = list(sbd.new(limit=1))
+    except craw.exceptions.Redirect:
+        raise PrizmRedditError()
+    except:
+        raise PrizmUnknownError()
+    if isinstance(sbd, praw.models.Subreddit): return sbd.over18
+    if isinstance(sbd, praw.models.Multieddit): return sbd.over_18
+    return False
+
+async def get(thing, msg):
+    ls, x = [], 0
+    for sbn in thing:
+        x += 1
+        ls.append(sbn)
+        if not x%50:
+            async with msg.channel.typing():
+                await msg.edit(content=msg.content[:-3]+" /```")
+    return ls
+
+@commands.command(aliases = ['rd', 'redd', 'rdt', 'red'],
+                  help = 'fun',
+                  brief = 'Gives you a random post from a given {subreddit}',
+                  usage = ';]reddit {?subreddit} {?search}',
+                  description = '''\
+SUBREDDIT [TEXT] - The name of the subredditm /r/ is optional
+> /u/ is required to redditor feeds
+> also can be a link to a submission
+> /m/<multireddit>#<redditor> is needed for multireddits
+> > eg /m/CoolMultireddit#Redditor1010
+SEARCH    [TEXT] - What to search for
+''')
 @commands.check(enbl)
 async def reddit(ctx, subreddit:str, *, search = ''):
+    msg = await ctx.send('```md\n#] LOGGING IN```')
     async with ctx.channel.typing():
-        red = usr()
-    if 'http' in subreddit:
-        sbn = red.submission(id=red.submission.id_from_url(subreddit))
+        red = red()
+        is_user, is_multi, is_nsfw = False, False, False
+    allow_nsfw = ctx.channel.is_nsfw()
+    await msg.edit(content='```md\n#] FINDING SUBREDDIT```')
+    if re.rearch(r"^https?\://", subreddit):
+        board = "post"
+        await msg.edit(content='```md\n#] GRABBING LINK```')
+        sbn = post(red, subreddit)
+        if sbn.over_18 and not allow_nsfw:
+            raise PrizmNsfwError()
     else:
         sbd = None
-        for pre in ['/r/','r/','/u/','u/']:
-            async with ctx.channel.typing():
-                pass
-            if sbd:
-                continue
-            if 'r/' in pre: 
-                sbd = red.subreddit(subreddit.replace(pre,''))
-                isRedditor = False
-            elif 'u/' in pre:
-                sbd = red.redditor(subreddit.replace(pre,''))
-                isRedditor = True
-            try: 
-                ls = list(sbd.new(limit=1))
-                break
-            except:
-                sbd = None
-                isRedditor = False
-        if not sbd:
-            sbd = red.subreddit(subreddit)
-            isRedditor = False
-        else:
+        if 'm/' in subreddit:
+            if '#' not in subreddit:
+                raise PrizmSyntaxError("/m/<multireddit>#<redditor>")
+            sbd = multi(red, subreddit.split('#')[-1],
+                        subreddit.split('#')[0].split('m/')[-1])
+            is_nsfw = grab_nsfw(sbd)
+            isMulti = True
+            await msg.edit(content='```md\n#] GRABBING MULTIREDDIT```')
+        elif 'u/' in subreddit:
+            sbd = user(red, subreddit.split('u/')[-1])
             isRedditor = True
-        if not isRedditor and sbd.over18 and not ctx.channel.is_nsfw():
-            return await ctx.send('```diff\n-] NSFW SUBREDDITS ARE NOT ALLOWED IN NON NSFW CHANNELS```')
-        async with ctx.channel.typing():
-            pass
-        if search and not isRedditor:
-            sbd = list(sbd.search(search, limit=500))
+            await msg.edit(content='```md\n#] GRABBING REDDITOR```')
+        elif 'r/' in subreddit:
+            sbd = sub(red, subreddit.split('r/')[-1])
+            is_nsfw = grab_nsfw(sbd)
+            await msg.edit(content='```md\n#] GRABBING SUBREDDIT```')
         else:
-            sort = random.choice(['new','hot','top','controversial'] + (['rising'] if isRedditor else []))
-            sbd = list(eval('sbd.'+sort+'(limit=500)'))
-        sbn = random.choice(sbd)
-        while (sbn.over_18 and not ctx.channel.is_nsfw()) or sbn == None:
-            sbn = random.choice(sbd)
-    txt = sbn.selftext.replace('>!','||').replace('!<','||')
-    await ctx.send(embed=embedify(title='REDDIT ;]',
-                      desc=f'''```md
-#] /r/{sbn.subreddit.display_name} - /u/{sbn.author.name}
-{sbn.title}
->  Flair: [{sbn.link_flair_text}]
->  {sbn.score} upvote{'s' if sbn.score != 1 else ''} - {sbn.upvote_ratio*100:.2f}%
->  Is {'' if sbn.locked else 'not '}archived
->  Is {'' if sbn.stickied else 'not '}pinned
->  Has {'' if sbn.edited else 'not '}been edited
->  Is {'not ' if sbn.is_self else ''}a link/video/image post
->  Is {'' if sbn.spoiler else 'not '}a spoiler
->  SOURCE: {sbn.url[sbn.url.find('//')+2: sbn.url.find('/', sbn.url.find('//')+2)]} ```
-[[PERMALINK]]({sbn.shortlink}) [[LINK]]({sbn.url})''',
-img = sbn.url if not sbn.is_self else None,
-fields = [['CONTENT', txt if len(txt) < 1022 else txt[:1022]+'...', False]] if sbn.is_self else []))
+            sbd = sub(red, subreddit)
+            is_nsfw = grab_nsfw(sbd)
+            await msg.edit(content='```md\n#] GRABBING SUBREDDIT```')
+        if is_nsfw and not ctx.channel.is_nsfw():
+            raise PrizmNsfwError()
+        async with ctx.channel.typing(): pass
+        if search and not is_user:
+            board = "search"
+            sbq = await get(sbd.search(search, limit=200), msg)
+        else:
+            sort = random.choice(['n', 'h', 't', 'c'] + (['r', 'g'] if not is_user and not is_multi else ['r'] if not is_user else []))
+            if sort == 'n':
+                board = "new"
+                sbq = await get(sbd.new(limit=200), msg)
+            elif sort == 'h':
+                board = "hot"
+                sbq = await get(sbd.hot(limit=200), msg)
+            elif sort == 't':
+                board = "top"
+                sbq = await get(sbd.top(limit=200), msg)
+            elif sort == 'c':
+                board = "controversial"
+                sbq = await get(sbd.controversial(limit=200), msg)
+            elif sort == 'r':
+                board = "rising"
+                sbq = await get(sbd.rising(limit=200), msg)
+            elif sort == 'g':
+                board = "random"
+                sbq = [sbd.random() for x in range(3)]
+        if type(sbq) != list: return
+        sbn = random.choice(sbq)
+        attempts = 0
+        await msg.edit(content='```md\n#] PARSING POST```')
+        while ((sbn.over_18 and not allow_nsfw) or not sbn) and attempts < 200:
+            sbn = random.choice(sbq)
+            attempts += 1
+        if attempts >= 200 and sbn.over_18 and not allow_nsfw:
+            return await msg.edit(content='```diff\n-] ONLY NSFW POSTS FOUND```')
+    if type(sbn) == praw.models.Submission:
+        txt = sbn.selftext.replace('>!','||').replace('!<','||')
+        lnk = sbn.permalink
+        src = sbn.url.split('//')[1].split('/')[0].split('www.')[-1]
+        if src == 'reddit.com':
+            src = "self."+sbn.subreddit.display_name
+        prm = sbn.shortlink
+        lnk = sbn.url
+    attrib = ''
+    warn = ''
+    if sbn.locked or time.time() - sbn.created_utc > 15552000: attrib += '[-] '
+    if sbn.stickied: attrib += '[>- '
+    if sbn.edited: attrib += '=> '
+    if sbn.is_self: attrib += 'TXT '
+    else: attrib += 'O-O '
+    if sbn.over_18: attrib += '<!> '
+    if sbn.spoiler: attrib += '[||] '
+    if not any(lnk.endswith(f'.{fmt}') for fmt in ['gif', 'jpg', 'jpeg', 'png']) and not len(txt):
+        warn = '```diff\n-] Try clicking "[IMAGE]"```'
+    await ctx.send(embed=embedify(title=f'REDDIT ;] - {src}',
+                      desc=f"""```md
+#] {sbn.title}
+]] FLAIR ] [{sbn.link_flair_text}]
+]] SCORE ] {sbn.score}
+>  OTHER ] {attrib if attrib else '[NONE]'}```
+[[POST]]({prm}) [[IMAGE]]({lnk})
+{warn}""",
+    img = lnk if not txt else None,
+    fields = [['CONTENT', txt if len(txt) <= 1024 else txt[:1021]+'...', False]] if sbn.is_self else [],
+    foot = f"/r/{sbn.subreddit.display_name}/{board} // /u/{sbn.author.name if sbn.author else '[DELETED]'} {'// /m/' + sbd.display_name if is_multi else ''}"))
+    await msg.delete()
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

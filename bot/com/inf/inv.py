@@ -13,11 +13,13 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=['invite'],
-                  help = 'inf',
-                  brief = 'Invite for me and my support server',
-                  usage = ';]inv',
-                  description = '[NO ARGS FOR THIS COMMAND]')
+@commands.command(aliases = ['invite'], 
+                      help = 'inf',
+                      brief = 'Invite for me and my support server',
+                      usage = ';]inv',
+                      description = '''    [NO ARGS FOR THIS COMMAND]
+    ''')
+@commands.check(enbl)
 async def inv(ctx):
     perms = discord.Permissions()
     vals = {'create_instant_invite': False,

@@ -13,19 +13,21 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help='dis',
+@commands.command(aliases = ["emojiinfo", "infoemoji", "iemoji", "emojii", "iemj"],
+                  help = 'dis',
                   brief = 'Sends info about a given {emoji}',
-                  usage = ';]emj {emoji}',
-                  description = 'EMOJI [EMOJI] - The CUSTOM emoji in question')
+                  usage = ';]ei {emoji}',
+                  description = '''\
+EMOJI [EMOJI] - The CUSTOM emoji in question
+''')
 @commands.check(enbl)
-async def emj(ctx, _emj:discord.Emoji):
+async def emj(ctx, emoji:discord.Emoji):
     await ctx.send(embed=embedify.embedify(desc=f'''```
-     ID // {_emj.id}
-   NAME // {_emj.name}
-  ROLES // {_emj.roles}
- COLONS // {_emj.require_colons}
-CREATED // {_emj.created_at}
-MANAGED // {_emj.managed}```''',
+#] INFO FOR :{emoji.name}
+     ID ] {_emj.id}
+  ROLES ] {_emj.roles}
+CREATED ] {_emj.created_at}
+MANAGED ] {_emj.managed}```''',
         thumb=str(_emj.url).replace('webp','png')))
 
 

@@ -14,20 +14,23 @@ from util.embedify import embedify
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help='oth',
-                  brief = 'Custom commands, kinda',
-                  usage = ';]tag {action} {!name} {!data}',
-                  description='''\
-ACTION [STR] - The action you want to take
-             > Use the tag name to view the tag
-             > Use 'edit {name} {content}' to edit your tag
-             > Use 'add {name} {content}' to create a tag
-             > Use 'delete {name}' to delete your tag
-!NAME  [STR] - Only used when adding or editing a tag
-!DATA  [STR] - The content when adding or editing a tag''')
+@commands.command(aliases = [],
+                      help = 'oth',
+                      brief = 'Custom commands, kinda',
+                      usage = ';]tag {action} {?name} {?data}',
+                      description = '''\
+ACTION [TEXT] - The action you want to take
+> Use the tag name to view the tag
+> Use ';]edit {name} {content}' to edit your tag
+> Use ';]add {name} {content}' to create a tag
+> Use ';]delete {name}' to delete your tag
+NAME   [TEXT] - Only used when adding or editing a tag
+DATA   [TEXT] - The content when adding or editing a tag
+
+    ''')
 @commands.check(enbl)
-@commands.guild_only()
-async def tag(ctx, *arg):
+async def tag(ctx, *, arg = ""):
+    arg = arg.split()
     if len(arg) > 1:
         curTag = dbman.get('tag', 'stuff', id = ctx.guild.id, name = arg[1])
     if len(arg) == 0:
@@ -35,12 +38,12 @@ async def tag(ctx, *arg):
     elif len(arg) == 1:
         itm = dbman.get('tag', 'stuff', id = ctx.guild.id, name = arg[0], return_null = True)
         if itm:
-            return await ctx.send(itm)
+            return await ctx.send(itm.replace(">[\\n]<", "\n"))
         else:
             return await ctx.send('```diff\n-] TAG DOESN\'T EXIST```')
 
     elif arg[0] in ['-','destroy','remove','delete','kill'] and curTag:
-        if dbman.get('tag', 'auth', id=ctx.guild.id, name=arg[1]) == ctx.author.id:
+        if dbman.get('tag', 'auth', id=ctx.guild.id, name=arg[1], rtn = int) == ctx.author.id:
             dbman.remove('tag', id = ctx.guild.id, name = arg[1])
             return await ctx.message.add_reaction('<:wrk:608810652756344851>')
         else:
@@ -48,12 +51,12 @@ async def tag(ctx, *arg):
 
 
     elif arg[0] in ['+','make','add','create','new'] and not curTag:
-        dbman.insert('tag', id = ctx.guild.id, name = arg[1], stuff = ' '.join(arg[2:]), auth = ctx.author.id)
+        dbman.insert('tag', id = ctx.guild.id, name = arg[1], stuff = ctx.message.content.split(' ', 3)[-1].replace("\n", ">[\\n]<"), auth = ctx.author.id)
         return await ctx.message.add_reaction('<:wrk:608810652756344851>')
 
     elif arg[0] in ['/','edit'] and curTag:
-        if dbman.get('tag', 'auth', id = ctx.guild.id, name = arg[1]) == ctx.author.id:
-            dbman.update('tag', 'stuff', ' '.join(arg[2:]), id = ctx.guild.id, name = arg[1])
+        if dbman.get('tag', 'auth', id = ctx.guild.id, name = arg[1], rtn = int) == ctx.author.id:
+            dbman.update('tag', 'stuff', ctx.message.content.split(' ', 3)[-1].replace("\n", ">[\\n]<"), id = ctx.guild.id, name = arg[1])
             return await ctx.message.add_reaction('<:wrk:608810652756344851>')
         else:
             return await ctx.send('```diff\n-] YOU DIDNT MAKE THIS TAG```')

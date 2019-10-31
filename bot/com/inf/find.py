@@ -14,10 +14,12 @@ from discord.utils import find
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help='inf',
-                  brief='Finds a meta object given an ID or name',
-                  usage=';]find {fID}',
-                  description = 'fID [STR] - The name or ID of the thing to find')
+@commands.command(aliases = [], 
+                      help = 'inf',
+                      brief = 'Finds a meta object given an ID or name',
+                      usage = ';]find {fID}',
+                      description = '''    fID [STR] - The name or ID of the thing to find
+    ''')
 @commands.check(enbl)
 async def find(ctx, *, fID):
     send = ''

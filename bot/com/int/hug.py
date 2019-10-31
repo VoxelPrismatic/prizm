@@ -9,7 +9,7 @@ from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
 from util.embedify import embedify
-from util.prawUser import usr as pruw
+from util.praw_util import *
 
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
@@ -21,15 +21,19 @@ def rand(ll,tt): return random.randint(ll,tt)
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'int',
+@commands.command(aliases = [],
+                  help = 'int',
                   brief = 'Hugs a {member} for a {reason}!',
-                  usage = ';]hug {mbr} {?reason}',
-                  description = 'MBR    [INT or PING] - The Member you want to slap\nREASON [STR        ] - The reason for the hug')
+                  usage = ';]hug {member} {?reason}',
+                  description = '''\
+MEMBER [MEMBER] - The Member you want to hug, name or ping or ID
+REASON [TEXT  ] - The reason for the hug
+''')
 @commands.check(enbl)
 async def hug(ctx, mbr:discord.Member, *, txt=' '):
     red = pruw()
     async with ctx.channel.typing():
-        sub = list(red.subreddit('gifs').search('hug',sort=random.choice(['hot','top','new','relevance']),limit=100))
+        sub = list(find(sub(red, 'gifs'), 'hug', sort=random.choice(['hot','top','new','relevance']), limit=100))
         sbn = random.choice(sub)
         while sbn.over_18 or sbn.is_self or 'https://gfycat' in sbn.url or 'v.redd' in sbn.url:
             sbn = random.choice(sub)

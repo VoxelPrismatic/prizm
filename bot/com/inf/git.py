@@ -12,10 +12,12 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'inf',
-                  brief = 'Shows the git repo',
-                  usage = ';]git',
-                  description = '[NO ARGS FOR THIS COMMAND]')
+@commands.command(aliases = [], 
+                      help = 'inf',
+                      brief = 'Shows the git repo',
+                      usage = ';]git',
+                      description = '''    [NO ARGS FOR THIS COMMAND]
+    ''')
 @commands.check(enbl)
 async def git(ctx):
     await ctx.send('`]GITHUB PAGE` https://github.com/VoxelPrismatic/prizm/')

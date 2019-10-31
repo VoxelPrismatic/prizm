@@ -10,23 +10,22 @@ import random
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
-
+from dyn.faces import faces
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'fun',
+@commands.command(aliases = [],
+                  help = 'fun',
                   brief = 'Just prints one of these cool ASCIImoji!',
                   usage = ';]asci',
-                  description = '[NO ARGS FOR THIS COMMAND]')
+                  description = '''\
+[NO INPUT FOR THIS COMMAND]
+''')
 @commands.check(enbl)
 async def asci(ctx):
-    face = ["0.0",">.<","0o0","9.6","@.@",
-            ";-;","!-!","S:Γ","UwU",";]",
-            ";n;",",,,;n;,,,",";u;","\\\\[T]/",
-            ">~<","=-=","B)",":D","q.p"]
-    await ctx.send(random.choice(face))
+    await ctx.send(random.choice(faces()))
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

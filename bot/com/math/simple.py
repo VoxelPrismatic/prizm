@@ -19,10 +19,12 @@ import sympy as sp
 ##///---------------------///##
 
 @commands.command(aliases = ['simp', 'simplify', 'sym'],
-                  help='math',
-                  brief='Symplify complex equations',
-                  usage=';]simplify {eq}',
-                  description='EQ [STR] - The equation to simplify')
+                      help = 'math',
+                      brief = 'Symplify complex equations',
+                      usage = ';]simplify {eq}',
+                      description = '''\
+EQ [TEXT] - The equation to simplify
+''')
 @commands.check(enbl)
 async def simple(ctx, *, eq: str):
     async with ctx.channel.typing():
@@ -40,7 +42,7 @@ async def simple(ctx, *, eq: str):
 #] FACTOR ] {factored}
 -
 #] EXPAND ] {expanded}```''')
-    
+
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

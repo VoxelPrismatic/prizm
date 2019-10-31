@@ -12,18 +12,21 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=['send'],
+@commands.command(aliases = ['send'],
                   help = 'fun',
                   brief = 'I send {text} to a given {channel}',
-                  usage = ';]snd {cID} {mCTX}',
-                  description = 'cID  [INT] - The Channel ID\nmCTX [STR] - The text to send')
+                  usage = ';]snd {channel} {text}',
+                  description = '''\
+CHANNEL [CHANNEL] - The channel you want the message in, name or ping or ID
+TEXT    [TEXT   ] - The text to send
+''')
 @commands.check(enbl)
-async def snd(ctx, cID: discord.TextChannel, *, mCTX):
+async def snd(ctx, channel: discord.TextChannel, *, text):
     await ctx.message.delete()
     try:
-        await cID.send(content=mCTX)
+        await channel.send(content=text)
     except:
-        await ctx.send('```diff\n-]WOOPS\n=]Make sure i have access to that channel UwU```')
+        await channel.send('```diff\n-] I CAN\'T ACCESS THAT CHANNEL```')
 
 
 ##///---------------------///##

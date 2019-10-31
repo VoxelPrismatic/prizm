@@ -13,11 +13,14 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=['reduce','radical'],
-                  help = 'math',
-                  brief = 'Radical Reducers',
-                  usage = ';]rad {D} {X}',
-                  description = 'D [INT] - Discriminator, aka X\u221A>>D<<\nX [INT] - The radical, aka "square root" is 2 and "cube root" is 3')
+@commands.command(aliases = ['reduce', 'radical'], 
+                      help = 'math',
+                      brief = 'Radical Reducers',
+                      usage = ';]rad {D} {X}',
+                      description = '''    D [INT] - Discriminator, aka X√>>D<<
+X [INT] - The radical, aka "square root" is 2 and "cube root" is 3
+
+    ''')
 @commands.check(enbl)
 async def rad(ctx, D: int, X: int = 2):
     K = 1

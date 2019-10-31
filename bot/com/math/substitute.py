@@ -13,17 +13,22 @@ from chk.enbl import enbl
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
-@commands.command(aliases=['sub'],
-                  help='math',
+@commands.command(aliases = ['sub'],
+                  help = 'math',
                   brief = 'Substitutes a number in for X',
                   usage = ';]substitute {num} {eq}',
-                  description = 'NUM [FLOAT] - The thing X is equal to\nEQ  [STR  ] - The equation to solve')
+                  description = '''\
+NUM [NUMBER] - The thing X is equal to
+EQ  [TEXT  ] - The equation to solve
+''')
 @commands.check(enbl)
 async def substitute(ctx, num: float, *, eq: str):
-    eq = re.sub(r"(\d+)([xy\(])",r"\1*\2",eq)
-    eq = re.sub(r"([xy\)])(\d+)",r"\1*\2",eq)
     eq = eq.replace('^','**').lower().strip()
-    eq = re.sub(r"(^[xy][^\>\<]=[^\>\<])?([^\>\<]=[^\>]<][xy]$)?",r"",eq)
+    eq = re.sub(r"(\d+)([xy\(])", r"\1*\2", re.sub(r"([xy\)])(\d+)",r"\1*\2",eq))
+    eq = eq.replace('pi', str(np.pi)).replace('\u03c0', str(np.pi)).replace("e", str(math.e))
+    eq = re.sub(r"(^[xy][^><]=[^><])?([^><]=[^><][xy]$)?", "", eq)
+    eq = re.sub(r"([xy\d])\(", r"\1*(", re.sub(r"\)([xy\d])", r")*\1", eq))
+    eq = re.sub(r"(\d+)root\((.*)\)", r"(\2)^(1/\1)", eq)
     async with ctx.channel.typing():
         await ctx.send(f'```md\n#] {ne.evaluate(eq.replace("x", f"({num})"))}```')
 

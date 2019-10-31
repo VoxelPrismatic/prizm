@@ -12,35 +12,38 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'mod',
-                  brief = 'Clears {x} messages from chat',
-                  usage = ';]clr {x}',
-                  description = 'X [INT] - The number of messages to clear')
+@commands.command(aliases=[],
+                  help = 'mod',
+                  brief = 'Clears {num} messages from chat',
+                  usage = ';]clr {num}',
+                  description = 'NUM [NUMBER] - The number of messages to clear')
 @has_permissions(manage_messages=True)
 @commands.check(enbl)
-async def clr(ctx, arg: int):
-    await ctx.channel.purge(limit=arg+1)
+async def clr(ctx, num: int):
+    await ctx.channel.purge(limit=num+1)
 
-@commands.command(help = 'mod',
-                  brief = 'Clears messages from {int1} to {int2} in chat',
-                  usage = ';]clrin {int1} {int2}',
-                  description = 'INTx [INT] - The message IDs to clear in between')
+@commands.command(aliases=[],
+                  help = 'mod',
+                  brief = 'Clears messages from {message1} to {message2} in chat [exclusively]',
+                  usage = ';]clrin {message1} {message2}',
+                  description = 'MESSAGEx [MESSAGE] - The messages to clear between, ID or URL')
 @commands.check(enbl)
 @commands.has_permissions(manage_messages=True)
-async def clrin(ctx, int1: int, int2: int):
+async def clrin(ctx, message1: discord.Message, message2: discord.Message):
     await ctx.message.delete()
-    clrh = await ctx.fetch_message(min(int1, int2))
-    clrl = await ctx.fetch_message(max(int1, int2))
+    if message1.created_at > message2.created_at:
+        message1, message2 = message2, message1
     await ctx.channel.purge(limit=2000, before=clrl, after=clrh)
 
-@commands.command(help = 'mod',
-                  brief = 'Clears messages from {int1} to {int2} in chat',
-                  usage = ';]clrto {mID}',
-                  description = 'mID [INT] - The message ID to clear to')
+@commands.command(aliases=[],
+                  help = 'mod',
+                  brief = 'Clears all messages to a given {message} [exclusively]',
+                  usage = ';]clrto {message}',
+                  description = 'MESSAGE [MESSAGE] - The message to clear to, ID or URL')
 @commands.check(enbl)
 @commands.has_permissions(manage_messages=True)
-async def clrto(ctx, mID: discord.Message):
-    await ctx.channel.purge(limit=2000, before=ctx.message, after=mID)
+async def clrto(ctx, message: discord.Message):
+    await ctx.channel.purge(limit=2000, before=ctx.message, after=message)
     await ctx.message.delete()
 
 ##///---------------------///##

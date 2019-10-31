@@ -12,39 +12,24 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'fun',
+@commands.command(aliases = [],
+                 help = 'fun',
                   brief = 'Gives someone a sneaky surprise',
-                  usage = ';]cool {uID}',
-                  description = 'uID [INT] - The ID of the user you are willing to surprise')
+                  usage = ';]cool {member}',
+                  description = '''\
+MEMBER [MEMBER] - The member you want to surprise, ping or name or ID
+''')
 @commands.check(enbl)
-async def cool(ctx, user:int):
-    strtemp = '////////'
+async def cool(ctx, member:discord.Member):
     await ctx.message.delete()
-    coolthing = await ctx.send(strtemp)
-    varslol = True
-    rickroll = f'''
-Never gonna give <@{user}> up!
-Never gonna let <@{user}> down!
+    await ctx.send(f'''
+Never gonna give <@{member.id}> up!
+Never gonna let <@{member.id}> down!
 Never gonna run around, and, desert you!
-Never gonna make <@{user}> cry!
+Never gonna make <@{member.id}> cry!
 Never gonna say goodbye!
 Never gonna run around, and, desert you!
-'''
-    while varslol == True:
-        try:
-            for x in range(125):
-                strtemp = f'{strtemp}////////'
-                await coolthing.edit(content = f'{strtemp}')
-            varslol = False
-            await ctx.send(rickroll)
-        except:
-            if not varslol:
-                await coolthing.edit(rickroll)
-            else:
-                await ctx.send('YOU WILL NOT END THIS!')
-                strtemp = '////////'
-                coolthing = await ctx.send(strtemp)
-
+''')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

@@ -9,7 +9,7 @@ from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
 from util.embedify import embedify
-from util.prawUser import usr as pruw
+from util.praw_util import *
 
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
@@ -21,20 +21,24 @@ def rand(ll,tt): return random.randint(ll,tt)
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'int',
-                  brief = 'Slaps a {member} for a {reason}!',
-                  usage = ';]slap {mbr} {?reason}',
-                  description = 'MBR    [INT or PING] - The member you want to slap\nREASON [STR        ] - The reason for the slap')
+@commands.command(aliases = [],
+                      help = 'int',
+                      brief = 'Slaps a {member} for a {reason}!',
+                      usage = ';]slap {member} {?reason}',
+                      description = '''
+MEMBER [MEMBER] - The member you want to slap, name or ping or ID
+REASON [STR   ] - The reason for the slap
+''')
 @commands.check(enbl)
-async def slap(ctx, mbr:discord.Member, *, txt=' '):
-    red = pruw()
+async def slap(ctx, member:discord.Member, *, reason=' '):
+    red = reddit()
     async with ctx.channel.typing():
-        sub = list(red.subreddit('gifs').search('slap',sort=random.choice(['hot','top','new','relevance']),limit=100))
+        sub = list(find(sub(red, 'gifs'), 'slap', sort=random.choice(['hot','top','new','relevance']), limit=100))
         sbn = random.choice(sub)
         while sbn.over_18 or sbn.is_self or 'https://gfycat' in sbn.url or 'v.redd' in sbn.url:
             sbn = random.choice(sub)
 
-    await ctx.send(embed=embedify(desc=f'```md\n#] {ctx.author.name} SLAPPED {mbr.name}'+(f'\n> FOR {txt.upper()}```' if txt != ' ' else '```'),
+    await ctx.send(embed=embedify(desc=f'```md\n#] {ctx.author.name} SLAPPED {member.name}'+(f'\n> FOR {txt.upper()}```' if txt != ' ' else '```'),
                                   img=sbn.url.replace('.gifv','.gif')))
 
 ##///---------------------///##

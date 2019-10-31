@@ -20,10 +20,11 @@ def rand(ll,tt): return random.randint(ll,tt)
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help='music',
-                  brief='Leaves the VC',
-                  usage=';]leave',
-                  description='[NO ARGS FOR THIS COMMAND]')
+@commands.command(aliases = [],
+                  help = 'music',
+                  brief = 'Leaves the VC',
+                  usage = ';]leave',
+                  description = '''[NO INPUT FOR THIS COMMAND]''')
 @commands.check(enbl)
 async def leave(ctx):
     vcC = ctx.voice_client

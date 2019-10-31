@@ -14,10 +14,12 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'inf',
-                  brief = 'C:\> dir',
-                  usage = ';]dir {?path}',
-                  description = '?PATH [STR] - OPTIONAL: Path')
+@commands.command(aliases = [], 
+                      help = 'inf',
+                      brief = 'C:\> dir',
+                      usage = ';]dir {?path}',
+                      description = '''    ?PATH [STR] - OPTIONAL: Path
+    ''')
 @commands.check(enbl)
 async def dir(ctx, loc:str=""):
     if ".." in loc:

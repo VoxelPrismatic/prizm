@@ -13,14 +13,16 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=["choose"],
+@commands.command(aliases = ['choose'],
                   help = 'fun',
                   brief = 'I choose something for you!',
-                  usage = ';]choose {arg1} "{multi word arg2}" {...}',
-                  description = 'ARGx [STR] - The choice itself')
+                  usage = ';]choose {option1} | {option2} | {...}',
+                  description = '''
+OPTIONx [TEXT] - The option... duh
+''')
 @commands.check(enbl)
-async def optn(ctx, *options):
-    await ctx.send(f'```I choose >>{random.choice(options)}<< {random.choice(["0.0",">.<","9.6",":P",":D",";]"])}```')
+async def optn(ctx, *, options = "nothing... there was nothing to choose"):
+    await ctx.send(f'```I choose >>{random.choice(options.split("|"))}<< {random.choice(["0.0",">.<","9.6",":P",":D",";]"])}```')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

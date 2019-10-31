@@ -12,18 +12,29 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command()
-@commands.has_permissions(manage_messages=True)
+@commands.command(aliases = [],
+                  help = 'mod',
+                  brief = 'Pins a message for you, useful on mobile',
+                  usage = ';]pin {message}',
+                  description = '''\
+MESSAGE [MESSAGE] - The message you wish to pin, ID or URL
+''')
 @commands.check(enbl)
-async def pin(ctx, mID: discord.Message):
+async def pin(ctx, message: discord.Message):
     await message.pin()
 
-@commands.command()
+@commands.command(aliases = [],
+                  help = 'mod',
+                  brief = 'Pins a message for you, useful on mobile',
+                  usage = ';]unpin {message}',
+                  description = '''\
+MESSAGE [MESSAGE] - The message you wish to unpin, ID or URL
+''')
 @commands.has_permissions(manage_messages=True)
 @commands.check(enbl)
-async def unpin(ctx, mID: discord.Message):
-    message = await ctx.fetch_message(mID)
-    await ctx.send('```md\n#] UNPINNED```')
+async def unpin(ctx, message: discord.Message):
+    await message.unpin()
+    await ctx.send('```md\n#] UNPINNED```', delete_after = 10.0)
 
 
 ##///---------------------///##

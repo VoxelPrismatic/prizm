@@ -13,17 +13,42 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help='oth',
+@commands.command(aliases = [],
+                  help = 'oth',
                   brief = 'Shows unicode info on {char}',
                   usage = ';]char {chars}',
-                  description = 'CHARS [STR] - The characters you want data on')
+                  description = '''\
+CHARS [TEXT] - The characters you want data on
+> If you want info on one character, you can see how to write it in various programming languages
+''')
 @commands.check(enbl)
 async def char(ctx, *, txt):
     ls = []
     for t in txt:
         if t not in ls: ls.append(t)
     cata = [category(ch) for ch in ls]
-    table = '```'+'\n'.join([f'{ch} - {f"u_{ord(ch):04x}" if len(f"{ord(ch):04x}") == 4 else f"U_{ord(ch):08x}"} [{category(ch)} // {name(ch)}]' for ch in ls])+'```'
+    extra = ""
+    table = '```'+'\n'.join([f'{ch} - U+{ord(ch):04x} [{category(ch)} // {name(ch)}]' for ch in ls])+'```'
+    if len(ls) == 1:
+        ch = ls[0]
+        py = f"u{ord(ch):04x}" if len(f"{ord(ch):04x}") == 4 else f"U{ord(ch):08x}"
+        tmp = f"{ord(ch):02x}"
+        if len(tmp) != 2: tmp = str(ch.encode('utf-8'))[2:-1].replace('\\x','')
+        if len(tmp)%2: tmp = "0"+tmp #Always an even length
+        htm = "%".join(tmp[x]+tmp[x+1] for x in range(0,len(tmp),2))
+        js = "\\u{"+f"{ord(ch):x}"+"}"
+        jv = f"(char){ord(ch)}"
+        extra = f'''```
+   PY ] \\{py if len(tmp) != 2 else "x"+tmp}
+  URL ] %{htm}
+ HTML ] &#x{ord(ch):x};
+ JAVA ] {jv}
+   JS ] {js}
+SWIFT ] {js}
+ RUBY ] {js}
+   C# ] {jv}
+  C++ ] \\{py}
+    C ] \\{py}```'''
     key = '```'
     code = {'Cc': 'Control',
             'Cf': 'Format',
@@ -56,7 +81,7 @@ async def char(ctx, *, txt):
             'Zs': 'Space Seperator'}
     for x in list(code):
         if x in cata: key = key+f'[{x}] - {code[x].upper()}\n'
-    await ctx.send(table+key+'```')
+    await ctx.send(table+key+'```'+extra)
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

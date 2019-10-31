@@ -14,10 +14,12 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help='math',
-                  brief = 'Reverse Polish Notation [1 1 +]',
-                  usage = ';]rpn {eq}',
-                  description = 'EQ [STR] - The RPN equation')
+@commands.command(aliases = [], 
+                      help = 'math',
+                      brief = 'Reverse Polish Notation [1 1 +]',
+                      usage = ';]rpn {eq}',
+                      description = '''    EQ [STR] - The RPN equation
+    ''')
 @commands.check(enbl)
 async def rpn(ctx, *, expression):
     msg = await ctx.send('```md\n#] CALCULATING```')
