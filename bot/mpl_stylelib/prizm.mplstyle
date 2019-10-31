@@ -1,0 +1,42 @@
+# PRIZM colors and dark theme
+
+axes.axisbelow: True
+axes.edgecolor: 00FFFF
+axes.facecolor: 112222
+axes.grid: True
+axes.labelcolor: 00FFFF
+axes.labelsize: 11
+axes.linewidth: 1
+axes.prop_cycle: cycler('color', ['00ffff', '0088ff', '0000ff', 'ff0000', 'ff8800', 'ffff00', '88ff00', '00ff00', '00ff88', '8800ff', 'ff00ff', 'ff0088', '888888', 'aaffff', '88aaaa'])
+axes.titlesize: 12
+
+figure.figsize: 6.40, 4.80
+figure.facecolor: 112222
+figure.edgecolor: 112222
+
+savefig.facecolor: 112222
+savefig.edgecolor: 112222
+
+font.family: sans-serif
+font.sans-serif: Ubuntu
+font.weight: bold
+text.color: 00FFFF
+
+grid.color: 223333
+grid.linestyle: -
+grid.linewidth: 1
+
+legend.fontsize: xx-small
+legend.frameon: True
+legend.numpoints: 1
+legend.scatterpoints: 1
+legend.facecolor: 334444
+legend.edgecolor: 001111
+
+lines.linewidth: 1.75
+lines.markeredgewidth: 0
+lines.markersize: 7
+lines.solid_capstyle: round
+
+xtick.color: 00FFFF
+ytick.color: 00FFFF
