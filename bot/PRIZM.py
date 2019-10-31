@@ -18,6 +18,7 @@ print('##///  [10]  ///###')
 import random
 from util.getPre import getPre
 from util import dbman
+import re
 
 print('##///  DONE  ///##')
 print('##/// DEFINE ///##')
@@ -35,35 +36,30 @@ print('##///  DONE  ///##')
 ##///  IMPORT EXTRA CODE  ///##
 ##///---------------------///##
 
-print('##/// IMPORT ///##')
+print('##/// EXTRAS ///##')
 
-st = ''
 try:
     from util import pages
     pages.init()
-    print('SUCCESS - PAGES')
     from util import embedify
-    print('SUCCESS - EMBED')
     from util import vox
-    print('SUCCESS - VOX')
     from chk import enbl
-    print('SUCCESS - ENBL')
     from util import jsonSave
-    print('SUCCESS - SAVER')
+    from util import logic
+    from util import ez
+    from chk import has
 except Exception as ex:
-    st = ex
-    print(st)
-
+    print("MODULE ERROR -", ex)
 from dyn import refresh, faces
 
 def lext(name):
-    print(f'>Lext {name}')
+    print(f'> lEXT {name}')
     bot.load_extension(name)
 def rext(name):
-    print(f'>Rext {name}')
+    print(f'>  rEXT {name}')
     bot.reload_extension(name)
 def uext(name):
-    print(f'>Uext {name}')
+    print(f'> uEXT {name}')
     bot.unload_extension(name)
 def loadmain():
     try:
@@ -101,11 +97,12 @@ print('##///  DONE  ///##')
 print('##// STARTING //##')
 
 @bot.listen()
+async def on_connect():
+    await bot.change_presence(activity=discord.Activity(type=2,name="RAM Burning Noises",
+                              url='https://discord.gg/Z84Nm6n'))
+@bot.listen()
 async def on_ready():
-    global st
-    if st != '':
-        await log('MODULE ERROR',st)
-    await bot.change_presence(activity=discord.Activity(type=2,name="HDD clicking sounds",
+    await bot.change_presence(activity=discord.Activity(type=2,name="HDD Clicking Sounds",
                               url='https://discord.gg/Z84Nm6n'))
     for ext in range(len(allext)):
         for com in allext[ext]:
@@ -113,13 +110,12 @@ async def on_ready():
     jsons(bot)
     print(time.time())
     bot.load_extension('util.botlst')
-    print('If an error didn\'t show up yet, then all should be good')
     gld = '>'+'\n>'.join(g.name for g in bot.guilds)
     print(f'''
 GLD
 {gld}
 
-GG! PRIZM ;] // v{discord.__version__} // RESTART - CTRL Z, [up], [enter]
+GG! PRIZM ;] // v{discord.__version__}
 ''')
     channel = bot.get_channel(556247032701124650)
     await channel.purge(limit=10)
@@ -129,12 +125,9 @@ GG! PRIZM ;] // v{discord.__version__} // RESTART - CTRL Z, [up], [enter]
                               name=f"{random.choice(texts)} {random.choice(face)}",
                               url='https://discord.gg/Z84Nm6n'))
     await channel.send(embed=embedify.embedify(desc=f'''```md
-#] I\'M BACK ONLINE!!!
-> All the Voxels are textured ;]
-> I am still in the testing phase :C
-> Watch me be entirely re-written 0.0
-> Turned on: {str(datetime.datetime.now())} :D
-#] HOPEFULLY UP 24/7 {random.choice(face)}```'''))
+#] PRIZM IS ONLINE ;]
+>  Still in the testing phase tho :C
+=] {' '.join(random.choice(face) for x in range(3))}```''', time='now'))
     pages.init()
 
 @bot.listen()
@@ -150,29 +143,23 @@ async def on_disconnect():
 @bot.listen()
 async def on_message(message):
     ct = message.content
-    #words = json.load(open('json/servers.json'))[str(message.guild.id)]["wrd"]
-    #for word in ct.split():
-        #if len(words['wrd']) == 0: break
-        #if word in words['wrd']:
-            #if words['act'].lower() == 'ban': await message.author.ban(reason='Used a word on the banned word list')
-            #elif words['act'].lower() == 'kick': await message.author.kick(reason='Used a word on the banned word list')
-            #await message.delete()
-            #break
-
-    if "<@481591703959240706>" in message.content or "<@!481591703959240706>" in message.content:
+    if re.search(r"\<\@\!?481591703959240706\>", message.content):
         await message.add_reaction("<:prizblu:574993427314376704>")
 
 @bot.command()
 @commands.is_owner()
 async def load(ctx):
     loadmain()
-    reload(refresh)
-    reload(faces)
     reload(pages)
     reload(embedify)
     reload(vox)
     reload(enbl)
     reload(jsonSave)
+    reload(logic)
+    reload(ez)
+    reload(has)
+    reload(refresh)
+    reload(faces)
     pages.init()
     await ctx.message.add_reaction('<:wrk:608810652756344851>')
 
@@ -188,18 +175,21 @@ async def restart(ctx):
                 uext(f"{lodtxt[ext]}{com}")
             except:
                 pass
-    await msg.edit(content='```md\n#] RELOADING MODULES```')
+    await msg.edit(content='```md\n#] RELOADING EXTENSIONS```')
     try:
-        reload(refresh)
-        reload(faces)
         reload(pages)
         reload(embedify)
         reload(vox)
         reload(enbl)
         reload(jsonSave)
+        reload(logic)
+        reload(ez)
+        reload(has)
+        reload(refresh)
+        reload(faces)
         pages.init()
     except Exception as ex:
-        await ctx.send(f'```diff\n-] MODULE ERROR\n=] {ex}```')
+        await ctx.send(f'```diff\n-] MODULE ERROR - {ex}```')
         fail = True
     else:
         await msg.edit(content='```md\n#] LOADING COMMANDS```')
@@ -209,18 +199,18 @@ async def restart(ctx):
             try:
                 lext(f"{lodtxt[ext]}{com}")
             except Exception as ex:
-                await ctx.send(f'```diff\n-] COMMAND ERROR\n=] {ex}\n=] {com}```')
+                await ctx.send(f'```diff\n-] COMMAND ERROR `{ex}` IN {com}```')
                 fail = True
-    await msg.edit(content='```md\n#] REFRESHING DB```')
+    await msg.edit(content='```md\n#] REFRESHING DATABASE```')
     try:
         jsons(ctx.bot)
     except Exception as ex:
-        await ctx.send(f'```diff\n-] DB ERROR\n=] {ex}```')
+        await ctx.send(f'```diff\n-] DATABASE ERROR - {ex}```')
         fail = True
     if not fail:
-        await msg.edit(content='```md\n#] MODULES\n> Literally everything restarted, successfully too :D```')
+        await msg.edit(content='```md\n#] RESTARTED SUCCESSFULLY```')
     else:
-        await msg.edit(content='```md\n#] MODULES\n> Restarting completed```')
+        await msg.edit(content='```md\n#] SOME MODULES FAILED TO RESTART```')
 
 
 ##///---------------------///##

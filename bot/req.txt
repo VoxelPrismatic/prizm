@@ -15,5 +15,5 @@ youtube_dl
 typing
 scipy
 opencv-python
-logging
 pandas
+ffmpy3

@@ -3,9 +3,11 @@
 */*/*/__pycache__
 */*/__pycache__
 */__pycache__
+__pycache__
 
 #LINUX THINGS
 *.directory
+.directory
 ..*.kate-swp
 
 #BACKUPS
@@ -16,6 +18,7 @@
 #SENSITIVE INFO
 bot/secrets.txt
 bot/util/prawUser.py
+bot/util/praw_util.py
 bot/util/botlst.py
 bot/txt/interpreter.txt
 
