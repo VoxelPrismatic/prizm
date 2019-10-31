@@ -6,12 +6,12 @@ def refresh():
     owncom = ["exe",  "pwr",  "chng",
               "dump", "pin0", "clr0",
               "edit","nick0", "shell",
-              "clrin0", "srvedit",
+              "clrin0", "srvedit", "lines",
               "helpown", "iedit", "dl"]
 
     modcom = ["clr", "pin", "ban",
               "kick", "nick", "enbl",
-              "role", "mng", 'audit']
+              "roles", "mng", 'audit']
 
     infcom = ["os", "git", "dir",
               "ping", "info", "hlep",
@@ -27,11 +27,11 @@ def refresh():
               "vox", "djq", "8ball",
               "reddit", "mines","hman",
               "mock", "bug", '2048',
-              "captcha"]
+              "captcha", "draw"]
 
-    discom = ["chnl", "emj", "gld",
-              "mbr", "rol", "usr",
-              'msg']
+    discom = ["ci", "ei", "gi",
+              "mi", "ri", "ui",
+              'ti']
 
     mathcom = ["graph", "quad", "rto",
                "stats", "fct", "rad",
@@ -42,7 +42,7 @@ def refresh():
               'throw', 'kiss']
 
     othcom = ['mix', 'tag', "char",
-              'text', 'code']
+              'text', 'code', 'convert']
 
     muscom = ['play', 'leave', 'pause']
 

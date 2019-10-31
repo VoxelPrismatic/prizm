@@ -1,13 +1,16 @@
 def faces():
-    faces = ["0.0",">.<","0o0","9.6","@.@",
-            ";-;","!-!","S:Γ","UwU",";]",
-            ";n;",",,,;n;,,,",";u;","]].[[",
-            ">~<","=-=","B)",":D","q.p",
-            ";P",'OwO','O.o',';[',';V']
-    return faces
+    return ['0.0', '>.<', '0o0', '9.6', '@.@',
+            ';-;', '!-!', 'S:Γ', 'UwU', ';]',
+            ';n;', ',,,;n;,,,', ';u;', '>.<',
+            '>~<', '=-=', 'B)', ';D', '\u03b8.\u03b8',
+            ';p', 'OwO', 'O.o', ';[', ';V', ';0', 
+            ';o', ';C', ';d', 'xd', 'XD', ';c', '.-.',
+            '._.', '+_+', '#-#', '$u$', '7-7', 
+            '>.>', '>~>', '7~7', 'X_X', ';&', ';O',
+            ';|', ';U', ';v', ';u', '~.~']
 
 def texts():
-    texts = ["the Prisms fly by",
+    return ["the Prisms fly by",
              "the Voxels get retextured",
              "the Prisms get some love",
              "the Voxels get built",
@@ -24,5 +27,13 @@ def texts():
              'im not too sure tbh',
              '1s and 0s go by',
              'my code get better',
-             'myself get rewritten... again']
-    return texts
+             'myself get rewritten... again',
+             '/r/PRIZM_bot, my official subreddit', 
+             'something cool',
+             'myself go to sleep', 
+             'my cat, Cluster!',
+             'for... i forgot',
+             'wait... what am I watching?',
+             'for your bullshit',
+             'anything starting with ";]"',
+             'for låmp, bröther']

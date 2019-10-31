@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*
 
 #/// DEPENDENCIES
-import typing
+import typing, aiofiles
 import discord                    #python3.7 -m pip install -U discord.py
-import logging, json
+import logging, json, re
 import traceback, sys
+from util.priz_err import *
 from util import embedify, getPre, dbman
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
@@ -15,6 +16,12 @@ bot = commands.Bot(command_prefix=getPre.getPre)
 ##///---------------------///##
 ##///   BOT DEFINITIONS   ///##
 ##///---------------------///##
+
+def escape(st):
+    for regex in [r"(\_)", r"(\*)", r"(\~)", r"(\#)", 
+                  r"(\@)", r"(\|)", r"(\`)", r"(\.)", r"(\:)"]:
+        st = re.sub(regex, r" \1", str(st.encode("utf-8"))[2:-1])
+    return st
 
 async def log(bot, head, text):
     chnl = bot.get_channel(569698278271090728)
@@ -27,9 +34,7 @@ async def log(bot, head, text):
 
 @bot.listen()
 async def on_error(event, *args, **kwargs):
-    t, exception, info = sys.exc_info()
-    await handler(bot, "EVENT FAILED", exception, event, None, None, *args, **kwargs)
-    await ctx.send('```diff\n-] AN ERROR OCCURED```')
+    print(event, *args, kwargs)
 
 @bot.listen()
 async def on_command_error(ctx, error):
@@ -41,62 +46,93 @@ async def on_command_error(ctx, error):
         return await ctx.invoke(ctx.bot.get_command('text'), convo=ctx.message.content[2:])
     try:
         if ctx.guild and not dbman.get('com', ctx.command.name, id=ctx.guild.id):
-            return await ctx.send('```diff\n-] ERROR\n=] THIS COMMAND ISNT ENABLED```')
+            return await ctx.send('```diff\n-] THIS COMMAND ISNT ENABLED```')
     except:
         pass
     try:
         errr = error.original
     except:
         errr = error
+    if issubclass(type(errr), PrizmError):
+        await handler(ctx.bot, "COMMAND FAILURE", errr, ctx=ctx, found=True)
+        return await ctx.send(f"""```md
+#] PRIZM {errr.typ} ;[
+=] Something wrong happened internally
+>  More info about the issue can be found below
+``````{errr.syntax}
+{errr.message}```""")
     st = str(type(errr)).split('.')[-1][:-2]
     found = False
     typ, obj, tb = sys.exc_info()
     errors = {
-              'BadArgument': [400,'BAD ARGUMENT'],
-              'BotMissingPermissions': [503,'BOT FORBIDDEN'],
-              'MissingPermissions': [403,'USER FORBIDDEN'],
-              'ConversionError': [503, 'UNAVAILABLE'],
-              'MissingRequiredArgument': [416, 'MISSING ARGUMENTS'],
-              'ArgumentParsingError': [418, 'IM A TEAPOT'],
-              'TooManyArguments': [429, 'TOO MANY ARGUMENTS'],
-              'DisabledCommand': [423,'LOCKED COMMAND'],
-              'NotOwner': [403,'FORBIDDEN'],
-              'ExtensionAlreadyLoaded': [500, "EXT[s] LOADED xd"],
-              'ExtensionNotLoaded': [500,"EXT[s] UNLOADED xd"],
-              "ExtensionError": [500, "CHECK FOR SYNTAX ERRORS"],
-              "UnexpectedQuoteError": [417, "UNEXPECTED QUOTE"],
-              "ExpectedClosingQuoteError": [417, "MISSING QUOTE"],
-              "PrivateMessageOnly": [405, "IN DMs ONLY"],
-              "NoPrivateMessage": [405, "IN SERVERS ONLY"],
-              "UserInputError": [400, "INPUT ERROR"],
-              "CommandOnCooldown": [400, "COMMAND COOLDOWN"],
-              "MissingAnyRole": [401, "MISSING ROLE[S]"],
-              "BotMissingAnyRole": [401, "BOT MISSING ROLE[S]"],
-              "NSFWChannelRequired": [406, "NSFW CHANNEL ONLY"],
-              "ExtensionNotFound": [404, "EXT[s] NOT FOUND xd"],
-              "Forbidden": [403,'BOT FORBIDDEN'],
-              "HTTPException": [409, 'HTTP ERROR'],
-              "NotFound": [404, 'NOT FOUND'],
-              "InvalidArgument": [406, 'INVALID ARG'],
-              "ClientException": [400, 'CLIENT ERROR']}
+        'DiscordException': "Unknown",
+        'LoginFailue': 'Verification',
+        'NoMoreItems': 'Iter',
+        'Forbidden': 'Forbidden',
+        'NotFound': 'NotFound',
+        'InvalidData': 'Invalid',
+        'InvalidArgument': 'InvalidArg',
+        'GatewayNotFound': 'Gateway',
+        'ConnectionClosed': 'Connection',
+        'OpusError': 'Opus',
+        'Opus': 'Opus',
+        'CommandError': 'Com',
+        'ConversionError': 'Conversion',
+        'MissingRequiredArgument': 'MissingArgs',
+        'ArgumentParsingError': 'Parse',
+        'UnexpectedQuoteError': 'BadQuotes',
+        'InvalidEndOfQuoteStringError': 'BadQuotes',
+        'ExpectedClosingQuoteError': 'MissingQuotes',
+        'BadArgument': 'BadArgs',
+        'BadUnionArgument': 'BadArgs',
+        'PrivateMessageOnly': 'DMsOnly',
+        'NoPrivateMessage': 'GuildOnly',
+        'CheckFailure': 'Checks',
+        'CommandNotFound': 'WtfHowDidWeGetHere', #This shouldn't ever happen
+        'DisabledCommand': 'Disabled',
+        'CommandInvokeError': 'Invoke',
+        'TooManyArguments': 'TooManyArgs',
+        'UserInputError': 'Input',
+        'CommandOnCooldown': 'Cooldown',
+        'NotOwner': 'Forbidden',
+        'MissingPermissions': 'MissingPerms',
+        'BotMissingPermissions': 'PrizmPerms',
+        'MissingRole': 'MissingRole',
+        'BotMissingRole': 'PrizmRole',
+        'MissingAnyRole': 'MissingRole',
+        'BotMissingAnyRole': 'PrizmRole',
+        'NSFWChannelRequired': 'Nsfw',
+        'ExtensionError': 'Ext',
+        'ExtensionAlreadyLoaded': 'ExtLoaded',
+        'ExtensionNotLoaded': 'ExtUnloaded',
+        'NoEntryPointError': 'Entry',
+        'ExtensionFailed': 'ExtFailed',
+        'ExtensionNotFound': 'ExtNotFound'
+    }
     if st in errors:
-        await ctx.send(f'```diff\n-] ERROR {errors[st][0]} {errors[st][1]}``````md\n#] {errr}```')
+        await ctx.send(f'''```md
+#] PRIZM {errors[st]}Error ;[
+=] This is most likely an issue with what you did
+>  More info about the issue can be found below
+``````diff
+-] {errr}```''')
         found = True
     await handler(ctx.bot, "COMMAND FAILURE", errr, ctx=ctx, found=found)
 
-async def handler(bot, exception_type, exception, event=None, message=None, ctx = None, found=False,*args, **kwargs):
+async def handler(bot, ex_type, ex, event=None, message=None, ctx = None, found=False):
     if message is None and event is not None and hasattr(event, "message"):
         message = event.message
     if message is None and ctx is not None:
         message = ctx.message
     try:
-        tb = "".join(traceback.format_tb(exception.__traceback__)).replace('`',' `')
-        open('txt/tb','w+').write(tb)
+        tb = "".join(traceback.format_tb(ex.__traceback__)).replace('`','\u200b`')
+        async with aiofiles.open("txt/tb.txt", "w+") as tbfile:
+            await tbfile.write(tb)
         await bot.get_channel(569698278271090728).send(
             embed=embedify.embedify(title='AN ERROR OCCURED ;[',
                 desc = '```md\n#] SEE BELOW FOR DETAILS```',
                 fields = [['`EXCEPTION ---`',
-                            f"```diff\n-] {type(exception)} '{str(exception)}'```",
+                            f"```diff\n-] {type(ex)} '{str(ex)}'```",
                             False],
                         ['`ARGS --------`',
                             '```'+str(ctx.args)+'```',
@@ -108,9 +144,7 @@ async def handler(bot, exception_type, exception, event=None, message=None, ctx 
                             '```'+str(event)+'```',
                             False],
                         ['`COMMAND -----`',
-                            f"""```NAME // {ctx.command.name}
-CHANNEL // {'Private Message' if isinstance(ctx.channel, discord.abc.PrivateChannel) else f"{ctx.channel.name} [`{ctx.channel.id}`]"}
-   USER // {str(ctx.author)} [`{ctx.author.id}`]```""",
+                            f"""```;]{ctx.command.name} in #{'Private Message' if isinstance(ctx.channel, discord.abc.PrivateChannel) else f"{ctx.channel.name} [`{ctx.channel.id}`]"} by {str(ctx.author)} [`{ctx.author.id}`]```""",
                             False],
                         ['`MESSAGE -----`',
                             '```'+message.content+'```',
@@ -119,17 +153,19 @@ CHANNEL // {'Private Message' if isinstance(ctx.channel, discord.abc.PrivateChan
     '```'+(tb if len(tb) <= 1024 else 'IN ATTACHED FILE')+'```',
                             False]]
                 ),
-            file = discord.File(fp=open('txt/tb','rb')) if len(tb) > 1024 else None
+            file = discord.File('txt/tb.txt') if len(tb) > 1024 else None
         )
         if not found:
             await ctx.send(f"""```md
-#] GG MATE, YOU FOUND A BUG!
-> But that's okay, cuz you finding bugs
-> is how I can get better at preventing
-> that from happening... :D``````diff
--] {str(exception).replace('`',' `')}```""")
-    except Exception as exc:
-        msgs = await log(bot, "SOMETHING IS SERIOUSLY FUCKED UP", f"ERROR // {exc}")
+#] PRIZM {str(type(ex)).split("'")[1]} ;[
+=] You found a bug, thank you ;]
+>  More info about the issue can be found below
+``````diff
+-] {escape(str(ex))}
+=] Traceback is available in the attached file
+```""", file=discord.File("txt/tb.txt"))
+    except Exception as ex:
+        msgs = await log(bot, "SOMETHING IS SERIOUSLY FUCKED UP", f"ERROR // {ex}")
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##
