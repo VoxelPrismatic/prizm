@@ -13,31 +13,41 @@ play games with you, be your math assistant, be your personal radio, and so much
 Download this entire repo as a zip, then make sure that all the following commands are done 
 inside of the `bot` folder, where you can see `PRIZM.py`
 
-### Dependencies -----
-**USE PYTHON 3.7**, Python 3.8 doesn't work with TensorFlow and most other modules that I need
-for this bot to work.
+### Single command install for PRIZM
+Open the terminal and cd into your `bot` folder where `PRIZM.py` is located, the run the following
+command
 
-**USE LINUX**, preferably some form of Ubuntu if you want to use TensorFlow.
+`sudo apt install ffmpeg -y && sudo apt install python3.7 && python3.7 -m pip install -r req.txt`
+
+Sit back and relax for a couple minutes
+
+### Build Yourself
+#### Installation notes
+**USE PYTHON 3.7.X**, Python 3.8 has several issues with installing the dependencies, here is a small list of
+what it refuses to install:
+```
+TensorFlow #This is on TensorFlow's end, they don't allow it.
+NumExpr
+```
+
+**USE LINUX**, TensorFlow does not install on Windows, so use Ubuntu if possible
 
 **CHECK THE /bot/avx/avx FILE** to see if your **Intel** CPU supports AVX [for TensorFlow],
 if you have a Ryzen CPU, you are most likely fine.
 
-Use `pip3 install -r req.txt` to install all the requirements and depndencies except for 
-`libffmpeg`, that is an app.
-This will take several minutes to install because there are like 200 modules [more like 10 
-but ok]
+#### Dependencies -----
 
-You must also install `ffmpeg` to actually play music and to convert stuff, it is not a 
-library, but an app you need to install.
+Use `pip3 install -r req.txt` to install all the requirements for python itself.
+Then run `sudo apt install ffmpeg -y` to have the conversion technology and music abilities.
 
-For debian users ] `sudo apt install ffmpeg -y`
+> `sudo apt install` is for Debian, your command may very
 
-In order to use the `;]mix` command, you must also download [this file](https://mega.nz/#!9fh1iQzC!5d9zt6yKRbAXzgyxNMmoITua09b__zlU751KKOfpRSs)
-and place it in the `mix` folder [~500mb], and you must have linux because
-TensorFlow won't actually install on windows from my experience
+You must also download [this file]
+(https://mega.nz/#!9fh1iQzC!5d9zt6yKRbAXzgyxNMmoITua09b__zlU751KKOfpRSs)
+and place it in the `mix` folder [~500mb]
 > I will fix some issues with TensorFlow in light of version 2 coming out shortly
 
-If you have issues installing the requirements, get `pip` first.
+If you have issues installing the python requirements, get `pip` first.
 > For Debian users ] `sudo apt install python3-pip`
 
 If you still have trouble, then idk whats happening.
