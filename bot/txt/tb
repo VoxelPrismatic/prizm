@@ -1,0 +1,16 @@
+  File "/home/priz/.local/lib/python3.7/site-packages/discord/ext/commands/core.py", line 79, in wrapped
+    ret = await coro(*args, **kwargs)
+  File "/home/priz/Desktop/PRIZM/com/pub/reddit.py", line 73, in reddit
+    is_nsfw = sbd.over18
+  File "/home/priz/.local/lib/python3.7/site-packages/praw/models/reddit/base.py", line 30, in __getattr__
+    self._fetch()
+  File "/home/priz/.local/lib/python3.7/site-packages/praw/models/reddit/subreddit.py", line 452, in _fetch
+    data = self._fetch_data()
+  File "/home/priz/.local/lib/python3.7/site-packages/praw/models/reddit/subreddit.py", line 449, in _fetch_data
+    return self._reddit.request("GET", path, params)
+  File "/home/priz/.local/lib/python3.7/site-packages/praw/reddit.py", line 581, in request
+    method, path, data=data, files=files, params=params
+  File "/home/priz/.local/lib/python3.7/site-packages/prawcore/sessions.py", line 185, in request
+    params=params, url=url)
+  File "/home/priz/.local/lib/python3.7/site-packages/prawcore/sessions.py", line 130, in _request_with_retries
+    raise self.STATUS_EXCEPTIONS[response.status_code](response)

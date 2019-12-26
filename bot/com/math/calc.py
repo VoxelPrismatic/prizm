@@ -11,23 +11,41 @@ from numexpr import *
 import sympy as sp
 from chk.enbl import enbl
 from discord.ext import commands
-from discord.ext.commands import Bot, MissingPermissions, has_permissions
+from discord.ext.commands import Bot
+from util.parse_eq import parse_eq
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases = [], 
-                      help = 'math',
-                      brief = 'It is a calculator',
-                      usage = ';]calc {eq}',
-                      description = '''    EQ [STR] - The thing to solve
-    ''')
+@commands.command(
+    aliases = [], 
+    help = 'math',
+    brief = 'It is a calculator',
+    usage = ';]calc {eq}',
+    description = '''\
+EQ [TEXT] - The thing to solve
+'''
+)
 @commands.check(enbl)
 async def calc(ctx, *, eq: str):
     async with ctx.channel.typing():
-        await ctx.send(f'''```md
-#] {evaluate(str(sp.simplify(eq.replace("^","**")).evalf(16)))}```''')
+        pass
+    eq = parse_eq(eq)
+    try:
+        num = round(float(evaluate(eq)), 16)
+        if str(num).endswith(".0"):
+            num = int(num)
+    except ValueError:
+        await ctx.send("```diff\n-] BAD VALUE```")
+    except SyntaxError:
+        await ctx.send("```diff\n-] SYNTAX ERROR```")
+    except ZeroDivisionError:
+        await ctx.send("```diff\n-] DIV/0 ERROR```")
+    except NameError:
+        await ctx.send("```diff\n-] UNDEFINED```")
+    else:
+        await ctx.send(f'```md\n#] {num}```')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

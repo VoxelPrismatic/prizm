@@ -1,4 +1,4 @@
-# TI Nspire colors and dark theme
+# FX9750G colors and dark theme
 
 axes.axisbelow: True
 axes.edgecolor: ffffff
@@ -10,7 +10,7 @@ axes.linewidth: 1
 axes.prop_cycle: cycler('color', ['888888', '999999', 'aaaaaa', 'bbbbbb', 'cccccc', 'dddddd', 'eeeeee', 'ffffff', '8a8a8a', 'a9a9a9', '787878', '797979', '909090', '8f8f8f', 'acacac'])
 axes.titlesize: 12
 
-figure.figsize: 6.40, 4.28
+figure.figsize: 5.12, 2.56
 figure.facecolor: 222222
 figure.edgecolor: ffffff
 

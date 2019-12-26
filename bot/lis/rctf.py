@@ -46,14 +46,15 @@ async def on_msg(msg):
                  ' I will take this worm',
                  ' and destroy you.',
                  ' I didn\'t want cyberwar.',
-                 ' but i didn\'t start it.']
+                 ' but i didn\'t start it,',
+                 ' **you incompetent buffoon**']
         for line in lines:
             async with msg.channel.typing():
-                await asyncio.sleep(len(lines)/8)
+                await asyncio.sleep(len(line)/16)
             if fool:
-                await fool.edit(content=fool.content+x)
+                await fool.edit(content=fool.content+line)
             else:
-                fool = await msg.channel.send(x)
+                fool = await msg.channel.send(line)
 
     # When Pinged
     elif re.match(r'(<@)!?(555862187403378699>)', ct):

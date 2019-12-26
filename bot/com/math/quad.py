@@ -13,21 +13,16 @@ from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
 
 ##///---------------------///##
-##///   BOT DEFINITIONS   ///##
-##///---------------------///##
-
-def rand(ll,tt): return random.randint(ll,tt)
-
-##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
 @commands.command(aliases = [], 
-                      help = 'math',
-                      brief = 'Solves the quadratic formula',
-                      usage = ';]quad {A} {B} {C}',
-                      description = '''    A, B, C [FLOAT] - Corrosponds to "Ax^2 + Bx + C"
-    ''')
+                  help = 'math',
+                  brief = 'Solves the quadratic formula',
+                  usage = ';]quad {A} {B} {C}',
+                  description = '''\
+A, B, C [NUMBER] - Corrosponds to "Ax^2 + Bx + C"
+''')
 @commands.check(enbl)
 async def quad(ctx, A: float, B: float, C: float):
     root = str(nsimp(f'sqrt({B**2}-4*{A}*{C})'))

@@ -1,9 +1,6 @@
 #PYTHON THINGS
 *.pyc
-*/*/*/__pycache__
-*/*/__pycache__
-*/__pycache__
-__pycache__
+__pycache__/
 
 #LINUX THINGS
 *.directory
@@ -30,3 +27,6 @@ bot/txt/interpreter.txt
 *.mat
 *.png
 *.jpg
+
+#OTHERS
+*.kdev4

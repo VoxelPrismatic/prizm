@@ -13,43 +13,37 @@ from chk.enbl import enbl
 ##///---------------------///##
 
 @commands.command(aliases = [], 
-                      help = 'inf',
-                      brief = 'Shows aditional bot info',
-                      usage = ';]info',
-                      description = '''    [NO ARGS FOR THIS COMMAND]
-    ''')
+                  help = 'inf',
+                  brief = 'Shows aditional bot info',
+                  usage = ';]info',
+                  description = '''\
+[NO INPUT FOR THIS COMMAND]
+''')
 @commands.check(enbl)
 async def info(ctx):
     await ctx.send('''```md
-#] PRIZM
-=] THE CODE
->  Prizm is 100% open source and available for anybody to use
->  This bot is just a project I started in my spare time, and
->  now it has grown to something I would've never thought
->  would happen. Due to bad habits and things, this bot has
->  been rewritten twice already, and oh boy is it [not] fun!
--
+#] PRIZM INFO ;]
+=] Thanks for wanting to learn how I work!
+``````md
+#] THE CODE
+>  PRIZM is 100% open source and is hosted on GitHub.
+>  There are over 100 commands as of writing this.
+>  PRIZM is using a library called discord.py to interact
+>  - with Discord, and this library sucks. So, I'm making
+>  - my own. Therefore PRIZM is under a complete rewrite
+>  - and not all of the commands will be formatted the
+>  - same way.
+``````md
 =] THE AI
->  Version 1 of the AI just compared strings and actually
->  originated from a side project on the TI-84+CSE, which btw
->  is where I got all the bad habits
--
->  Version 2 of the AI uses custom Markov chains to generate
->  text, and it isn't very good
--
->  Version 3 of the AI will be using TensorFlow, which means
->  that it's an actual AI. I am not done with it but I assure
->  you that it will come... eventually
--
-=] THE PC
+>  The AI uses NLTK and your responses to learn. If you
+>  - want the bot to learn faster, you can use the ;]learn
+>  - command and send a full 2 person conversation
+`````md
+#] THE PC
 >  This bot is being run on a laptop with only 8GB of ram
 >  and it's using more than 100 files for commands and more
 >  This is not meant to be a high demanding bot, but I'm
 >  already sure that it's more than just a side project
--
-=] OTHER STUFF
->  If you would like to invite me to your server, use ';]inv'
->  If you would like to join my support server, use ';]inv'
 ```''')
 
 ##///---------------------///##

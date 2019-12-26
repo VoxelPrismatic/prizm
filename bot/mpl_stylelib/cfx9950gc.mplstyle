@@ -1,26 +1,26 @@
-# HP Prime colors and dark theme
+# CFX 9950 GC colors and dark theme
 
 axes.axisbelow: True
-axes.edgecolor: 00FFFF
-axes.facecolor: 112222
+axes.edgecolor: bbccaa
+axes.facecolor: 112211
 axes.grid: True
 axes.labelcolor: 00FFFF
 axes.labelsize: 11
 axes.linewidth: 1
-axes.prop_cycle: cycler('color', ['00ffff', '0088ff', '0000ff', 'ff0000', 'ff8800', 'ffff00', '88ff00', '00ff00', '00ff88', '8800ff', 'ff00ff', 'ff0088', '888888', 'aaffff', '88aaaa'])
+axes.prop_cycle: cycler('color', ['445566', '998866', '88aa88'])
 axes.titlesize: 12
 
-figure.figsize: 6.40, 4.28
-figure.facecolor: 112222
-figure.edgecolor: 112222
+figure.figsize: 5.76, 2.55
+figure.facecolor: 112211
+figure.edgecolor: 112211
 
-savefig.facecolor: 112222
-savefig.edgecolor: 112222
+savefig.facecolor: 112211
+savefig.edgecolor: 112211
 
 font.family: sans-serif
 font.sans-serif: Ubuntu
 font.weight: bold
-text.color: 00FFFF
+text.color: bbccaa
 
 grid.color: 223333
 grid.linestyle: -
@@ -38,5 +38,5 @@ lines.markeredgewidth: 0
 lines.markersize: 7
 lines.solid_capstyle: round
 
-xtick.color: 00FFFF
-ytick.color: 00FFFF
+xtick.color: bbccaa
+ytick.color: bbccaa

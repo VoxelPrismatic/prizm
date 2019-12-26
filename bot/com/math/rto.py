@@ -14,16 +14,17 @@ from chk.enbl import enbl
 ##///---------------------///##
 
 @commands.command(aliases = ['frac', 'ratio'], 
-                      help = 'math',
-                      brief = 'Reduces the ratio between {x} and {y}',
-                      usage = ';]rto {x} {y}',
-                      description = '''    X [INT] - The first number
-Y [INT] - The second number
-    ''')
+                  help = 'math',
+                  brief = 'Reduces the ratio between {x} and {y}',
+                  usage = ';]rto {x} {y}',
+                  description = '''\
+X [NUMBER] - The first number, or numerator
+Y [NUMBER] - The second number, or denominator
+''')
 @commands.check(enbl)
-async def rto(ctx, int1: int, int2: int):
-    factor = math.gcd(int1, int2)
-    await ctx.send(f'```] FACT // {factor}\n] INT1 // {int1/factor}\n] INT2 // {int2/factor}```')
+async def rto(ctx, x: int, y: int):
+    f = math.gcd(int1, int2)
+    await ctx.send(f'```md\n#] {x/f}/{y/f}\n>  FACTOR ] {f}```')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

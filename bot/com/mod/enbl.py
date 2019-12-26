@@ -24,7 +24,7 @@ COMMAND [TEXT] - The name of the command you want to enable
 @commands.guild_only()
 @commands.check(is_mod)
 async def enbl(ctx, command):
-    if not ctx.bot.get_command(nam):
+    if not ctx.bot.get_command(command):
         return ctx.send('```diff\n-] COMMAND DOESNT EXIST```')
     dbman.update('com', ctx.bot.get_command(command).name, 1, id=ctx.guild.id)
     await ctx.message.add_reaction('<:wrk:608810652756344851>')
@@ -39,7 +39,7 @@ COMMAND [TEXT] - The name of the command you want to disable
 @commands.guild_only()
 @commands.check(is_mod)
 async def dsbl(ctx, command):
-    if not ctx.bot.get_command(nam):
+    if not ctx.bot.get_command(command):
         return ctx.send('```diff\n-] COMMAND DOESNT EXIST```')
     dbman.update('com', ctx.bot.get_command(command).name, 0, id=ctx.guild.id)
     await ctx.message.add_reaction('<:wrk:608810652756344851>')

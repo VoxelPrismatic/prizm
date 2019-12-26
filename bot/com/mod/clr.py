@@ -33,7 +33,7 @@ async def clrin(ctx, message1: discord.Message, message2: discord.Message):
     await ctx.message.delete()
     if message1.created_at > message2.created_at:
         message1, message2 = message2, message1
-    await ctx.channel.purge(limit=2000, before=clrl, after=clrh)
+    await ctx.channel.purge(limit=2000, before=message1, after=message2)
 
 @commands.command(aliases=[],
                   help = 'mod',

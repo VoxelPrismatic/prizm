@@ -22,7 +22,7 @@ def hexcolor(st: str):
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=["hex"],
+@commands.command(aliases=["rgb", "#"],
                   help='oth',
                   brief='Displays a random color in hex',
                   usage=';]colors {?color or scheme}',

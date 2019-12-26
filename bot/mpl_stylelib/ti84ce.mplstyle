@@ -1,8 +1,8 @@
-# PRIZM colors and dark theme
+# TI84CE/TI84CSE colors and dark theme
 
 axes.axisbelow: True
 axes.edgecolor: 9aabcd
-axes.facecolor: 313446
+axes.facecolor: 202335
 axes.grid: True
 axes.labelcolor: 9aabcd
 axes.labelsize: 11
@@ -11,11 +11,11 @@ axes.prop_cycle: cycler('color', ['642b26', '0d0a69', '0e4bc5', 'c3c532', 'b2bfc
 axes.titlesize: 12
 
 figure.figsize: 5.28, 3.28
-figure.facecolor: 313446
-figure.edgecolor: 313446
+figure.facecolor: 202335
+figure.edgecolor: 202335
 
-savefig.facecolor: 313446
-savefig.edgecolor: 313446
+savefig.facecolor: 202335
+savefig.edgecolor: 202335
 
 font.family: sans-serif
 font.sans-serif: Ubuntu

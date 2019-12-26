@@ -1,4 +1,4 @@
-# HP Prime colors and dark theme
+# FX CG50 colors and dark theme
 
 axes.axisbelow: True
 axes.edgecolor: 00FFFF
@@ -10,7 +10,7 @@ axes.linewidth: 1
 axes.prop_cycle: cycler('color', ['00ffff', '0088ff', '0000ff', 'ff0000', 'ff8800', 'ffff00', '88ff00', '00ff00', '00ff88', '8800ff', 'ff00ff', 'ff0088', '888888', 'aaffff', '88aaaa'])
 axes.titlesize: 12
 
-figure.figsize: 6.40, 4.28
+figure.figsize: 5.76, 2.55
 figure.facecolor: 112222
 figure.edgecolor: 112222
 

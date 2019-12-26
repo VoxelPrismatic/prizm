@@ -45,26 +45,30 @@ async def PageThis(ctx, lit, name, low = "", thumb = None, mono = True, typ = 'm
      MONO - [STR ] Sets the input text to monospace, on by default
     THUMB - [STR ] Link to thumbnail to an **IMAGE** [only http[s] supported], None by default
         """
-        _inst[msg.id]={'msg':msg,  #Message Instance
-                       'lit':lit,  #Pages in list
-                       'num':num,  #Page Number
-                       'usr':usr,  #Author Instance
-                       'end':low,  #Footer
-                       'nam':name, #Header
-                       'img':thumb,#Thumbnail
-                       'mono':mono,#Is Monospace?
-                       'typ':typ}  #Monospace Syntax Highlighting
+        _inst[msg.id]={
+            'msg':msg,  #Message Instance
+            'lit':lit,  #Pages in list
+            'num':num,  #Page Number
+            'usr':usr,  #Author Instance
+            'end':low,  #Footer
+            'nam':name, #Header
+            'img':thumb,#Thumbnail
+            'mono':mono,#Is Monospace?
+            'typ':typ
+        }  #Monospace Syntax Highlighting
     #to get these emojis please let your bot join https://discord.gg/eYMyfcd
-    r = ['<:sl:598301530667483137>',   #Skip Left
-         '<:al:598301447066484747>',   #Arrow Left
-         '<:stp:598301603069689876>',  #Stop
-         '<:ar:598301483645141003>',   #Arrow Right
-         '<:sr:598301570387542036>',   #Skip Right
-         '<:num:598301671642234919>',  #Numbers
-         '<:del:598301635718152241>']  #Recycle
+    _sL = '<:sl:598301530667483137>'
+    _aL = '<:al:598301447066484747>'
+    _stp = '<:stp:598301603069689876>'
+    _aR = '<:ar:598301483645141003>'
+    _sR = '<:sr:598301570387542036>'
+    _num = '<:num:598301671642234919>'
+    _del = '<:del:598301635718152241>'
+    
     async def react(msg):
         "ADDS REACTIONS"
-        for rct in r:await msg.add_reaction(rct)
+        for rct in r:
+            await msg.add_reaction(rct)
         return msg
 
     def page(mID):
@@ -73,8 +77,11 @@ async def PageThis(ctx, lit, name, low = "", thumb = None, mono = True, typ = 'm
         mID - [INT] The message ID
         """
         itm = _inst[mID]
-        return f"```md\n#] PRIZM {itm['nam']} ;]```" + ('```' + itm['typ'] + '\n' if itm['mono'] else '')\
-               + itm['lit'][itm['num']] + ('```' if itm['mono'] else '\n') + itm['end']
+        return f"```md\n#] PRIZM {itm['nam']} ;]```" + \
+               ('```' + itm['typ'] + '\n' if itm['mono'] else '') +\
+               itm['lit'][itm['num']] +\
+               ('```' if itm['mono'] else '\n') +\
+               itm['end']
 
     if [list(foo.values())[3] for foo in _inst.values()].count(ctx.author) > 2:
         return await ctx.send('''```md
@@ -84,18 +91,37 @@ async def PageThis(ctx, lit, name, low = "", thumb = None, mono = True, typ = 'm
 >  This helps prevent spam :D```''')
 
     if len(lit) == 1:
-        return await ctx.send(embed=emb(desc=f"```md\n#] PRIZM {name} ;]```" + ('```'+typ+'\n' if mono else '')\
-                                        + lit[num] + ('```' if mono else '\n')+low,
-                                        foot=f"[1/{len(lit)}] // PRIZM ;]",
-                                        thumb=thumb))
+        return await ctx.send(
+            embed=emb(
+                desc=f"```md\n#] PRIZM {name} ;]```" + ('```'+typ+'\n' if mono else '')\
+                     + lit[num] + ('```' if mono else '\n')+low,
+                foot=f"[1/{len(lit)}] // PRIZM ;]",
+                thumb=thumb
+            )
+        )
+    if len(lit) <= 3:
+        r = [_aL, _stp, _aR, _del]
+    elif len(lit) <= 5:
+        r = [_aL, _stp, _aR, _num, _del]
+    else:
+        r = [_sL, _aL, _stp, _aR, _sR, _num, _del]
+    msg = await react(
+        await ctx.send(
+            embed=emb(
+                title='LOADING ;]',
+                desc='```md\n#] STARTING... JUST A SEC```'
+            )
+        )
+    )
 
-    msg = await react(await ctx.send(embed=emb(title='LOADING ;]',
-                                               desc='```md\n#] STARTING... PLEASE WAIT```')))
-
-    await msg.edit(embed=emb(desc=f"```md\n#] PRIZM {name} ;]```" + ('```'+typ+'\n' if mono else '')\
-                             + lit[num] + ('```' if mono else '\n') + low,
-                             foot=f"[1/{len(lit)}] // PRIZM ;]",
-                             thumb=thumb))
+    await msg.edit(
+        embed=emb(
+            desc=f"```md\n#] PRIZM {name} ;]```" + ('```'+typ+'\n' if mono else '')\
+                 + lit[num] + ('```' if mono else '\n') + low,
+            foot=f"[1/{len(lit)}] // PRIZM ;]",
+            thumb=thumb
+        )
+    )
 
     if len(lit) > 1 and msg.id not in _inst:
         save(msg,lit,num,usr,low,name,thumb,mono,typ)
@@ -112,8 +138,17 @@ async def PageThis(ctx, lit, name, low = "", thumb = None, mono = True, typ = 'm
                         tm = imsg.edited_at.timestamp()
                     if float(datetime.datetime.utcnow().timestamp()-tm) > 59:
                         delet.append(tmsg)
-                        await imsg.edit(embed=emb(desc=page(imsg.id),foot=f"[{num+1}/{len(lit)}] // TIMEOUT", thumb=thumb))
-                        await imsg.clear_reactions()
+                        await imsg.edit(
+                            embed=emb(
+                                desc=page(imsg.id),
+                                foot=f"[{num+1}/{len(lit)}] // TIMEOUT", 
+                                thumb=thumb
+                            )
+                        )
+                        try:
+                            await imsg.clear_reactions()
+                        except:
+                            pass
                 for m in delet:
                     del _inst[m]
             else:
@@ -122,14 +157,20 @@ async def PageThis(ctx, lit, name, low = "", thumb = None, mono = True, typ = 'm
                     e = reaction.emoji
                     s = f'<:{e.name}:{e.id}>'
 
-                    if s == r[0]: #Skip Left
+                    if s == _sL: #Skip Left
                         num = 0
 
-                    elif s == r[1]: #Arrow Left
+                    elif s == _aL: #Arrow Left
                         num -= 1
 
-                    elif s == r[2]: #Stop
-                        await msg.edit(embed=emb(desc=page(msg.id), foot=f"[{num+1}/{len(lit)}] // STOPPED", thumb=thumb))
+                    elif s == _stp: #Stop
+                        await msg.edit(
+                            embed=emb(
+                                desc=page(msg.id), 
+                                foot=f"[{num+1}/{len(lit)}] // STOPPED", 
+                                thumb=thumb
+                            )
+                        )
                         try:
                             await msg.clear_reactions()
                         except:
@@ -140,17 +181,17 @@ async def PageThis(ctx, lit, name, low = "", thumb = None, mono = True, typ = 'm
                             pass
                         return
 
-                    elif s == r[6]: #Recycle
+                    elif s == _del: #Recycle
                         del _inst[reaction.message.id]
                         return await msg.delete()
 
-                    elif s == r[3]: #Arrow Right
+                    elif s == _aR: #Arrow Right
                         num += 1
 
-                    elif s == r[4]: #Skip Right
+                    elif s == _sR: #Skip Right
                         num = len(lit) - 1
 
-                    elif s == r[5]: #Numbers
+                    elif s == _num: #Numbers
                         ms = await ctx.send('```md\n#] ENTER PAGE NUMBER```')
                         def chk(ms1):
                             return ms1.author == user
@@ -158,16 +199,17 @@ async def PageThis(ctx, lit, name, low = "", thumb = None, mono = True, typ = 'm
                             ms1 = await bot.wait_for('message', timeout=10.0, check=chk)
                         except asyncio.TimeoutError:
                             await ms.delete()
-                            await ctx.send('```diff\n-] TIMEOUT [10s]```', delete_after=3.0)
+                            await ctx.send('```diff\n-] TIMEOUT [10s]```', delete_after=5.0)
                         else:
                             try:
-                                await ms.delete(); await ms1.delete()
+                                await ms.delete()
+                                await ms1.delete()
                             except:
                                 pass
                             try:
                                 num = int(ms1.content)-1
                             except:
-                                await ctx.send('```diff\n-] INVALID RESPONSE```', delete_after=3.0)
+                                await ctx.send('```diff\n-] INVALID RESPONSE```', delete_after=5.0)
 
                     if num < 0:
                         num = len(lit) - 1
@@ -177,11 +219,16 @@ async def PageThis(ctx, lit, name, low = "", thumb = None, mono = True, typ = 'm
 
                     try:
                         await msg.remove_reaction(reaction, usr)
+                        o = "PRIZM ;]"
                     except:
-                        pass
+                        o = "PLEASE RE-REACT // PRIZM ;]"
 
                     save(msg, lit, num, usr, low, name, thumb, mono, typ)
 
-                    await msg.edit(embed=emb(desc=page(msg.id),
-                                             foot=f'[{num+1}/{len(lit)}] // '+ ('PLEASE RE-REACT' if type(msg.channel) == discord.DMChannel else 'PRIZM ;]'),
-                                             thumb=thumb))
+                    await msg.edit(
+                        embed=emb(
+                            desc=page(msg.id),
+                            foot=f'[{num+1}/{len(lit)}] // ' + o,
+                            thumb=thumb
+                        )
+                    )

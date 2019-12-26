@@ -27,7 +27,8 @@ def refresh():
               "vox", "djq", "8ball",
               "reddit", "mines","hman",
               "mock", "bug", '2048',
-              "captcha", "draw"]
+              "captcha", "draw",
+              "hexadecimal", "brainfuck"]
 
     discom = ["ci", "ei", "gi",
               "mi", "ri", "ui",
@@ -36,7 +37,8 @@ def refresh():
     mathcom = ["graph", "quad", "rto",
                "stats", "fct", "rad",
                "fact", 'rpn', 'simple',
-               'calc', 'substitute']
+               'calc', 'substitute',
+               'triangle']
 
     intcom = ["slap", "hug", 'cuddle',
               'throw', 'kiss']

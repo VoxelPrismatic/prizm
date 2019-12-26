@@ -54,50 +54,65 @@ def itms(itm):
     else:
         dirs+=1
         folders.append(itm)
+async def grab_dirs(lvl = "./"):
+    lines = 0
+    comment = 0
+    blank = 0
+    files = 0 
+    dirs = 0
+    byte = 0
+    strblock = False
+    for f in os.listdir(lvl):
+        if f.endswith(".py"):
+            files += 1
+            async with aiofiles.open(lvl+f) as g:
+                t = await g.read()
+            byte += len(t)
+            for l in t.splitlines():
+                lines += 1
+                if l.strip() == "" and not strblock:
+                    blank += 1
+                if l.strip().startswith("#") or strblock:
+                    comment += 1
+                if l.count("'''") % 2 or l.count('"""') % 2:
+                    strblock = not(strblock)
+                if l.strip().startswith("'") or l.strip().startswith('"'):
+                    comment += 1
+        else:
+            try:
+                os.listdir(lvl+f)
+                a, b, c, d, e, f = await grab_dirs(lvl+f)
+                lines += a
+                comment += b
+                blank += c
+                files += d
+                dirs += e
+                byte += f
+            except:
+                pass
+    return lines, comment, blank, files, dirs, byte
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-global lines, blank, comment, files, dirs, byte, types, folders
-lines = 0
-blank = 0
-comment = 0
-files = 0
-dirs = 0
-byte = 0
-types = {'txt':0}
-folders = []
-
 @commands.command(aliases=["system","os","sys"],
                   help = 'inf',
                   brief = 'Shows what I\'m running on',
                   usage = ';]os',
-                  description = '[NO ARGS FOR THIS COMMAND]')
-
+                  description = '''\
+[NO INPUT FOR THIS COMMAND]
+''')
+  
 @commands.check(enbl)
 async def _sysinfo(ctx):
-    global lines, blank, comment, files, dirs, byte, types, folders
-    lines = 0
-    blank = 0
-    comment = 0
-    files = 0
-    dirs = 0
-    byte = 0
-    types = {'txt':0}
-    folders = []
-    home = os.scandir('/home/priz/Desktop/PRIZM')
-    for itm in home:
-        itms(itm)
-
-    while len(folders):
-        for itm in os.scandir(folders[0].path): itms(itm)
-        folders.pop(0)
+    
+    lines, comment, blank, files, dirs, byte = await grab_dirs()
 
     platform = str(sysconfig.get_platform())
     pyver = str(sysconfig.get_python_version())
-    cpu = psutil.cpu_percent(interval=None,percpu=True)
-    spu = psutil.cpu_freq(percpu=True)
+    cpu = psutil.cpu_percent(interval = None, percpu = True)
+    spu = psutil.cpu_freq(percpu = True)
     tpu = psutil.sensors_temperatures()['coretemp']
     swap = psutil.swap_memory()
     ram = psutil.virtual_memory()
@@ -117,18 +132,16 @@ async def _sysinfo(ctx):
 DISCORD.PY ] {discord.__version__}
 MATPLOTLIB ] {matplotlib.__version__}
 TENSORFLOW ] {tensorflow.__version__}''',
-f'''      DIRS ] {dirs}
+f'''#] FILES AND THINGS
+      DIRS ] {dirs}
      LINES ] {lines}
      BLANK ] {blank}
      FILES ] {files}
-     BYTES ] {byte/(1024**2):.3f} MiB
+     BYTES ] {byte/(1024**2):.3f} KiB
   COMMENTS ] {comment}
-CODE LINES ] {lines-blank-comment}
->
-      *.PY ] {types['py']}
-     *.TXT ] {types['txt']}
-    *.JSON ] {types['json']}''',
-f'''     CPU 0 ] {cpu[0]}% [{spu[0].current} Mhz - {tpu[0].current}C]
+CODE LINES ] {lines-blank-comment}''',
+f'''#] RESOURCES
+     CPU 0 ] {cpu[0]}% [{spu[0].current} Mhz - {tpu[0].current}C]
      CPU 1 ] {cpu[1]}% [{spu[1].current} Mhz - {tpu[0].current}C]
      CPU 2 ] {cpu[2]}% [{spu[2].current} Mhz - {tpu[1].current}C]
      CPU 3 ] {cpu[3]}% [{spu[3].current} Mhz - {tpu[1].current}C]

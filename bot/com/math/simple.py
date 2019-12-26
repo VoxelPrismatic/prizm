@@ -13,6 +13,7 @@ from cmath import *
 from numpy import *
 from numexpr import *
 import sympy as sp
+from util import parse_eq
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
@@ -28,14 +29,12 @@ EQ [TEXT] - The equation to simplify
 @commands.check(enbl)
 async def simple(ctx, *, eq: str):
     async with ctx.channel.typing():
-        a, b, c, d, e, f, g, h, i, j, k, l, m, n, \
-        o, p, q, r, s, t, u, v, w, x, y, z = sp.symbols(' '.join('abcdefghijklmnopqrstuvwxyz'))
-        eq = re.sub(r"(\d+)([xy\(])",r"\1*\2",eq)
-        eq = re.sub(r"([xy\)])(\d+)",r"\1*\2",eq)
-        eq = eq.replace('^','**').lower().strip()
-        simpled = str(sp.simplify(eq)).replace('**', '^')
-        factored = str(sp.factor(eq)).replace('**', '^')
-        expanded = str(sp.expand(eq)).replace('**', '^')
+        a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x,\
+        y, z = sp.symbols(' '.join('abcdefghijklmnopqrstuvwxyz'))
+        eq = parse_eq(eq)
+        simpled = unparse_eq(str(sp.simplify(eq)))
+        factored = unparse_eq(str(sp.factor(eq)))
+        expanded = unparse_eq(str(sp.expand(eq)))
     await ctx.send(f'''```md
 #]  CLEAN ] {simpled}
 -

@@ -14,36 +14,39 @@ from chk.enbl import enbl
 ##///---------------------///##
 
 @commands.command(aliases = [], 
-                      help = 'inf',
-                      brief = 'Shows the data usage',
-                      usage = ';]data',
-                      description = '''    [NO ARGS FOR THIS COMMAND]
-    ''')
+                  help = 'inf',
+                  brief = 'Shows the data usage',
+                  usage = ';]data',
+                  description = '''\
+[NO INPUT FOR THIS COMMAND]
+''')
 @commands.check(enbl)
-async def data(ctx): await ctx.send(embed=embedify.embedify(desc='''```md
+async def data(ctx): 
+    await ctx.send(
+        embed = embedify.embedify(
+            desc = '''```md
 #] HOW YOUR DATA IS USED
 -
-Data is only stored when talking to the bot directly,
-using "]{message}", using commands, or saving server data.
+When you talk to the AI, your message is stored permanentally
+on the computer. Only the message content is stored, no other
+identifiable information.
 -
-Some data is stored forever on the owner's computer
-This data only stores your message content, and nothing
-more.
+Data is also stored when you request/set up server specific
+info like tags, logging options, etc. This of course lets the
+bot remember your settings when it restarts.
 -
-All guild data will be DELETED forever the moment the bot
-leaves the guild, and cannot be recovered. This includes
-tags, banned words, mods, command availability, and the prefix.
+Lastly, any logging info, converted files, or mixed images
+can be stored either temporarily in ram or permanentally
+until the next time that file is changed.
 -
-If you do not feel comfortable with this, dont talk to
-this bot, or just dont say bad things. I, PRIZ ;]#9244 have
-made this bot with a strong database and nobody can break in
-except for me XD
--
-#] TL;DR // Only messages are stored when using "]{msg}" or "}{msg}"
-#] and when you use commands or you create en/disable a command or
-#] create a tag, or access server specific data
->  But that data is only used for this bot
->  I, PRIZ ;]#9244, am not selling it```'''))
+#] TL;DR
+>  Your messages are only used for AI, server specific
+>  data, or when a file is directly uploaded/downloaded.
+```''',
+            title = "DATA ;]",
+            foot = "PRIZM ;] // Your data is safe"
+        )
+    )
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

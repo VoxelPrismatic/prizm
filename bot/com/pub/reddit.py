@@ -10,7 +10,7 @@ from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
 from util.praw_util import *
-from util.praw_util import reddit as red
+from util.praw_util import reddit as rd
 from util.embedify import embedify
 
 ##///---------------------///##
@@ -22,8 +22,6 @@ def grab_nsfw(sbd):
         ls = list(sbd.new(limit=1))
     except craw.exceptions.Redirect:
         raise PrizmRedditError()
-    except:
-        raise PrizmUnknownError()
     if isinstance(sbd, praw.models.Subreddit): return sbd.over18
     if isinstance(sbd, praw.models.Multieddit): return sbd.over_18
     return False
@@ -54,11 +52,11 @@ SEARCH    [TEXT] - What to search for
 async def reddit(ctx, subreddit:str, *, search = ''):
     msg = await ctx.send('```md\n#] LOGGING IN```')
     async with ctx.channel.typing():
-        red = red()
+        red = rd()
         is_user, is_multi, is_nsfw = False, False, False
     allow_nsfw = ctx.channel.is_nsfw()
     await msg.edit(content='```md\n#] FINDING SUBREDDIT```')
-    if re.rearch(r"^https?\://", subreddit):
+    if re.search(r"^https?\://", subreddit):
         board = "post"
         await msg.edit(content='```md\n#] GRABBING LINK```')
         sbn = post(red, subreddit)
@@ -93,25 +91,18 @@ async def reddit(ctx, subreddit:str, *, search = ''):
             board = "search"
             sbq = await get(sbd.search(search, limit=200), msg)
         else:
-            sort = random.choice(['n', 'h', 't', 'c'] + (['r', 'g'] if not is_user and not is_multi else ['r'] if not is_user else []))
-            if sort == 'n':
-                board = "new"
-                sbq = await get(sbd.new(limit=200), msg)
-            elif sort == 'h':
-                board = "hot"
-                sbq = await get(sbd.hot(limit=200), msg)
-            elif sort == 't':
-                board = "top"
-                sbq = await get(sbd.top(limit=200), msg)
-            elif sort == 'c':
-                board = "controversial"
-                sbq = await get(sbd.controversial(limit=200), msg)
-            elif sort == 'r':
-                board = "rising"
-                sbq = await get(sbd.rising(limit=200), msg)
-            elif sort == 'g':
-                board = "random"
-                sbq = [sbd.random() for x in range(3)]
+            sort = random.choice(['n', 'h', 't', 'c'] + (['r', 'g'] if not is_user and \
+                                 not is_multi else ['r'] if not is_user else []))
+            thing = {
+                "n": [(lambda sb, ms: get(sb.new(limit = 200), ms)), "new"],
+                "h": [(lambda sb, ms: get(sb.hot(limit = 200), ms)), "hot"],
+                "t": [(lambda sb, ms: get(sb.top(limit = 200), ms)), "top"],
+                "c": [(lambda sb, ms: get(sb.controversial(limit = 200), ms)), "controversial"],
+                "r": [(lambda sb, ms: get(sb.rising(limit = 200), ms)), "rising"],
+                "g": [(lambda sb: [sb.random() for x in range(3)]), "random"]
+            }
+            sbh, board = thing[sort]
+            sbq = await sbh(sbd, msg)
         if type(sbq) != list: return
         sbn = random.choice(sbq)
         attempts = 0
@@ -150,7 +141,8 @@ async def reddit(ctx, subreddit:str, *, search = ''):
 {warn}""",
     img = lnk if not txt else None,
     fields = [['CONTENT', txt if len(txt) <= 1024 else txt[:1021]+'...', False]] if sbn.is_self else [],
-    foot = f"/r/{sbn.subreddit.display_name}/{board} // /u/{sbn.author.name if sbn.author else '[DELETED]'} {'// /m/' + sbd.display_name if is_multi else ''}"))
+    foot = f"/r/{sbn.subreddit.display_name}/{board} // /u/{sbn.author.name if sbn.author else '[DELETED]'}"+\
+           f" {'// /m/' + sbd.display_name if is_multi else ''}"))
     await msg.delete()
 
 ##///---------------------///##

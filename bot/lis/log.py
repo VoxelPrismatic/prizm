@@ -67,7 +67,7 @@ async def on_message_delete(msg):
         dic[f'EMBED {msg.embeds.index(emb)}'] = emb.to_dict()
     for att in msg.attachments:
         dic[f'FILE {msg.attachments.index(att)}'] = {
-            'ID': att.id, 
+            'ID': att.id,
             'SIZE': f'{att.size/1024}KiB',
             'NAME': att.filename
         }
@@ -95,12 +95,12 @@ async def on_bulk_message_delete(msgs):
         for emb in msg.embeds:
             dic[msg.id][f'EMBED {msg.embeds.index(emb)}'] = emb.to_dict()
         for att in msg.attachments:
-            dic[f'FILE {msg.attachments.index(att)}'] = {
-                'ID': att.id, 
+            dic[msg.id][f'FILE {msg.attachments.index(att)}'] = {
+                'ID': att.id,
                 'SIZE': f'{att.size/1024}KiB',
                 'NAME': att.filename
             }
-        await msgs[0].guild.get_channel(chn).send(embed=embedify(
+    await msgs[0].guild.get_channel(chn).send(embed=embedify(
             title = 'BULK DELETION ;]',
             desc = f'''```md
 #] MESSAGES DELETED ;]
@@ -114,32 +114,27 @@ async def on_message_edit(bfr,aft):
     itm, chn = rtn(bfr.guild.id,'edt',bfr.author)
     if not itm: return
     dic = {
-        'AUTHOR': f'@{str(msg.author)} [<@{msg.author.id}>]',
+        'AUTHOR': f'@{str(bfr.author)} [<@{bfr.author.id}>]',
         'BEFORE': {},
         'AFTER': {},
-        'CHANNEL': f'#{str(msg.channel)} [<#{msg.channel.id}>]',
-        'ID': msg.id,
-        'SENT AT': str(msg.created_at),
-        'EDITED AT': str(msg.edited_at)
+        'CHANNEL': f'#{str(bfr.channel)} [<#{bfr.channel.id}>]',
+        'ID': bfr.id,
+        'SENT AT': str(bfr.created_at),
+        'EDITED AT': str(aft.edited_at)
     }
     for emb in bfr.embeds:
         dic['BEFORE'][f'EMBED {bfr.embeds.index(emb)}'] = emb.to_dict()
         del dic['BEFORE'][f'EMBED {bfr.embeds.index(emb)}']['timestamp']
-    for att in bfr.attachments:
-        dic['BEFORE'][f'FILE {msg.attachments.index(att)}'] = {
-            'ID': att.id, 
-            'SIZE': f'{att.size/1024}KiB',
-            'NAME': att.filename
-        }
     for emb in aft.embeds:
         dic['AFTER'][f'EMBED {aft.embeds.index(emb)}'] = emb.to_dict()
         del dic['AFTER'][f'EMBED {aft.embeds.index(emb)}']['timestamp']
-    for att in msg.attachments:
-        dic[f'FILE {msg.attachments.index(att)}'] = {
-            'ID': att.id, 
+    for att in aft.attachments: #Attachments cannot be changed
+        dic[f'FILE {aft.attachments.index(att)}'] = {
+            'ID': att.id,
             'SIZE': f'{att.size/1024}KiB',
             'NAME': att.filename
         }
+    
     if dic['BEFORE'] == dic['AFTER'] and bfr.content == aft.content:
         return
     await bfr.guild.get_channel(chn).send(embed=embedify(
@@ -227,7 +222,7 @@ async def on_guild_channel_update(bfr,aft):
 >     NAME ] {bfr.name}
 > POSITION ] {bfr.position}
 > OVERRIDE ] In attached file
-> CATAGORY ] {str(bfr.category)}```''', 
+> CATAGORY ] {str(bfr.category)}```''',
                 False
             ], [
                 'AFTER ---',
@@ -236,11 +231,11 @@ async def on_guild_channel_update(bfr,aft):
 >     NAME ] {aft.name}
 > POSITION ] {aft.position}
 > OVERRIDE ] In attached file
-> CATAGORY ] {str(aft.category)}```''', 
+> CATAGORY ] {str(aft.category)}```''',
                 False
             ], [
                 'CHANGES ---',
-                f'```{change or "OVERRIDE ] In attached file"}```', 
+                f'```{change or "OVERRIDE ] In attached file"}```',
                 False
            ]]),
         file = filer(dic))

@@ -18,13 +18,16 @@ from chk.enbl import enbl
                   help = 'math',
                   brief = 'Finds the factors and prime factors of {num}',
                   usage = ';]factor {num}',
-                  description = 'NUM [INT] - The number to find the factors of')
+                  description = '''\
+NUM [NUMBER] - The number to find the factors of
+''')
 @commands.check(enbl)
 async def factor(ctx, num:int):
     fctr = []; prm = []
     async with ctx.channel.typing():
         for lel in range(1,int(num**.5)+1):
-            if not math.remainder(num,lel): fctr.extend([str(lel),str(int(num/lel))])
+            if not math.remainder(num,lel): 
+                fctr.extend([str(lel),str(int(num/lel))])
     async with ctx.channel.typing():
         ognum=num
         while num !=1:

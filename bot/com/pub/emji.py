@@ -20,12 +20,18 @@ from chk.enbl import enbl
 EMOJIx [EMOJI] - The emoji you want to steal, must be custom
 ''')
 @commands.check(enbl)
-async def emji(ctx, *emot:discord.Emoji):
-    for icon in emot:
-        try:
-            await ctx.author.send('https://cdn.discordapp.com/emojis/'+icon.split(':')[1]+('.gif' if '<a:' in icon else '.png'))
-        except:
-            await ctx.send('```diff\n-] MAKE SURE YOUR DMS ARE OPEN```')
+async def emji(ctx, *emojis:discord.Emoji):
+    ls = [[]]
+    for emoji in emojis:
+        id = emoji.id
+        typ = ".gif" if emoji.animated else ".png"
+        ls[-1].append(f'https://cdn.discordapp.com/emojis/{id}{typ}')
+        if len(ls[-1]) >= 5:
+            ls.append([])
+    for l in ls:
+        await ctx.author.send("\n".join(l))
+    await ctx.message.add_reaction("<:wrk:608810652756344851>")
+    
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

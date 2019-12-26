@@ -23,7 +23,7 @@ def coord(grid):
     width = list(range(len(grid[0])))
     return choice(width), choice(height)
 
-def getString(grid:list, disp = False):
+def get_str(grid:list, disp = False):
     gridString = ''
     for row in grid:
         for col in row:
@@ -33,62 +33,63 @@ def getString(grid:list, disp = False):
                 gridString += f'[{col:^4}]'
         gridString += '\n'
     return gridString.replace('0',' ')
+    
+def merge(r, score):
+    for x in range(len(r)-1, -1, -1):
+        for c in range(x, len(r)-1):
+            if r[c] != 0 and r[c+1] == 0:
+                r[c], r[c+1] = r[c+1], r[c]
+    r = r[::-1]
+    for c in range(len(r)-1):
+        if r[c] == r[c+1]:
+            r[c], r[c+1] = 0, r[c]*2
+            score += r[c+1]
+    r = r[::-1]
+    for x in range(len(r)-1, -1, -1):
+        for c in range(x, len(r)-1):
+            if r[c] != 0 and r[c+1] == 0:
+                r[c], r[c+1] = r[c+1], r[c]
+    return r
 
-def clearBlank(row):
-    for loop in range(3):
-        for col in range(len(row)-1):
-            row[col] = int(row[col])
-            row[col+1] = int(row[col+1])
-            pt1 = int(row[col])
-            pt2 = int(row[col+1])
-            if pt2 == 0:
-                row[col+1] = int(row[col])
-                row[col] = 0
-    return row
-
-def groupRow(row, score):
-    row = clearBlank(row)[::-1]
-    skip = False
-    for col in range(len(row)-1):
-        if skip:
-            skip = False
-            continue
-        pt1 = row[col]
-        pt2 = row[col+1]
-        if pt1 == pt2:
-            row[col] = 0
-            row[col+1] *= 2
-            score += row[col+1]
-            skip = True
-    row = clearBlank(row[::-1])
-    return row, score
-
-def invertGrid(grid):
+def invert(grid):
+    """
+    Inverts the grid for up/down movement
+    """
+    grid = grid[::-1]
     for y in range(len(grid)):
-        for x in range(y,len(grid[y])):
-            temp = grid[y][x]
-            grid[y][x] = grid[x][y]
-            grid[x][y] = temp
+        grid[y] = grid[y][::-1]
     return grid
 
-def mRight(grid, score):
+def mR(grid, score):
+    """
+    Moves all squares right
+    """
     for row in range(len(grid)):
-        grid[row], score = groupRow(grid[row], score)
+        grid[row], score = merge(grid[row], score)
     return grid, score
 
-def mLeft(grid, score):
+def mL(grid, score):
+    """
+    Moves all squares left
+    """
     for row in range(len(grid)):
-        grid[row], score = groupRow(grid[row][::-1], score)
+        grid[row], score = merge(grid[row][::-1], score)
         grid[row] = grid[row][::-1]
     return grid, score
 
-def mDown(grid, score):
-    grid, score = mRight(invertGrid(grid), score)
-    grid = invertGrid(grid)
+def mD(grid, score):
+    """
+    Moves all squares down
+    """
+    grid, score = mR(invert(grid), score)
+    grid = invert(grid)
     return grid, score
 
-def mUp(grid, score):
-    grid, score = mDown(grid[::-1], score)
+def mU(grid, score):
+    """
+    Moves all squares up
+    """
+    grid, score = mD(grid[::-1], score)
     grid = grid[::-1]
     return grid, score
 
@@ -103,7 +104,7 @@ games = {}
                   brief='2048 but in Discord',
                   usage=';]2048 {?size}',
                   description='''\
-SIZE [INT] - The size [is square] DEFAULT: 4
+SIZE [NUMBER] - The size [is square] DEFAULT: 4
 ''')
 @commands.check(enbl)
 async def _2048(ctx, size:int=4):
@@ -115,16 +116,29 @@ async def _2048(ctx, size:int=4):
         x, y = coord(grid)
     grid[y][x] = 2
     score = 0
-    msg = await ctx.send(embed=embedify(title='2048 ;]',
-                                        desc = f'```{getString(grid)}\nSCORE ] 0```'))
+    msg = await ctx.send(
+        embed = embedify(
+            title='2048 ;]',
+            desc = f'```{getString(grid)}\nSCORE ] 0```',
+            foot = "PRIZM ;] // REACT TO MOVE"
+        )
+    )
 
-    games[msg.id] = {'scr':score,
-                     'msg':msg,
-                     'usr':ctx.author,
-                     'grd':grid,
-                     'tme':time.monotonic()}
+    games[msg.id] = {
+        'scr':score,
+        'msg':msg,
+        'usr':ctx.author,
+        'grd':grid,
+        'tme':time.monotonic()
+    }
 
-    for rct in ['<:al:598301447066484747>', '<:aD:612745739650727937>', '<:stp:598301603069689876>', '<:aU:612745775105179648>', '<:ar:598301483645141003>']:
+    for rct in [
+            '<:al:598301447066484747>', 
+            '<:aD:612745739650727937>',
+            '<:stp:598301603069689876>',
+            '<:aU:612745775105179648>',
+            '<:ar:598301483645141003>'
+        ]:
         await msg.add_reaction(rct)
 
     def verify(rct, usr):
@@ -149,34 +163,49 @@ async def _2048(ctx, size:int=4):
                     tm = imsg.edited_at.timestamp()
                 if float(datetime.datetime.utcnow().timestamp()-tm) > 59:
                     delet.append(tmsg)
-                    await imsg.edit(title='2048 ;]',
-                                    desc = f'```{getString(grid)}\nSCORE ] {games[tmsg]["scr"]}```',
-                                    foot = 'TIMEOUT')
-                    await imsg.clear_reactions()
+                    await imsg.edit(
+                        embed = embedify(
+                            title='2048 ;]',
+                            desc = f'```{getString(grid)}\nSCORE ] {games[tmsg]["scr"]}```',
+                            foot = 'PRIZM ;] // TIMEOUT'
+                        )
+                    )
+                    try:
+                        await imsg.clear_reactions()
+                    except:
+                        pass
             for m in delet:
                 del games[m]
         else:
             if time.monotonic() - updated < .5:
                 continue
-            moves = {'<:ar:598301483645141003>': mRight,
-                     '<:al:598301447066484747>': mLeft ,
-                     '<:aD:612745739650727937>': mDown ,
-                     '<:aU:612745775105179648>': mUp   }
+            moves = {
+                '<:ar:598301483645141003>': mR,
+                '<:al:598301447066484747>': mL,
+                '<:aD:612745739650727937>': mD,
+                '<:aU:612745775105179648>': mU
+            }
             move = str(rct.emoji)
 
             if move in moves:
                 gridNow = getString(grid)
                 grid, score = moves[move](grid, score)
-                games[rct.message.id] = {'scr':score,
-                             'msg':rct.message,
-                             'usr':usr,
-                             'grd':grid,
-                             'tme':time.monotonic()}
+                games[rct.message.id] = {
+                    'scr':score,
+                    'msg':rct.message,
+                    'usr':usr,
+                    'grd':grid,
+                    'tme':time.monotonic()
+                }
             elif move == '<:stp:598301603069689876>':
                 del games[rct.message.id]
-                await rct.message.edit(embed=embedify(title='2048 ;]',
-                           desc = f'```{getString(grid)}\nSCORE ] {score}```',
-                           foot = 'YOU ENDED THE GAME'))
+                await rct.message.edit(
+                    embed = embedify(
+                        title = '2048 ;]',
+                        desc = f'```{getString(grid)}\nSCORE ] {score}```',
+                        foot = 'PRIZM ;] // STOPPED'
+                    )
+                )
                 try:
                     await rct.message.clear_reactions()
                 except:
@@ -192,24 +221,20 @@ async def _2048(ctx, size:int=4):
                     tries.append([y, x])
 
             if len(tries) == ttlCOL * ttlROW:
-                able = False
-                for row in range(len(grid)):
-                    for col in range(len(grid[row])):
-                        if grid[row][col] == grid[row][col+1] and col != len(grid[row])-1:
-                            able = True
-                        elif grid[row][col] == grid[row][col-1] and col != 0:
-                           able = True
-                        elif grid[row][col] == grid[row+1][col] and row != len(grid)-1:
-                           able = True
-                        elif grid[row][col] == grid[row-1][col] and row != 0:
-                           able = True
-                        if 0 in grid[row]:
-                           able = True
+                able = True
+                if grid == mU(grid) and grid == mD(grid) \
+                        and grid == mR(grid) and grid == mL(grid):
+                    able = False
+                
                 if not able:
                     del games[msg.id]
-                    await rct.message.edit(embed=embedify(title='2048 ;]',
-                           desc = f'```{getString(grid)}\nSCORE ] {score}```',
-                           foot = 'YOU LOST'))
+                    await rct.message.edit(
+                        embed = embedify(
+                            title = '2048 ;]',
+                            desc = f'```{getString(grid)}\nSCORE ] {score}```',
+                            foot = 'PRIZM ;] // GAME OVER'
+                        )
+                    )
                 try:
                     await rct.message.clear_reactions()
                 except:
@@ -218,14 +243,25 @@ async def _2048(ctx, size:int=4):
             elif getString(grid) != gridNow:
                 grid[y][x] = choice(['2','4'])
                 score += int(grid[y][x])
-            await rct.message.edit(embed=embedify(title='2048 ;]',
-                           desc = f'```{getString(grid, True)}\nSCORE ] {score}```'))
-            await rct.message.remove_reaction(rct, usr)
-            games[rct.message.id] = {'scr':score,
-                             'msg':rct.message,
-                             'usr':usr,
-                             'grd':grid,
-                             'tme':time.monotonic()}
+            try:
+                await rct.message.remove_reaction(rct, usr)
+                r = "REACT"
+            except:
+                r = "RE-REACT"
+            await rct.message.edit(
+                embed = embedify(
+                    title = '2048 ;]',
+                    desc = f'```{getString(grid, True)}\nSCORE ] {score}```',
+                    foot = f'PRIZM ;] // {r} TO MOVE'
+                )
+            )
+            games[rct.message.id] = {
+                'scr':score,
+                'msg':rct.message,
+                'usr':usr,
+                'grd':grid,
+                'tme':time.monotonic()
+            }
 
 
 ##///---------------------///##
