@@ -13,7 +13,7 @@ from cmath import *
 from numpy import *
 from numexpr import *
 import sympy as sp
-from util import parse_eq
+from util.parse_eq import parse_eq, unparse_eq
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
@@ -29,8 +29,9 @@ EQ [TEXT] - The equation to simplify
 @commands.check(enbl)
 async def simple(ctx, *, eq: str):
     async with ctx.channel.typing():
-        a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x,\
-        y, z = sp.symbols(' '.join('abcdefghijklmnopqrstuvwxyz'))
+        a, b, c, d, e, f, g, h, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x,\
+        y, z = sp.symbols(' '.join('abcdefghjklmnopqrstuvwxyz'))
+        # 'i' is imaginary
         eq = parse_eq(eq)
         simpled = unparse_eq(str(sp.simplify(eq)))
         factored = unparse_eq(str(sp.factor(eq)))

@@ -1,12 +1,13 @@
 def faces():
     return [
-        '0.0', '>.<', '0o0', '9.6', '@.@', ';-;', '!-!', 'S:Γ', 'UwU', ';]', 
-        ';n;', ',,,;n;,,,', ';u;', '>.<', '>~<', '=-=', 'B)', ';D', 
-        '\u03b8.\u03b8', ';p', 'OwO', 'O.o', ';[', ';V', ';0', ';o', ';C', ';d', 
-        'xd', 'XD', ';c', '.-.', '._.', '+_+', '#-#', '$u$', '7-7', '>.>', 
-        '>~>', '7~7', 'X_X', ';&', ';O', ';|', ';U', ';v', ';u', '~.~', '<.<', 
+        '0.0', '>.<', '0o0', '9.6', '@.@', ';-;', '!-!', 'S:Γ', 'UwU', ';]',
+        ';n;', ',,,;n;,,,', ';u;', '>.<', '>~<', '=-=', 'B)', ';D',
+        '\u03b8.\u03b8', ';p', 'OwO', 'O.o', ';[', ';V', ';0', ';o', ';C', ';d',
+        'xd', 'XD', ';c', '.-.', '._.', '+_+', '#-#', '$u$', '7-7', '>.>',
+        '>~>', '7~7', 'X_X', ';&', ';O', ';|', ';U', ';v', ';u', '~.~', '<.<',
         ':3', ';3', ':>', ':<', ';>', ';<', ':]', ';[', ':[', ':)', ':(', ';)',
-        ';(', '.-.', ':}', ':{', ';{', ';}', ':/', ';/', '\[T]/',
+        ';(', '.-.', ':}', ':{', ';{', ';}', ':/', ';/', '\[T]/', '+-+', '+=+',
+        '.=.', '-=-', ';~;'
     ]
 
 def texts():
@@ -29,9 +30,9 @@ def texts():
         '1s and 0s go by',
         'my code get better',
         'myself get rewritten... again',
-        '/r/PRIZM_bot, my official subreddit', 
+        '/r/PRIZM_bot, my official subreddit',
         'something cool',
-        'myself go to sleep', 
+        'myself go to sleep',
         'my cat, Cluster!',
         'for... i forgot',
         'wait... what am I watching?',
@@ -51,5 +52,7 @@ def texts():
         "... just watching",
         "you face plam at this status",
         "you switch to light theme, boomer",
-        "you switch to dark theme, zoomer"
+        "you switch to dark theme, zoomer",
+        "the fbi open my door",
+        "the police hunt me down... oh fuck"
     ]

@@ -1,12 +1,5 @@
   File "/home/priz/.local/lib/python3.7/site-packages/discord/ext/commands/core.py", line 79, in wrapped
     ret = await coro(*args, **kwargs)
-  File "/home/priz/Desktop/PRIZM/com/math/graph.py", line 417, in graph
-    label, gr = labels(x, y, eq, *params)
-  File "/home/priz/Desktop/PRIZM/com/math/graph.py", line 189, in labels
-    gx = evl(str(sp.simplify(eq)), x, y).round(8)
-  File "/home/priz/Desktop/PRIZM/com/math/graph.py", line 82, in evl
-    return ne.evaluate(arc(itm))
-  File "/home/priz/.local/lib/python3.7/site-packages/numexpr/necompiler.py", line 818, in evaluate
-    arguments = getArguments(names, local_dict, global_dict)
-  File "/home/priz/.local/lib/python3.7/site-packages/numexpr/necompiler.py", line 746, in getArguments
-    a = global_dict[name]
+  File "/home/priz/Desktop/PRIZM/com/own/exe.py", line 74, in exe
+    with redirect_stdout(out): rtn = await sub['fn']()
+  File "<string>", line 4, in fn

@@ -31,23 +31,25 @@ async def get(thing, msg):
     for sbn in thing:
         x += 1
         ls.append(sbn)
-        if not x%50:
+        if not x % 50:
             async with msg.channel.typing():
-                await msg.edit(content=msg.content[:-3]+" /```")
+                await msg.edit(content = msg.content[:-3]+" /```")
     return ls
 
-@commands.command(aliases = ['rd', 'redd', 'rdt', 'red'],
-                  help = 'fun',
-                  brief = 'Gives you a random post from a given {subreddit}',
-                  usage = ';]reddit {?subreddit} {?search}',
-                  description = '''\
+@commands.command(
+    aliases = ['rd', 'redd', 'rdt', 'red'],
+    help = 'fun',
+    brief = 'Gives you a random post from a given {subreddit}',
+    usage = ';]reddit {?subreddit} {?search}',
+    description = '''\
 SUBREDDIT [TEXT] - The name of the subredditm /r/ is optional
 > /u/ is required to redditor feeds
 > also can be a link to a submission
 > /m/<multireddit>#<redditor> is needed for multireddits
 > > eg /m/CoolMultireddit#Redditor1010
 SEARCH    [TEXT] - What to search for
-''')
+'''
+)
 @commands.check(enbl)
 async def reddit(ctx, subreddit:str, *, search = ''):
     msg = await ctx.send('```md\n#] LOGGING IN```')
@@ -91,19 +93,23 @@ async def reddit(ctx, subreddit:str, *, search = ''):
             board = "search"
             sbq = await get(sbd.search(search, limit=200), msg)
         else:
-            sort = random.choice(['n', 'h', 't', 'c'] + (['r', 'g'] if not is_user and \
-                                 not is_multi else ['r'] if not is_user else []))
+            sort = random.choice(
+                ['n', 'h', 't', 'c'] + (['r'] if not is_user else [])
+            )
             thing = {
-                "n": [(lambda sb, ms: get(sb.new(limit = 200), ms)), "new"],
-                "h": [(lambda sb, ms: get(sb.hot(limit = 200), ms)), "hot"],
-                "t": [(lambda sb, ms: get(sb.top(limit = 200), ms)), "top"],
-                "c": [(lambda sb, ms: get(sb.controversial(limit = 200), ms)), "controversial"],
-                "r": [(lambda sb, ms: get(sb.rising(limit = 200), ms)), "rising"],
-                "g": [(lambda sb: [sb.random() for x in range(3)]), "random"]
+                "n": [(lambda sb, ms: get(sb.new(limit = 100), ms)), "new"],
+                "h": [(lambda sb, ms: get(sb.hot(limit = 100), ms)), "hot"],
+                "t": [(lambda sb, ms: get(sb.top(limit = 100), ms)), "top"],
+                "c": [(lambda sb, ms: get(sb.controversial(limit = 100), ms)), "controversial"],
+                "r": [(lambda sb, ms: get(sb.rising(limit = 100), ms)), "rising"],
             }
             sbh, board = thing[sort]
-            sbq = await sbh(sbd, msg)
-        if type(sbq) != list: return
+            try:
+                sbq = await sbh(sbd, msg)
+            except:
+                return await ctx.send("```diff\n-] 404```")
+        if type(sbq) != list: return await ctx.send("```diff\n-] UNKNOWN```")
+        if len(sbq) == 0: return await ctx.send("```diff\n-] NO POSTS FOUND```")
         sbn = random.choice(sbq)
         attempts = 0
         await msg.edit(content='```md\n#] PARSING POST```')
@@ -117,7 +123,7 @@ async def reddit(ctx, subreddit:str, *, search = ''):
         lnk = sbn.permalink
         src = sbn.url.split('//')[1].split('/')[0].split('www.')[-1]
         if src == 'reddit.com':
-            src = "self."+sbn.subreddit.display_name
+            src = "self." + sbn.subreddit.display_name
         prm = sbn.shortlink
         lnk = sbn.url
     attrib = ''

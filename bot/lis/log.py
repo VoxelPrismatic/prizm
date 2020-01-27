@@ -11,16 +11,18 @@ from util.embedify import embedify
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 
-bot = commands.Bot(command_prefix=getPre.getPre)
+bot = commands.Bot(command_prefix = getPre.getPre)
 
-def rtn(gID: int, nam, mbr:discord.Member=None):
+def rtn(gID: int, nam, mbr: discord.Member = None):
     allowbot = dbman.get('log', 'bot', id= gID, rtn = bool)
     isbot = False if mbr is None else mbr.bot
     if not allowbot and isbot:
         return False, None
     try:
         bot = dbman.get('log', 'bot', id = gID, rtn = bool)
-        chn = dbman.get('oth', 'lCH', id = gID, rtn = int)
+        chn = dbman.get('oth', 'lCH', id = gID)
+        if chn is None:
+            return False, None
         log = dbman.get('log', nam, id = gID, rtn = bool)
         return chn and log, chn
     except Exception as ex:
@@ -134,7 +136,7 @@ async def on_message_edit(bfr,aft):
             'SIZE': f'{att.size/1024}KiB',
             'NAME': att.filename
         }
-    
+
     if dic['BEFORE'] == dic['AFTER'] and bfr.content == aft.content:
         return
     await bfr.guild.get_channel(chn).send(embed=embedify(
@@ -366,26 +368,31 @@ async def on_guild_role_update(bfr,aft):
 
 
 @bot.listen()
-async def on_guild_emojis_update(gld): pass
+async def on_guild_emojis_update(*a): pass
 
 @bot.listen()
-async def on_voice_state_update(mbr,bfr,aft):
-    itm, chn = rtn(mbr.guild.id,'mVC')
+async def on_voice_state_update(mbr, bfr, aft):
+    itm, chn = rtn(mbr.guild.id, 'mVC')
     if itm:
         status = []
-        bfrS = [vc for vc, val in [('guild_deaf',bfr.deaf),
-                                   ('guild_mute',bfr.mute),
-                                   ('self_mute',bfr.self_mute),
-                                   ('self_deaf',bfr.self_deaf),
-                                   ('self_video',bfr.self_video),
-                                   ('afk',bfr.afk)] if val]
+        bfrS = [vc for vc, val in [
+            ('guild_deaf',bfr.deaf),
+            ('guild_mute',bfr.mute),
+            ('self_mute',bfr.self_mute),
+            ('self_deaf',bfr.self_deaf),
+            ('self_video',bfr.self_video),
+            ('afk',bfr.afk)
+        ] if val]
 
-        aftS = [vc for vc, val in [('guild_deaf',aft.deaf),
-                                   ('guild_mute',aft.mute),
-                                   ('self_mute',aft.self_mute),
-                                   ('self_deaf',aft.self_deaf),
-                                   ('self_video',aft.self_video),
-                                   ('afk',aft.afk)] if val]
+        aftS = [vc for vc, val in [
+            ('guild_deaf',aft.deaf),
+            ('guild_mute',aft.mute),
+            ('self_mute',aft.self_mute),
+            ('self_deaf',aft.self_deaf),
+            ('self_video',aft.self_video),
+            ('afk',aft.afk)
+        ] if val]
+
         for st in bfrS:
             if st not in aftS:
                 status.append(f'-] {st}')
@@ -393,18 +400,40 @@ async def on_voice_state_update(mbr,bfr,aft):
             if st not in bfrS:
                 status.append(f'+] {st}')
 
-        await mbr.guild.get_channel(chn).send(embed=embedify(title='VOICE CHANGE ;]',
-            desc = f'''```md\n#] MEMBER {str(mbr)} HAS {"JOINED" if aft.channel else "LEFT"} {str(aft.channel) if aft.channel else str(bfr.channel)}```''',
-            fields = [['BEFORE ---',f'''```md
+        desc = f'```md\n#] MEMBER {str(mbr)} HAS'
+        desc += "JOINED" if aft.channel else "LEFT"
+        desc += f'{str(aft.channel) if aft.channel else str(bfr.channel)}```'
+
+        await mbr.guild.get_channel(chn).send(
+            embed = embedify(
+                title = 'VOICE CHANGE ;]',
+                fields = [
+                    [
+                        'BEFORE ---',
+                        f'''```md
 > CHANNEL ] {str(bfr.channel)}
->  STATUS ] {', '.join(bfrS)}```''',False],
-                      ['`AFTER ----`',f'''```md
+>  STATUS ] {', '.join(bfrS)}```''',
+                    False
+                    ],
+                    [
+                        '`AFTER ----`',
+                        f'''```md
 > CHANNEL ] {str(aft.channel)}
->  STATUS ] {', '.join(aftS)}```''',False],
-                      ['`CHANGES --`',
-                       '```diff\n'+'\n'.join(status)+(f'=] {str(bfr.channel)} --> {str(aft.channel)}' if bfr.channel != aft.channel else '')+'```',
-                      False]],
-            time = 'now'))
+>  STATUS ] {', '.join(aftS)}```''',
+                    False
+                    ],
+                    [
+                        '`CHANGES --`',
+                        '```diff\n' + '\n'.join(status) + (
+                            f'=] {str(bfr.channel)} --> {str(aft.channel)}' \
+                                if bfr.channel != aft.channel else ''
+                        ),
+                        False
+                    ]
+                ],
+                time = 'now'
+            )
+        )
 
 @bot.listen()
 async def on_member_ban(gld,usr):
@@ -412,7 +441,7 @@ async def on_member_ban(gld,usr):
     if itm:
         await gld.get_channel(ch).send(embed=embedify(title='MEMBER BANNED ;[',
             desc=f'```md\n#] MEMBER @{str(usr)} WAS BANNED FROM THE GUILD```',
-            thumb = str(usr.avatar_url).replace('webp','png'),
+            thumb = str(usr.avatar_url).replace('webp', 'png'),
             time = 'now'))
 
 @bot.listen()
@@ -428,30 +457,32 @@ async def on_member_unban(gld,usr):
 ##///     OTHER STUFF     ///##
 ##///---------------------///##
 def setup(bot):
-    for com in [on_message_delete,
-                on_message_edit, on_bulk_message_delete, on_guild_update,
-                on_guild_channel_create, on_guild_channel_delete,
-                on_guild_channel_update, on_guild_channel_pins_update,
-                on_guild_integrations_update, on_webhooks_update,
-                on_member_join, on_member_remove, on_member_update,
-                on_guild_role_create,on_guild_role_delete, on_guild_role_update,
-                on_guild_emojis_update, on_voice_state_update,
-                on_member_ban, on_member_unban]:
+    for com in [
+            on_message_delete, on_message_edit, on_bulk_message_delete,
+            on_guild_update, on_guild_channel_create, on_guild_channel_delete,
+            on_guild_channel_update, on_guild_channel_pins_update,
+            on_guild_integrations_update, on_webhooks_update,
+            on_member_join, on_member_remove, on_member_update,
+            on_guild_role_create,on_guild_role_delete, on_guild_role_update,
+            on_guild_emojis_update, on_voice_state_update,
+            on_member_ban, on_member_unban
+    ]:
         print('+LIS [LOG]')
         bot.add_listener(com)
     print('GOOD')
 
 def teardown(bot):
-    for com in ['on_message_delete',
-                'on_message_edit', 'on_bulk_message_delete',
-                'on_guild_channel_create', 'on_guild_channel_delete',
-                'on_guild_channel_update', 'on_guild_channel_pins_update',
-                'on_guild_integrations_update', 'on_webhooks_update',
-                'on_member_join', 'on_member_remove', 'on_member_update',
-                'on_guild_update', 'on_guild_role_create',
-                'on_guild_role_delete', 'on_guild_role_update',
-                'on_guild_emojis_update', 'on_voice_state_update',
-                'on_member_ban', 'on_member_unban']:
+    for com in [
+            'on_message_delete', 'on_message_edit', 'on_bulk_message_delete',
+            'on_guild_channel_create', 'on_guild_channel_delete',
+            'on_guild_channel_update', 'on_guild_channel_pins_update',
+            'on_guild_integrations_update', 'on_webhooks_update',
+            'on_member_join', 'on_member_remove', 'on_member_update',
+            'on_guild_update', 'on_guild_role_create',
+            'on_guild_role_delete', 'on_guild_role_update',
+            'on_guild_emojis_update', 'on_voice_state_update',
+            'on_member_ban', 'on_member_unban'
+    ]:
         print('-LIS [LOG]')
         bot.add_listener(com)
         print('DONE')
