@@ -14,21 +14,31 @@ from discord.utils import find
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases = [], 
-                      help = 'inf',
-                      brief = 'Finds a meta object given an ID or name',
-                      usage = ';]find {fID}',
-                      description = '''    fID [STR] - The name or ID of the thing to find
-    ''')
+@commands.command(
+    aliases = [], 
+    help = 'inf',
+    brief = 'Finds a meta object given an ID or name',
+    usage = ';]find {name/id}',
+    description = '''\
+name/id [TEXT] - The name or ID of the thing to find
+'''
+)
 @commands.check(enbl)
-async def find(ctx, *, fID):
+async def find(ctx, *, name_id):
     send = ''
-    for chn in ctx.guild.channels: send+=f'> CHN ] #{str(chn)}\n' if fID in [str(chn.id),chn.name] else ''
-    for usr in ctx.guild.members: send+=f'> USR ] @{str(usr)}\n' if fID in [str(usr.id),usr.name] else ''
-    for emj in ctx.guild.emojis: send+=f'> EMJ ] :{emj.name}:\n' if fID in [str(emj.id),emj.name] else ''
-    for rol in ctx.guild.roles: send+=f'> ROL ] @'+str(rol).replace('@','')+'\n' if fID in [str(rol.id),rol.name] else ''
-    if fID == ctx.guild.name: send += f'> GLD ] {ctx.guild.name}'
-    await ctx.send('```md\n'+(send if send else '> [NONE]')+'```')
+    stuff = [
+        [ctx.guild.channels, "#", ""],
+        [ctx.guild.members, "@", ""],
+        [ctx.guild.emojis, ":", ":"],
+        [ctx.guild.rules, "&", ""]
+    ]
+    for ls, prefix, suffix in stuff:
+        for thing in ctx.guild.channels:
+            if name_id in [str(thing.id), thing.name]:
+                send += f'> {prefix}{str(thing)}{suffix}\n'
+    if fID == ctx.guild.name: 
+        send += f'> GLD ] {ctx.guild.name}'
+    await ctx.send('```md\n' + (send if send else '[NONE FOUND]') + '```')
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

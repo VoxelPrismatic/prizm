@@ -23,22 +23,21 @@ import io
     usage = ';]char {chars}',
     description = '''\
 CHARS [TEXT] - The characters you want data on
-> If you want info on one character, you can see how to write it in various \
-programming languages
-''')
+'''
+)
 @commands.check(enbl)
 async def char(ctx, *, txt):
     html5chars = {html5[key]: key for key in html5}
-    html5codes = {key: html5[key] for key in html5}
+    html5codes = {key.upper(): html5[key] for key in html5}
     try:
         if re.search(r"^\\u[0-9A-Fa-f]{4}$", txt):
             txt = chr(int(txt[2:], 16))
         elif re.search(r"^\\u\{[0-9A-Fa-f]+\}$", txt):
-            txt = chr(int(txt[3:-1], 16))       
+            txt = chr(int(txt[3:-1], 16))
         elif re.search(r"^\&\#x[0-9A-Fa-f]+\;$", txt):
             txt = chr(int(txt[3:-1], 16))
-        elif re.search(r"^\&\#\d+;$", txt):
-            txt = chr(int(txt[2:-1]))
+        elif re.search(r"^\&\#\d+\;$", txt):
+            txt = chr(int(txt[2:-1], 16))
         elif re.search(r"^\\U[0-9A-Fa-f]{8}$", txt):
             txt = chr(int(txt[2:], 16))
         elif re.search(r"^\\x[0-9A-Fa-f]{2}$", txt):
@@ -48,11 +47,9 @@ async def char(ctx, *, txt):
         elif re.search(r"^\\[nN]\{[\w\d ]+\}$", txt):
             txt = unidata.lookup(txt[3:-1].upper())
         elif re.search(r"^\&[\w\d]+;$", txt):
-            txt = html5codes[txt[1:]]
+            txt = html5codes[txt[1:-1].upper()]
     except Exception as ex:
-        return await ctx.send(
-            f"```diff\n-] INVALID CHAR '{str(ex)}'```"
-        )
+        return await ctx.send(f"```diff\n-] INVALID CHAR\n=] {str(ex)}```")
        
     ls = []
     for t in txt:
@@ -63,10 +60,12 @@ async def char(ctx, *, txt):
     more = ""
     for ch in ls:
         code = ord(ch)
-        act = ""
-        if code <= 255:
-            act = " or " + ch
-        table += "\n" + f"{ch} - U+{code:04x} [{unidata.name(ch)} - {unidata.category(ch)}]"
+        table += f"\n{ch} - "
+        try: 
+            line = f"U+{code:04x} [{unidata.name(ch)} - {unidata.category(ch)}]"
+        except:
+            line = f"U+{code:04x} [Unknown character]"
+        table += line
         cata.append(unidata.category(ch))
         py = f"u{code:04x}"
         if len(f"{code:04x}") > 4:
@@ -74,71 +73,52 @@ async def char(ctx, *, txt):
         byte = f"x{code:02x}"
         if len(byte) > 3:
             byte = py
-        
         hx = f"{code:x}"
         if len(hx) % 2:
             hx = "0" + hx
         url = ""
         for n in range(0, len(hx), 2):
             url += "%" + hx[n] + hx[n + 1]
-        html = ""
-        for thing in html5codes:
-            if html5codes[thing] == ch:
-                html += f"or &{thing} "
+        try:
+            html = f"or &{html5chars[ch].strip(';')};"
+        except KeyError:
+            html = ""
         js = "\\u{"+f"{code:x}"+"}"
         jv = f"(char){code}"
         reg = f'or /\\{py}/'
-        kot = f"\\{py if py[0] == 'u' else 'NOPE.'}"
         more += f'''[ {ch} ] -----
-U+{code:04x} [{unidata.name(ch)} - {unidata.category(ch)}]
-     C ] \\{py}{act}
-     D ] cast{jv}{act}
-     R ] \\{byte}{act}
-    PY ] \\{byte} or \\N{'{'+unidata.name(ch)+'}'}{act}
-    JS ] {js}{act}
-    TS ] {js}{act}
-    C# ] {jv}{act}
-    F# ] \\{byte}{act}
-   C++ ] \\{py}{act}
-   URL ] {url}{act}
-   CSS ] \\{py[1:]}{act}
-   LUA ] {js}{act}
-   PHP ] {js}{act}
-   TCL ] \\{byte}{act}
-  HTML ] &#x{code:x}; or &#{code}; {html}{act}
-  JAVA ] {jv}{act}
-  RUBY ] {js}{act}
-  PERL ] chr({code}){act}
-  ObjC ] {act or py}
- SWIFT ] {js}{act}
- REGEX ] /\\{js}/u {reg if py[0] == "u" else ''}{act}
- SCALA ] {kot}{act}
-KOTLIN ] {kot}{act}
-PASCAL ] {jv}{act}
+{line}
+    PY ] \\{byte} or \\N{'{'+unidata.name(ch)+'}'}
+   URL ] {url}
+  HTML ] &#x{code:x}; {html}
+  JAVA ] {jv}
+    JS ] {js}
+ SWIFT ] {js}
+  RUBY ] {js}
+    C# ] {jv}
+   C++ ] \\{py}
+     C ] \\{py}
+ REGEX ] /\\{js}/u {reg if py[0] == "u" else ''}
+KOTLIN ] \\{py if py[0] == "u" else "NOPE."}
 '''
     table += "```"
     key = '```'
     code = {
-        'Cn': 'Unassigned',
         'Cc': 'Control',
         'Cf': 'Format',
         'Co': 'Private Use',
         'Cs': 'Surrogate',
-        
         'Ll': 'Lowercase Letter',
         'Lm': 'Modifier Letter',
         'Lo': 'Other Letter',
         'Lt': 'Titlecase Letter',
         'Lu': 'Uppercase Letter',
-        
         'Mc': 'Spacing Mark',
         'Me': 'Enclosing Mark',
         'Mn': 'Nonspacing Mark',
-        
         'Nd': 'Decimal Number',
         'Nl': 'Letter Number',
         'No': 'Other Number',
-        
         'Pc': 'Connector Punctuation',
         'Pd': 'Dash Punctuation',
         'Pe': 'Close Punctuation',
@@ -146,12 +126,10 @@ PASCAL ] {jv}{act}
         'Pi': 'Initial Punctuation',
         'Po': 'Other Punctuation',
         'Ps': 'Open Punctuation',
-        
         'Sc': 'Currency Symbol',
         'Sk': 'Modifier Symbol',
         'Sm': 'Math Symbol',
         'So': 'Other Symbol',
-        
         'Zl': 'Line Separator',
         'Zp': 'Paragraph Separator',
         'Zs': 'Space Seperator'

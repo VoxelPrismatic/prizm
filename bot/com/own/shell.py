@@ -15,34 +15,46 @@ from util.pages import PageThis
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(help = 'own',
-                  brief = '',
-                  usage = ';]',
-                  description = '[NO ARGS FOR THIS COMMAND]')
+@commands.command(
+    help = 'own',
+    brief = 'Executes a shell command',
+    usage = ';]shell {code}',
+    description = '''\
+CODE [TEXT] - The shell code to execute
+''')
 @commands.is_owner()
 async def shell(ctx, *, code:str):
     st1 = time.monotonic()
     msgs = await ctx.send('```md\n#] JUST A MOMENT```')
     try:
         st2 = time.monotonic()
-        proc = subprocess.run(code.replace('---shell','').split(), capture_output=True,shell=('---shell' in code), timeout = 120.0)
+        proc = subprocess.run(
+            code.replace('---shell','').split(), 
+            capture_output = True,
+            shell = ('---shell' in code), 
+            timeout = 20.0
+        )
         out = proc.stdout.decode().replace('`','\u200b`')
         err = proc.stderr.decode().replace('`','\u200b`')
         ttl = time.monotonic() - st2
         interpreter = f'''```md
 {out}{err}
 ] ==================
-> EXE TIME // {str(1000*ttl)[:10]}ms
+> EXE TIME // {str(1000 * ttl)[:10]}ms
 ```'''
         print(interpreter)
         if len(interpreter) > 2000:
             open('txt/interpreter.txt','w+').write(f"""\
-> EXE TIME // {str(1000*ttl)[:10]}ms
+> EXE TIME // {str(1000 * ttl)[:10]}ms
 ----------
 {out}{err}
 """)
-            await ctx.send('```diff\n-] IT OVERFLOWED```',file=discord.File(fp=open('txt/interpreter.txt')))
-        else: await ctx.send(interpreter)
+            await ctx.send(
+                '```diff\n-] IT OVERFLOWED```',
+                file = discord.File(fp = open('txt/interpreter.txt'))
+            )
+        else: 
+            await ctx.send(interpreter)
 
     except Exception as exc:
         tb = traceback.format_exc().replace('`','\u200b`')

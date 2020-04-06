@@ -14,39 +14,86 @@ from util import ez
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=['memberinfo', 'infomember', 'imember', 'memberi',
-                           'infombr', 'mbrinfo', 'mbri', 'imbr'],
-                  help='dis',
-                  brief='Shows info on a given {member}',
-                  usage=';]mi {mbr}',
-                  description='MBR [MEMBER] - The target member, ID or ping or name')
+@commands.command(
+    aliases = [
+        'memberinfo', 
+        'infomember',
+        'imember',
+        'memberi',
+        'infombr',
+        'mbrinfo', 
+        'mbri',
+        'imbr'
+        ],
+    help = 'dis',
+    brief = 'Shows info on a given {member}',
+    usage = ';]mi {member}',
+    description = '''\
+MEMBER [MEMBER] - The target member, ID or ping or name
+'''
+)
 @commands.check(enbl)
-async def mi(ctx, _mbr:discord.Member=None):
-    if _mbr==None:
-        _mbr=ctx.author
-    Tgp = [perm for perm, value in _mbr.guild_permissions if value == True]
-    Tcp = [perm for perm, value in _mbr.permissions_in(ctx.channel) if value == True]
-    Ftp = [perm for perm, value in _mbr.guild_permissions if value == False]
-    Fcp = [perm for perm, value in _mbr.permissions_in(ctx.channel) if value == False]
-    Ngp = [perm for perm, value in _mbr.guild_permissions if value == None]
-    Ncp = [perm for perm, value in _mbr.permissions_in(ctx.channel) if value == None]
-    await ctx.send(embed=embedify.embedify(desc=f'''```md
-#] INFO FOR @{_mbr.name}#{_mbr.discriminator}
-     ID ] {_mbr.id}
-    BOT ] {_mbr.bot}
-   NICK ] {_mbr.display_name}
-  COLOR ] {_mbr.color}
-  ROLES ] {', '.join('&'+role.name for role in _mbr.roles)}
- JOINED ] {_mbr.joined_at}
- STATUS ] {_mbr.status} on {ez.ifstr(_mbr.desktop_status, "", "PC")} | \
-{ez.ifstr(_mbr.web_status, "", "WEB")} | \
-{ez.ifstr(_mbr.mobile_status, "", "PHONE")}
-BOOSTED ] Since {ez.ifstr(_mbr.premium_since, 'never')} UTC
-CREATED ] {_mbr.created_at}``````diff
-+] {', '.join(set(Tgp) | set(Tcp))}``````diff
--] {', '.join(set(Fgp) | set(Fcp))}
-=] {', '.join(set(Ngp) | set(Ncp))}```''',
-        thumb = str(_mbr.avatar_url).replace('webp','png')))
+async def mi(ctx, member: discord.Member = None):
+    if member is None:
+        member = ctx.author
+    allowed_perms = []
+    denied_perms = []
+    default_perms = []
+    for perm, val in member.permissions_in(ctx.channel):
+        if val is True:
+            allowed_perms.append(perm)
+        elif val is False:
+            denied_perms.append(perm)
+        else:
+            default_perms.append(perm)
+    for perm, val in member.guild_permissions:
+        if val is True and val not in allowed_perms and val not in denied_perms:
+            allowed_perms.append(perm)
+            if perm in default_perms:
+                default_perms.remove(perm)
+        elif val is False and val not in allowed_perms and val not in denied_perms:
+            denied_perms.append(perm)
+            if perm in default_perms:
+                default_perms.remove(perm)
+        elif perm not in default_perms:
+            default_perms.append(perm)
+    roles = []
+    for role in member.roles:
+        if len(roles) % 2:
+            roles.append("> " + role.name)
+        else:
+            roles.append("] " + role.name)
+    await ctx.send(
+        embed = embedify.embedify(
+            desc = f'''```md
+#] INFO FOR @{member.name}#{member.discriminator}
+     ID ] {member.id}
+    BOT ] {member.bot}
+   NICK ] {member.display_name}
+  COLOR ] {member.color}
+ JOINED ] {member.joined_at}
+ STATUS ] {member.status} on {ez.ifstr(member.desktop_status, "", "PC")} | \
+{ez.ifstr(member.web_status, "", "WEB")} | \
+{ez.ifstr(member.mobile_status, "", "PHONE")}
+BOOSTED ] Since {ez.ifstr(member.premium_since, 'never')} UTC
+CREATED ] {member.created_at}```''',
+            fields = [
+                [
+                    "PERMISSIONS IN THIS CHANNEL", 
+                    f'''```diff
++] {', '.join(allowed_perms) or "[NONE]"}
+-] {', '.join(denied_perms) or "[NONE]"}
+=] {', '.join(default_perms) or "[NONE]"}```''',
+                    False
+                ], [
+                    "ROLES",
+                    "```md\n" + "\n".join(roles) + "```",
+                    False
+                ]
+            ],
+            thumb = str(member.avatar_url).replace('webp','png')
+        )
+    )
 
 
 ##///---------------------///##

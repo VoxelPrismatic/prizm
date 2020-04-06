@@ -1,3 +1,5 @@
+import os
+
 def iter_range(iterable, vars = 1):
     ls = []
     for x in range(0, len(iterable), vars):
@@ -13,17 +15,18 @@ def pinger(itm):
         return f"<#{itm.id}>"
     return itm.id
 
-def pager(ls: list, ln: int, *char: list, head = "", foot = "", attr = "", joiner = ", "):
+def pager(ls: list, ln: int, *char: list, head = "",
+          foot = "", joiner = ", "):
     rtn = []
     lit = []
-    if not len(char): char = [("", "ANY")]
-    if attr: attr = '.'+attr
-    for it in ls:
-        itm = eval(it+attr)
+    if not len(char):
+        char = [("", "ANY")]
+    for itm in ls:
+        itm = itm.name
         if len(f"{head}{joiner.join(rtn)}, X{itm}{foot}") > ln:
             lit.append(head + joiner.join(rtn))
         for ch, tp in char:
-            if type(itm) == tp or tp.upper() == "ANY":
+            if type(itm) == tp or tp == "ANY":
                 rtn.append(f"{ch}{itm}")
                 break
     if len(rtn):
@@ -41,8 +44,19 @@ def wrap(text, max_len: int = 1500):
     ls = []
     st = ""
     for word in text.split(' '):
-        if len(st+word) > max_len:
+        if len(st + word) > max_len:
             ls.append(st)
-        st += " "+word.strip()
+        st += " " + word.strip()
     if st: ls.append(st)
     return ls
+
+def grab_dir(home):
+    dirs = []
+    if home[-1] != "/":
+        home += "/"
+    for file in os.listdir(home):
+        try:
+            dirs.extend(grab_dir(home + file))
+        except:
+            dirs.append(home + file)
+    return dirs

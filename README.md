@@ -1,16 +1,19 @@
 # PRIZM
 My first ever bot, PRIZM ;]
 
-> This repo is not updated very often, only big changes such as completely new code will be 
+> This repo is not updated very often, only big changes such as completely new code will be
 pushed weekly
 
 # What is PRIZM?
-PRIZM is a Discord bot that honestly has too many features. It can interact with Reddit, 
+PRIZM is a Discord bot that honestly has too many features. It can interact with Reddit,
 play games with you, be your math assistant, be your personal radio, and so much more.
 
 ## INSTALL STUFF
+### NOTICE
+PRIZM can only run on Linux, due to Linux's `git` and other terminal integrations.
+
 ### Download PRIZM -----
-Download this entire repo as a zip, then make sure that all the following commands are done 
+Download this entire repo as a zip, then make sure that all the following commands are done
 inside of the `bot` folder, where you can see `PRIZM.py`
 
 ### Single command install for PRIZM
@@ -27,13 +30,12 @@ Sit back and relax for a couple minutes
 what it refuses to install:
 ```
 TensorFlow #This is on TensorFlow's end, they don't allow it.
-NumExpr
 ```
 
-**USE LINUX**, TensorFlow does not install on Windows, so use Ubuntu if possible
-
-**CHECK THE /bot/avx/avx FILE** to see if your **Intel** CPU supports AVX [for TensorFlow],
-if you have a Ryzen CPU, you are most likely fine.
+**NOTE:** If you are planning on using the image mix command, make sure you use `Ubuntu`,
+`Kubuntu`, `Lubuntu`, or `Xubuntu`. Also check to see if your CPU supports AVX.
+- If you have a Zen based CPU [eg Ryzen] then you are most likely fine
+- If you have an Intel CPU, use `sudo lshw | grep -e avx`, if anything shows then you are good
 
 #### Dependencies -----
 
@@ -53,10 +55,10 @@ If you have issues installing the python requirements, get `pip` first.
 If you still have trouble, then idk whats happening.
 
 ## RUN PRIZM ;]
-When all your dependencies are finished, do `python3.7 PRIZM.py`, or whatever other `pythonX` 
+When all your dependencies are finished, do `python3.7 PRIZM.py`, or whatever other `pythonX`
 prefix you have
 
-PRIZM is meant to be faily verbose, it logs whenever an error occurs and when other things 
+PRIZM is meant to be fairly verbose, it logs whenever an error occurs and when other things
 regarding how the bot acts when it happens.
 
 ## EMOJI AND ASCIIMOJI
@@ -72,5 +74,5 @@ result in improper help or info whenever somebody asks for it.
  // [Second Support Option](<guild invite>)
 ```
 
-Do **NOT** change the `;]bug` command channel, but instead copy and paste the line [make sure 
+Do **NOT** change the `;]bug` command channel, but instead copy and paste the line [make sure
 indentation is correct] and place the new channel in there.

@@ -11,7 +11,8 @@ from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from pprint import pprint as pp
 from chk.enbl import enbl
-def entry(lit,coms:list,lbl,mini) -> list:
+
+def entry(lit, coms: list, lbl, mini) -> list:
     """
     >>> CREATES AN ENTRY IN THE HELP TABLE <<<
     LIT  [LIST] - The Pages
@@ -33,12 +34,15 @@ def entry(lit,coms:list,lbl,mini) -> list:
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases = ['helpmod', 'modhelp', 'modhlep'], 
-                      help = 'inf',
-                      brief = 'Brings up the mod help message',
-                      usage = ';]helpmod',
-                      description = '''    [NO ARGS FOR THIS COMMAND]
-    ''')
+@commands.command(
+    aliases = ['helpmod', 'modhelp', 'modhlep'], 
+    help = 'inf',
+    brief = 'Brings up the mod help message',
+    usage = ';]helpmod',
+    description = '''\
+[NO INPUT FOR THIS COMMAND]
+'''
+)
 @commands.check(enbl)
 async def hlepmod(ctx, mini = ""):
     mini = bool(mini)
@@ -46,7 +50,7 @@ async def hlepmod(ctx, mini = ""):
     coms = {}
     cats = ['MOD']
     if ctx.guild:
-        prefix = dbman.get('pre', 'pre', id=ctx.guild.id)
+        prefix = dbman.get('pre', 'pre', id = ctx.guild.id)
     else:
         prefix = ';]'
 
@@ -54,7 +58,7 @@ async def hlepmod(ctx, mini = ""):
         coms[cat] = []
     for com in ctx.bot.commands:
         if not mini:
-            com_desc = f'] "{com.usage}"\n>  {com.brief} '+random.choice(faces())
+            com_desc = f'] "{com.usage}"\n>  {com.brief} ' + random.choice(faces())
         else:
             com_desc = f'> {com.name}'
         try:
@@ -64,7 +68,7 @@ async def hlepmod(ctx, mini = ""):
         except:
             pass
 
-    replce = {'MOD':'MODERATOR'}
+    replce = {'MOD': 'MODERATOR'}
     for cat in coms:
         lit = entry(lit,coms[cat],replce[cat],mini)
 

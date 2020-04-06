@@ -13,7 +13,6 @@ from chk.enbl import enbl
 import math
 import re
 from numexpr import evaluate as calc
-from util.parse_eq import parse_eq
 
 global _inst
 _inst = {}
@@ -35,7 +34,48 @@ async def request(ctx, num, m, chk):
             await ms.delete()
         except:
             pass
-        eq = parse_eq(eq)
+        eq = eq.replace('^','**').lower().strip()
+        oth = {
+            r"(\d)\(": r"\1*(",
+            r"\)(\d)": r")*\1",
+            r"(\d+)i": r"\1j",
+            r"([\*\+\-\^\/ ])i ?": r"\1 1j",
+            r"\)i": r")*1j",
+            r"i\(": r"1j*(",
+            r"pi(\d)": r"3.141592653*\1",
+            r"(\d)pi": r"\1*3.141592653",
+            r"([\*\+\-\^\/ ])pi": r"\1 3.1415926535",
+            r"pi([\*\+\-\^\/ ])": r"3.1415926535 \1",
+            r"\)pi": r")*3.1415926535",
+            r"pi\(": r"3.1415926535*(",
+            r"e(\d)": r"2.718281828*\1",
+            r"(\d)e": r"\1*2.718281828",
+            r"([\*\+\-\^\/ ])e": r"\1 2.718281828",
+            r"e([\*\+\-\^\/ ])": r"2.718281828 \1",
+            r"\)e": r")*2.718281828",
+            r"e\(": r"2.718281828*(",
+        }
+        fns = {
+            r"(\d+)root\((.*)\)": r"(\2)^(1/\1)",
+            r"logbase(\d+)\((.*)\)": r"log(\2, \1)",
+            r"((tan|cos|sin|cot|csc|sec)h?)\*\*-1\((.*)\)": "a\1(\2)",
+            r"cot\((.*)\)": r"(1/tan(\1))",
+            r"csc\((.*)\)": r"(1/sin(\1))",
+            r"sec\((.*)\)": r"(1/cos(\1))",
+            r"coth\((.*)\)": r"(1/tanh(\1))",
+            r"csch\((.*)\)": r"(1/sinh(\1))",
+            r"sech\((.*)\)": r"(1/cosh(\1))",
+            r"acot\((.*)\)": r"atan(1/(\1))",
+            r"acsc\((.*)\)": r"asin(1/(\1))",
+            r"asec\((.*)\)": r"acos(1/(\1))",
+            r"acoth\((.*)\)": r"atanh(1/(\1))",
+            r"acsch\((.*)\)": r"asinh(1/(\1))",
+            r"asech\((.*)\)": r"acosh(1/(\1))"
+        }
+        for r in fns:
+            eq = re.sub(r, fns[r], eq)
+        for r in oth:
+            eq = re.sub(r, oth[r], eq)
         try:
             num = calc(eq)
         except ValueError:
@@ -43,22 +83,20 @@ async def request(ctx, num, m, chk):
         except SyntaxError:
             await ctx.send("```diff\n-] UNREADABLE [numbers only]```", delete_after = 5.0)
     return num
-
 def tri(a, b, c, X, Y, Z):
     return f"""\
-  A          A = {a or "[empty]"}
-  |\         B = {b or "[empty]"}
-Y |  \ Z     C = {c or "[empty]"}
-  |    \     X = {round(X, 2) or "[empty]"}
-  C-----B    Y = {round(Y, 2) or "[empty]"}
-     X       Z = {round(Z, 2) or "[empty]"}"""
-
+  A          A = {a}
+  |\         B = {b}
+Y |  \ Z     C = {c}
+  |    \     X = {X:.3f}
+  C-----B    Y = {Y:.3f}
+     X       Z = {Z:.3f}"""
 def angle_sin(s, a1, a2):
     return s * (math.sin(a1) / math.sin(a2))
 def side_cos(s1, a, s2):
-    return (s1 ** 2 + s2 ** 2 - 2 * s1 * s2 * math.cos(a)) ** 0.5
+    return (s1**2 + s2**2 -2*s1*s2*math.cos(a))**0.5
 def angle_cos(s1, s2, s3):
-    return math.acos(abs(s3 ** 2 - s2 ** 2 - s1 ** 2) / (2 * s1 * s2))
+    return math.acos(abs(s3**2-s2**2-s1**2)/(2*s1*s2))
 def angles_sin(s1, a, s2):
     ans = math.asin((math.sin(a)/s2)*s1)
     return (ans, ans-a), (180-ans-a, 180-ans+a)
@@ -80,94 +118,12 @@ def ssa_sin(s1, a, s2, hao2, n0, n1, n2, n3, n4, u):
             a = f"{a1[0]*180/pi:.2f} or {a1[1]*180/pi:.2f}"
             c = f"{a2[0]*180/pi:.2f} or {a2[1]*180/pi:.2f}"
     return a1, a2, hao2
-
-def missing_angle(a, b, c, hao2):
-    if not(a and b and c):
-        if a and b and not c:
-            c = 180 - a - b
-            hao2 += f"C = {u} - A - B"
-        elif a and c and not b:
-            b = 180 - a - c
-            hao2 += f"B = {u} - A - C"
-        elif b and c and not a:
-            a = 180 - b - c
-            hao2 += f"A = {u} - B - C"
-    return a, b, c, hao2
-
-def law_sin_side(a, b, c, X, Y, Z, hao2):
-    if not(X and Y and Z):
-        if a and b and Y and not X:
-            X = angle_sin(Y, a, b)
-            hao2 += "X = Y*(sin(A)/sin(B))\n"
-        if b and a and X and not Y:
-            Y = angle_sin(X, b, a)
-            hao2 += "Y = X*(sin(B)/sin(A))\n"
-        if c and b and Y and not Z:
-            Z = angle_sin(Y, c, b)
-            hao2 += "Z = Y*(sin(C)/sin(B))\n"
-        if a and c and Z and not X:
-            X = angle_sin(Z, a, c)
-            hao2 += "X = Z*(sin(A)/sin(C))\n"
-        if b and c and Z and not Y:
-            Y = angle_sin(Z, b, c)
-            hao2 += "Y = Z*(sin(B)/sin(C))\n"
-        if c and a and X and not Z:
-            Z = angle_sin(X, c, a)
-            hao2 += "Z = X*(sin(C)/sin(A))\n"
-    return X, Y, Z, hao2
-
-def law_sin_angle(a, b, c, X, Y, Z, hao2):
-    if not(a and b and c):
-        if Y and b and Z and not a and not c:
-            a, c, hao2 = ssa_sin(Y, b, Z, hao2, "A", "C", "B", "Y", "Z", u)
-        if Y and b and X and not a and not c:
-            a, c, hao2 = ssa_sin(Y, b, X, hao2, "A", "C", "B", "Y", "X", u)
-        if X and a and Z and not b and not c:
-            b, c, hao2 = ssa_sin(X, a, Z, hao2, "B", "C", "A", "X", "Z", u)
-        if X and a and Y and not b and not c:
-            b, c, hao2 = ssa_sin(X, a, Y, hao2, "B", "C", "A", "X", "Y", u)
-        if Z and c and X and not a and not b:
-            a, b, hao2 = ssa_sin(Z, c, X, hao2, "A", "B", "C", "Z", "X", u)
-        if Z and c and Y and not a and not b:
-            a, b, hao2 = ssa_sin(Z, c, Y, hao2, "A", "B", "C", "Z", "Y", u)
-    return a, b, c, hao2
-
-def law_cos_side(a, b, c, X, Y, Z, hao2):
-    if not(X and Y and Z):
-        if X and Y and c and not Z:
-            Z = side_cos(X, c, Y)
-            hao2 += "Z = \u221a(X\xb2 + Y\xb2 - 2 * X * Y * cos(C))\n"
-        if Z and Y and a and not X:
-            X = side_cos(Z, a, Y)
-            hao2 += "X = \u221a(Z\xb2 + Y\xb2 - 2 * Z * Y * cos(A))\n"
-        if X and Z and b and not Y:
-            Y = side_cos(X, b, Z)
-            hao2 += "Y = \u221a(X\xb2 + Z\xb2 - 2 * X * Z * cos(B))\n"
-    return X, Y, Z, hao2
- 
-def law_cos_angle(a, b, c, X, Y, Z, hao2):
-    if X and Y and Z:
-        if not(a and b and c):
-            if not c:
-                c = angle_cos(X, Y, Z)
-                hao2 += "C = arccos((X\xb2 + Y\xb2 - Z\xb2)/(2 * X * Y))\n"
-            if not a:
-                a = angle_cos(Y, Z, X)
-                hao2 += "A = arccos((Y\xb2 + Z\xb2 - X\xb2)/(2 * Y * Z))\n"
-            if not b:
-                b = angle_cos(Z, X, Y)
-                hao2 += "B = arccos((Z\xb2 + X\xb2 - Y\xb2)/(2 * X * Z))\n"
-    return a, b, c, hao2
-
-@commands.command(
-    aliases=["tri"],
-    help='math',
-    brief='Solves triangles',
-    usage=';]triangle',
-    description='''\
-[NO INPUT FOR THIS COMMAND]
-'''
-)
+    
+@commands.command(aliases=["tri"],
+                  help='math',
+                  brief='Solves triangles',
+                  usage=';]triangle',
+                  description='[NO INPUT FOR THIS COMMAND]')
 @commands.check(enbl)
 async def triangle(ctx):
     a = 0
@@ -178,41 +134,30 @@ async def triangle(ctx):
     Z = 0
     rad = True
     hao2 = ""
-    msg = await ctx.send(
-        embed = embedify.emb(
-            title = "TRIANGLES ;]", 
-            desc = f"""```md
-#] TRIANGLES ;]
+    msg = await ctx.send(embed=embedify.emb(title = "TRIANGLES ;]", desc = f"""```md
+#] TRIANGLES
 
 {tri(a, b, c, X, Y, Z)}
 
 #] CLICK \u2705 AFTER ENTERING 3 VALUES
+>  One value must be a side
+#] ANY '0' VALUE IS CONSIDERED EMPTY
 ]] RADIANS - CLICK \U0001f501 TO CHANGE
-```""", 
-            foot = "PRIZM ;] // REACT TO EDIT"
-        )
-    )
-    _inst[msg.id] = {
-        "var": [a, b, c, X, Y, Z], "msg": msg, "rad": rad, "ctx": ctx
-    }
+```""", foot = "PRIZM ;] // REACT TO EDIT"))
+    _inst[msg.id] = {"var": [a, b, c, X, Y, Z], "msg": msg, "rad": rad, "ctx": ctx}
     for r in "ABCXYZ":
-        await msg.add_reaction(
-            eval('"\\N{REGIONAL INDICATOR SYMBOL LETTER '+r+'}"')
-        )
+        await msg.add_reaction(eval('"\\N{REGIONAL INDICATOR SYMBOL LETTER '+r+'}"'))
     await msg.add_reaction("\u2705")
     await msg.add_reaction(f"\U0001f501")
     def check(rct, usr):
-        return usr == ctx.author and rct.emoji in [
-            "\U0001f1e6", "\U0001f1e7", "\U0001f1e8", "\U0001f1fd", 
-            "\U0001f1fe", "\U0001f1ff", "\U0001f501", "\u2705"
-        ]
+        return usr == ctx.author and rct.emoji in ["\U0001f1e6", "\U0001f1e7", "\U0001f1e8",
+                                                   "\U0001f1fd", "\U0001f1fe", "\U0001f1ff",
+                                                   "\U0001f501", "\u2705"]
     def chk(msg):
         return msg.author == ctx.author and msg.channel == ctx.channel
     while True:
         try:
-            rct, usr = await ctx.bot.wait_for(
-                "reaction_add", timeout = 60.0, check = check
-            )
+            rct, usr = await ctx.bot.wait_for("reaction_add", timeout = 60.0, check = check)
         except asyncio.TimeoutError:
             del _inst[msg.id]
             delet = []
@@ -224,17 +169,11 @@ async def triangle(ctx):
                     tm = imsg.edited_at.timestamp()
                 if float(datetime.datetime.utcnow().timestamp()-tm) > 59:
                     delet.append(tmsg)
-                    await msg.edit(
-                        embed = embedify.emb(
-                            title = "TRIANGLES ;]", 
-                            desc = f"""```md
+                    await msg.edit(embed=embedify.emb(title = "TRIANGLES ;]", desc = f"""```md
 #] TRIANGLES
 
 {tri(a, b, c, X, Y, Z)}
-```""", 
-                            foot = "PRIZM ;] // TIMEOUT"
-                        )
-                    )
+```""", foot = "PRIZM ;] // TIMEOUT"))
                     await imsg.clear_reactions()
             for m in delet:
                 del _inst[m]
@@ -272,21 +211,21 @@ async def triangle(ctx):
                 pi = 3.1415926535
                 u = "2pi"
                 if not rad:
-                    a = a / 180 * pi
-                    b = b / 180 * pi
-                    c = c / 180 * pi
+                    a = a/180*pi
+                    b = b/180*pi
+                    c = c/180*pi
                     u = "180"
-                while a > 2 * pi or a < 0:
-                    a += 2 * pi
-                while b > 2 * pi or b < 0:
-                    b += (-1 if b > 2 * pi else 1) * 2 * pi
-                while c > 2 * pi or c < 0:
-                    c += (-1 if c > 2 * pi else 1) * 2 * pi
+                while a > 2*pi or a < 0:
+                    a += (-1 if a > 2*pi else 1) * 2*pi
+                while b > 2*pi or b < 0:
+                    b += (-1 if b > 2*pi else 1) * 2*pi
+                while c > 2*pi or c < 0:
+                    c += (-1 if c > 2*pi else 1) * 2*pi
                 if a + b + c > pi:
-                    del _inst[msg.id]
+                    del _inst[msg.id] 
                     return await ctx.send("```-] INVALID ANGLES```")
-                elif any(t < 0 for t in [a, b, c, X, Y, Z]):
-                    del _inst[msg.id]
+                elif a < 0 or b < 0 or c < 0 or X < 0 or Y < 0 or Z < 0:
+                    del _inst[msg.id] 
                     return await ctx.send("```-] NEGATIVE VALUES NOT ALLOWED```")
                 elif not(X or Y or Z):
                     await ctx.send("```-] NO SIDES GIVEN, SIDE X = 1```")
@@ -294,16 +233,81 @@ async def triangle(ctx):
                 elif X and Y and Z and (a or b or c):
                     del _inst[msg.id] 
                     return await ctx.send("```-] TOO MANY VALUES GIVEN```")
-                for x in range(2):
-                    a, b, c, hao2 = missing_angle(a, b, c, hao2)
-                    if not(X and Y and Z):
-                        X, Y, Z, hao2 = law_sin_side(a, b, c, X, Y, Z, hao2)
-                        X, Y, Z, hao2 = law_cos_side(a, b, c, X, Y, Z, hao2)
+                #Law of cosines
+                if X and Y and c and not Z:
+                    Z = side_cos(X, c, Y)
+                    hao2 += "Z = \u221a(X\xb2 + Y\xb2 - 2 * X * Y * cos(C))\n"
+                if Z and Y and a and not X:
+                    X = side_cos(Z, a, Y)
+                    hao2 += "X = \u221a(Z\xb2 + Y\xb2 - 2 * Z * Y * cos(A))\n"
+                if X and Z and b and not Y:
+                    Y = side_cos(X, b, Z)
+                    hao2 += "Y = \u221a(X\xb2 + Z\xb2 - 2 * X * Z * cos(B))\n"
+                if X and Y and Z:
                     if not(a and b and c):
-                        a, b, c, hao2 = law_sin_angle(a, b, c, X, Y, Z, hao2)
-                        a, b, c, hao2 = law_cos_angle(a, b, c, X, Y, Z, hao2)
-                    if a and b and c and X and Y and Z:
-                        break
+                        if not c:
+                            c = angle_cos(X, Y, Z)
+                            hao2 += "C = arccos((X\xb2 + Y\xb2 - Z\xb2)/(2 * X * Y))\n"
+                        if not a:
+                            a = angle_cos(Y, Z, X)
+                            hao2 += "A = arccos((Y\xb2 + Z\xb2 - X\xb2)/(2 * Y * Z))\n"
+                        if not b:
+                            b = angle_cos(Z, X, Y)
+                            hao2 += "B = arccos((Z\xb2 + X\xb2 - Y\xb2)/(2 * X * Z))\n"
+                        
+                #Law of sines - Angle
+                if a and b and c:
+                    pass #Dont continue on
+                elif a and b and not c:
+                    c = 180-a-b
+                    hao2 += f"C = {u} - A - B"
+                elif a and c and not b:
+                    b = 180-a-c
+                    hao2 += f"B = {u} - A - C"
+                elif b and c and not a:
+                    a = 180-b-c
+                    hao2 += f"A = {u} - B - C"
+                if not(X and Y and Z):
+                    if a and b and Y and not X:
+                        X = angle_sin(Y, a, b)
+                        hao2 += "X = Y*(sin(A)/sin(B))\n"
+                    if b and a and X and not Y:
+                        Y = angle_sin(X, b, a)
+                        hao2 += "Y = X*(sin(B)/sin(A))\n"
+                    if c and b and Y and not Z:
+                        Z = angle_sin(Y, c, b)
+                        hao2 += "Z = Y*(sin(C)/sin(B))\n"
+                    if a and c and Z and not X:
+                        X = angle_sin(Z, a, c)
+                        hao2 += "X = Z*(sin(A)/sin(C))\n"
+                    if b and c and Z and not Y:
+                        Y = angle_sin(Z, b, c)
+                        hao2 += "Y = Z*(sin(B)/sin(C))\n"
+                    if c and a and X and not Z:
+                        Z = angle_sin(X, c, a)
+                        hao2 += "Z = X*(sin(C)/sin(A))\n"
+                    if a and b and not c:
+                        c = 180-a-b
+                        hao2 += f"C = {u} - A - B"
+                    elif a and c and not b:
+                        b = 180-a-c
+                        hao2 += f"B = {u} - A - C"
+                    elif b and c and not a:
+                        a = 180-b-c
+                        hao2 += f"A = {u} - B - C"
+                    else:
+                        if Y and b and Z and not a and not c:
+                            a, c, hao2 = ssa_sin(Y, b, Z, hao2, "A", "C", "B", "Y", "Z", u)
+                        if Y and b and X and not a and not c:
+                            a, c, hao2 = ssa_sin(Y, b, X, hao2, "A", "C", "B", "Y", "X", u)
+                        if X and a and Z and not b and not c:
+                            b, c, hao2 = ssa_sin(X, a, Z, hao2, "B", "C", "A", "X", "Z", u)
+                        if X and a and Y and not b and not c:
+                            b, c, hao2 = ssa_sin(X, a, Y, hao2, "B", "C", "A", "X", "Y", u)
+                        if Z and c and X and not a and not b:
+                            a, b, hao2 = ssa_sin(Z, c, X, hao2, "A", "B", "C", "Z", "X", u)
+                        if Z and c and Y and not a and not b:
+                            a, b, hao2 = ssa_sin(Z, c, X, hao2, "A", "B", "C", "Z", "Y", u)
                 if not rad:
                     try:
                         a = round(a*180/pi, 2)
@@ -319,15 +323,15 @@ async def triangle(ctx):
                        pass
                 else:
                     try:
-                        a = f"{a / pi * 12:.2f}/12 pi"
+                        a = f"{a/pi*12:.2f}/12 pi"
                     except:
                         pass
                     try:
-                        b = f"{b / pi * 12:.2f}/12 pi"
+                        b = f"{b/pi*12:.2f}/12 pi"
                     except:
                         pass
                     try:
-                        c = f"{c / pi * 12:.2f}/12 pi"
+                        c = f"{c/pi*12:.2f}/12 pi"
                     except:
                        pass
                 try:
@@ -335,44 +339,33 @@ async def triangle(ctx):
                 except:
                     pass
                 del _inst[msg.id] 
-                return await msg.edit(
-                    embed = embedify.emb(
-                        title = "TRIANGLES ;]", 
-                        desc = f"""```md
-#] TRIANGLES ;]
+                return await msg.edit(embed=embedify.emb(title = "TRIANGLES ;]", desc = f"""```md
+#] TRIANGLES
 
 {tri(a, b, c, X, Y, Z)}
      
 ]] {"RADIANS" if rad else "DEGREES"}
 
-#] HOW TO SOLVE THIS TRIANGLE
+#] HOW TO SOLVE
+>  For this specific triangle
 {hao2}
-```""", 
-                        foot = "PRIZM ;] // COMPLETED"
-                    )
-                )
+```""", foot = "PRIZM ;] // COMPLETED"))
             try:
                 await msg.remove_reaction(rct, usr)
                 foot = "REACT TO EDIT"
             except:
                 foot = "RE-REACT TO EDIT"
-            _inst[msg.id] = {
-                "var": [a, b, c, X, Y, Z], "msg": msg, "rad": rad, "ctx": ctx
-            }
-            await msg.edit(
-                embed = embedify.emb(
-                    title = "TRIANGLES ;]", 
-                    desc = f"""```md
+            _inst[msg.id] = {"var": [a, b, c, X, Y, Z], "msg": msg, "rad": rad, "ctx": ctx}
+            await msg.edit(embed=embedify.emb(title = "TRIANGLES ;]", desc = f"""```md
 #] TRIANGLES
 
 {tri(a, b, c, X, Y, Z)}
 
 #] CLICK \u2705 AFTER ENTERING 3 VALUES
+>  One value must be a side
+#] ANY '0' VALUE IS CONSIDERED EMPTY
 ]] {"RADIANS" if rad else "DEGREES"} - CLICK \U0001f501 TO CHANGE
-```""", 
-                    foot = "PRIZM ;] // " + foot
-                )
-            )
+```""", foot = "PRIZM ;] // "+foot))
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

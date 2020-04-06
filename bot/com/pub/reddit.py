@@ -31,9 +31,9 @@ async def get(thing, msg):
     for sbn in thing:
         x += 1
         ls.append(sbn)
-        if not x % 50:
+        if not x%50:
             async with msg.channel.typing():
-                await msg.edit(content = msg.content[:-3]+" /```")
+                await msg.edit(content=msg.content[:-3]+" /```")
     return ls
 
 @commands.command(
@@ -93,23 +93,17 @@ async def reddit(ctx, subreddit:str, *, search = ''):
             board = "search"
             sbq = await get(sbd.search(search, limit=200), msg)
         else:
-            sort = random.choice(
-                ['n', 'h', 't', 'c'] + (['r'] if not is_user else [])
-            )
+            sort = random.choice(['n', 'h', 't', 'c'] + (['r'] if not is_user else []))
             thing = {
-                "n": [(lambda sb, ms: get(sb.new(limit = 100), ms)), "new"],
-                "h": [(lambda sb, ms: get(sb.hot(limit = 100), ms)), "hot"],
-                "t": [(lambda sb, ms: get(sb.top(limit = 100), ms)), "top"],
-                "c": [(lambda sb, ms: get(sb.controversial(limit = 100), ms)), "controversial"],
-                "r": [(lambda sb, ms: get(sb.rising(limit = 100), ms)), "rising"],
+                "n": [(lambda sb, ms: get(sb.new(limit = 200), ms)), "new"],
+                "h": [(lambda sb, ms: get(sb.hot(limit = 200), ms)), "hot"],
+                "t": [(lambda sb, ms: get(sb.top(limit = 200), ms)), "top"],
+                "c": [(lambda sb, ms: get(sb.controversial(limit = 200), ms)), "controversial"],
+                "r": [(lambda sb, ms: get(sb.rising(limit = 200), ms)), "rising"]
             }
             sbh, board = thing[sort]
-            try:
-                sbq = await sbh(sbd, msg)
-            except:
-                return await ctx.send("```diff\n-] 404```")
-        if type(sbq) != list: return await ctx.send("```diff\n-] UNKNOWN```")
-        if len(sbq) == 0: return await ctx.send("```diff\n-] NO POSTS FOUND```")
+            sbq = await sbh(sbd, msg)
+        if type(sbq) != list: return
         sbn = random.choice(sbq)
         attempts = 0
         await msg.edit(content='```md\n#] PARSING POST```')
@@ -123,32 +117,46 @@ async def reddit(ctx, subreddit:str, *, search = ''):
         lnk = sbn.permalink
         src = sbn.url.split('//')[1].split('/')[0].split('www.')[-1]
         if src == 'reddit.com':
-            src = "self." + sbn.subreddit.display_name
+            src = "self."+sbn.subreddit.display_name
         prm = sbn.shortlink
         lnk = sbn.url
     attrib = ''
     warn = ''
-    if sbn.locked or time.time() - sbn.created_utc > 15552000: attrib += '[-] '
-    if sbn.stickied: attrib += '[>- '
-    if sbn.edited: attrib += '=> '
-    if sbn.is_self: attrib += 'TXT '
-    else: attrib += 'O-O '
-    if sbn.over_18: attrib += '<!> '
-    if sbn.spoiler: attrib += '[||] '
-    if not any(lnk.endswith(f'.{fmt}') for fmt in ['gif', 'jpg', 'jpeg', 'png']) and not len(txt):
+    if sbn.locked or time.time() - sbn.created_utc > 15552000: 
+        attrib += '[-] '
+    if sbn.stickied: 
+        attrib += '[>- '
+    if sbn.edited: 
+        attrib += '=> '
+    if sbn.is_self: 
+        attrib += 'TXT '
+    else: 
+        attrib += 'O-O '
+    if sbn.over_18: 
+        attrib += '<!> '
+    if sbn.spoiler: 
+        attrib += '[||] '
+    if not any(lnk.endswith(f'.{fmt}') for fmt in ['gif', 'jpg', 'jpeg', 'png']):
         warn = '```diff\n-] Try clicking "[IMAGE]"```'
-    await ctx.send(embed=embedify(title=f'REDDIT ;] - {src}',
-                      desc=f"""```md
+    await ctx.send(
+        embed = embedify(
+            title = f'REDDIT ;] - {src}',
+            desc=f"""```md
 #] {sbn.title}
 ]] FLAIR ] [{sbn.link_flair_text}]
 ]] SCORE ] {sbn.score}
 >  OTHER ] {attrib if attrib else '[NONE]'}```
 [[POST]]({prm}) [[IMAGE]]({lnk})
 {warn}""",
-    img = lnk if not txt else None,
-    fields = [['CONTENT', txt if len(txt) <= 1024 else txt[:1021]+'...', False]] if sbn.is_self else [],
-    foot = f"/r/{sbn.subreddit.display_name}/{board} // /u/{sbn.author.name if sbn.author else '[DELETED]'}"+\
-           f" {'// /m/' + sbd.display_name if is_multi else ''}"))
+            img = lnk if not txt else None,
+            fields = [
+                ['CONTENT', txt if len(txt) <= 1024 else txt[:1021]+'...', False]
+            ] if sbn.is_self else [],
+            foot = f"/r/{sbn.subreddit.display_name}/{board} // "
+                   f"/u/{sbn.author.name if sbn.author else '[DELETED]'} "
+                   f"{'// /m/' + sbd.display_name if is_multi else ''}"
+        )
+    )
     await msg.delete()
 
 ##///---------------------///##

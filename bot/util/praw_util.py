@@ -5,9 +5,9 @@ def reddit() -> praw.Reddit:
     PRAW - Python Reddit API Wrapper
     Returns the Reddit client
     """
-    return praw.Reddit(client_id='huHeFxmx2XrZjg',
-                       client_secret='DP5cQlCV0uehcmEH0Cx12wbjFhs',
-                       user_agent='PRIZM ;] by /u/UltimateRedditCat')
+    return praw.Reddit(client_id='<id>',
+                       client_secret='<secret>',
+                       user_agent='<app name> by /u/<username>')
 
 def multi(client, redditor, multireddit):
     return client.multireddit(redditor, multireddit)

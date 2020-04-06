@@ -13,22 +13,28 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases = ["emojiinfo", "infoemoji", "iemoji", "emojii", "iemj"],
-                  help = 'dis',
-                  brief = 'Sends info about a given {emoji}',
-                  usage = ';]ei {emoji}',
-                  description = '''\
+@commands.command(
+    aliases = ["emojiinfo", "infoemoji", "iemoji", "emojii", "iemj"],
+    help = 'dis',
+    brief = 'Sends info about a given {emoji}',
+    usage = ';]ei {emoji}',
+    description = '''\
 EMOJI [EMOJI] - The CUSTOM emoji in question
-''')
+'''
+)
 @commands.check(enbl)
-async def emj(ctx, emoji:discord.Emoji):
-    await ctx.send(embed=embedify.embedify(desc=f'''```
+async def ei(ctx, emoji: discord.Emoji):
+    await ctx.send(
+        embed = embedify.embedify(
+            desc = f'''```
 #] INFO FOR :{emoji.name}
-     ID ] {_emj.id}
-  ROLES ] {_emj.roles}
-CREATED ] {_emj.created_at}
-MANAGED ] {_emj.managed}```''',
-        thumb=str(_emj.url).replace('webp','png')))
+     ID ] {emoji.id}
+  ROLES ] {emoji.roles}
+CREATED ] {emoji.created_at}
+MANAGED ] {emoji.managed}```''',
+            thumb = str(emoji.url).replace('webp','png')
+        )
+    )
 
 
 ##///---------------------///##
@@ -36,10 +42,10 @@ MANAGED ] {_emj.managed}```''',
 ##///---------------------///##
 def setup(bot):
     print('+COM')
-    bot.add_command(emj)
+    bot.add_command(ei)
     print('GOOD')
 
 def teardown(bot):
     print('-COM')
-    bot.remove_command('emj')
+    bot.remove_command('ei')
     print('GOOD')

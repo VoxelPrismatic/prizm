@@ -19,19 +19,20 @@ from util.parse_eq import parse_eq, unparse_eq
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases = ['simp', 'simplify', 'sym'],
-                      help = 'math',
-                      brief = 'Symplify complex equations',
-                      usage = ';]simplify {eq}',
-                      description = '''\
+@commands.command(
+    aliases = ['simp', 'simplify', 'sym'],
+    help = 'math',
+    brief = 'Symplify complex equations',
+    usage = ';]simplify {eq}',
+    description = '''\
 EQ [TEXT] - The equation to simplify
-''')
+'''
+)
 @commands.check(enbl)
 async def simple(ctx, *, eq: str):
     async with ctx.channel.typing():
-        a, b, c, d, e, f, g, h, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x,\
-        y, z = sp.symbols(' '.join('abcdefghjklmnopqrstuvwxyz'))
-        # 'i' is imaginary
+        a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x,\
+        y, z = sp.symbols(' '.join('abcdefghijklmnopqrstuvwxyz'))
         eq = parse_eq(eq)
         simpled = unparse_eq(str(sp.simplify(eq)))
         factored = unparse_eq(str(sp.factor(eq)))

@@ -80,8 +80,15 @@ def slvr1(itm):
     return sp.solve(itm[1][0], itm[1][1])
 def evl(itm, x, y):
     return ne.evaluate(arc(itm))
-def plotter(ax, x, y, label = None, color = None):
-    print(x, y)
+def plotter(ax, x, y, label = None, color = None, polar = False):
+    if polar:
+        if type(x) == list:
+            x = np.array(x)
+        if type(y) == list:
+            y = np.array(y)
+        for z in np.argwhere(y < 0):
+            y[z] = abs(y[z])
+            x[z] += np.pi
     try:
         ax.plot(x, y, label = label, color = color)
     except ValueError:
@@ -99,7 +106,7 @@ def option(nam, eq, val = 0):
     if nam in eq:
         return eq.replace(nam, ""), 1
     return eq, val
-def grab_window(eq, x, y):
+def grab_window(eq, x, y, step, ymax, polar):
     m = re.search("\{(.*)\}", eq)
     if m:
         window = m[1]
@@ -210,18 +217,21 @@ def labels(x, y, eq, maximum, minimum, zeros, yinter):
     return label, gx
 
 
-@commands.command(aliases = [],
-                  help = 'math',
-                  brief = 'Your personal graphing calculator',
-                  usage = ';]graph {?window} {eq1} {?ops} | {eq2} {?ops} | {...} {?ops}',
-                   description = '''\
+@commands.command(
+    aliases = ["plot"],
+    help = 'math',
+    brief = 'Your personal graphing calculator',
+    usage = ';]graph {?window} {eq1} {?ops} | {eq2} {?ops} | {...} {?ops}',
+    description = '''\
 WINDOW [NUMBERS] - Set XMIN, XMAX, YMIN, YMAX in that order
 EQx    [TEXT   ] - The equation to graph
 OPS    [TEXT   ] - Other arguments
-> This list is long, use ';]graph help' for more
-*Use '>=' and '<=' for 'at least' and 'at most' graphs [respectively]
-*XY equations like `x^2+y^2` MUST have an equal sign
-''')
+> The style list too is long, use ';]graph help' for more
+* Use '>=' and '<=' for 'at least' and 'at most' graphs [respectively]
+* XY equations like `x^2+y^2` MUST have an equal sign
+* Still use x and y for polar equations, where 'r' is y and 'x' is theta
+'''
+)
 @commands.check(enbl)
 async def graph(ctx, xmin: Opt[float] = None, xmax: Opt[float] = None,
                 ymin: Opt[float] = None, ymax: Opt[float] = None, *, eqs = ""):
@@ -278,9 +288,10 @@ async def graph(ctx, xmin: Opt[float] = None, xmax: Opt[float] = None,
 ]  ---hp9p
 ]  ---hp42s
 #] OTHER STYLES
-]  ---numwork  ---works
-**This changes how the graph looks entirely, ex
-  ;]graph x | y | x^2 | y^2 ---style_name
+]  ---numworks  ---numwork
+]  ---pol  ---polar
+** This changes how the graph looks entirely, ex
+   ;]graph x | y | x^2 | y^2 ---style_name
 ```""")
     msg = await ctx.send('```md\n#] JUST A SEC\n> INITIALIZING```')
 
@@ -299,7 +310,15 @@ async def graph(ctx, xmin: Opt[float] = None, xmax: Opt[float] = None,
         ymax = xmax
     xmin, xmax = min(xmin, xmax), max(xmax, xmin)
     ymin, ymax = min(ymin, ymax), max(ymax, ymin)
-    xr = abs(xmin)+abs(xmax)
+    xr = abs(xmin) + abs(xmax)
+    polar = False
+    if re.search(r"---pol(ar)?", eqs):
+        polar = True
+        eqs = re.sub(r"---pol(ar)?", "", eqs)
+        ymax = abs(xmin)
+        ymin = 0
+        ymin = 2 * 3.1415926535
+        xmin = 0
     try:
         cstep = int(eqs.split('---step=')[1].split(' ')[0])
     except IndexError:
@@ -345,7 +364,7 @@ async def graph(ctx, xmin: Opt[float] = None, xmax: Opt[float] = None,
             ae = "y"
         if "x" in eq and "y" in eq and not any(t in eq for t in "=><"):
             eq += "=0"
-        eq, x, y = grab_window(eq, array, array)
+        eq, x, y = grab_window(eq, array, array, step, ymax, polar)
         eqA.append([nrc(eq), mx, mn, zr, yi, dt, x, y, ae])
 
 
@@ -353,18 +372,26 @@ async def graph(ctx, xmin: Opt[float] = None, xmax: Opt[float] = None,
     async with ctx.channel.typing():
         await msg.edit(content='```md\n#] JUST A SEC\n> STYLIZING```')
         pyplt.style.use(styler)
-        fig, ax = pyplt.subplots()
-        ax.set_ylim(top=ymax, bottom=ymin)
-        ax.set_xlim(left=xmin, right=xmax)
+        a, kw = [], {}
+        if polar:
+            kw["projection"] = "polar"
+            a = [111]
+        ax = pyplt.subplot(*a, **kw)
         x, y = array, array
-        z = ne.evaluate('y-y' if max(xmax, ymax) == ymax else 'x-x')
-        ax.plot(x, z, 'w', z, y, 'w', linewidth=1) #Axis Lines
+        if not polar:
+            z = ne.evaluate('y-y' if max(xmax, ymax) == ymax else 'x-x')
+            ax.set_ylim(top = ymax, bottom = ymin)
+            ax.set_xlim(left = xmin, right = xmax)
+            ax.plot(x, z, 'w', z, y, 'w', linewidth = 1) #Axis Lines
+        else:
+            ax.set_rmax(xmax / 2)
+            ax.set_rticks([xmax / 2, xmax, 3 * xmax / 2, 2 * xmax])
         colors = eval(str(mpl.rcParams["axes.prop_cycle"])[16:-1])
         await msg.edit(content='```md\n#] JUST A SEC\n> GRAPHING```')
         func = f"{abs(xmax) + abs(xmin)} ** 2 - 4 * (x + {xmin} - {xmax})"
         circle1 = evl(f"-0.5 * sqrt({func}) + {ymax} - {ymin}", x, y)
         circle2 = evl(f"0.5 * sqrt({func}) + {ymax} - {ymin}", x, y)
-        
+
         for eq, mx, mn, zeros, yinter, asymp, x, y, axis in eqA:
             color = random.choice(colors)
             params = [mx, mn, zeros, yinter]
@@ -387,13 +414,13 @@ async def graph(ctx, xmin: Opt[float] = None, xmax: Opt[float] = None,
                 else:
                     st, a11, a12, a21, a22, z = "y", eq1, eq2, y, y, y
                 if not asymp:
-                    ax = plotter(ax, a11, a21, color = color)
-                    ax = plotter(ax, a12, a22, label, color)
+                    ax = plotter(ax, a11, a21, color = color, polar = polar)
+                    ax = plotter(ax, a12, a22, label, color, polar = polar)
                 else:
                     for side in solved:
                         for line, sect in asymptote(z, eq1, str(side[0]), st):
-                            ax = plotter(ax, line, sect, color = color)
-                    ax = plotter(ax, line, sect, label, color)
+                            ax = plotter(ax, line, sect, color = color, polar = polar)
+                    ax = plotter(ax, line, sect, label, color, polar = polar)
                 inequals = {
                     ">=": (lambda eq1, eq2: eq1 >= eq2),
                     "=>": (lambda eq1, eq2: eq1 >= eq2),
@@ -412,7 +439,7 @@ async def graph(ctx, xmin: Opt[float] = None, xmax: Opt[float] = None,
                         else:
                             inequal = inequals[itm](circle1, eq2)
                     ax = filler(ax, z, eqs[0], eqs[1], color, inequal)
-                    
+
             else:
                 label, gr = labels(x, y, eq, *params)
                 if axis == "x":
@@ -420,25 +447,25 @@ async def graph(ctx, xmin: Opt[float] = None, xmax: Opt[float] = None,
                 else:
                     a1, a2, st = gr, y, "y"
                 if not asymp:
-                     ax = plotter(ax, a1, a2, label, color)
+                     ax = plotter(ax, a1, a2, label, color, polar = polar)
                 else:
                      for line, sect in asymptote(a1, a2, eq, st):
-                         ax = plotter(ax, line, sect, color = color)
-                     ax = plotter(ax, line, sect, label, color)
+                         ax = plotter(ax, line, sect, color = color, polar = polar)
+                     ax = plotter(ax, line, sect, label, color, polar = polar)
 
         await msg.edit(content='```md\n#] JUST A SEC\n> SAVING IMAGE```')
         ax.legend(loc = 3)
         plotimg = io.BytesIO()
-        dpi = 700
+        dpi = 600
         ax.get_figure().savefig(plotimg, format = 'png', dpi = dpi, pad_inches = 0.2)
         plotimg.seek(0)
-        while len(plotimg.getvalue()) > 1024**2: #No images greater than 1mb
+        while len(plotimg.getvalue()) > 1024 ** 2 * 2: #No images greater than 2mb
             dpi -= 50
             plotimg = io.BytesIO()
             ax.get_figure().savefig(plotimg, format = 'png', dpi = dpi)
             plotimg.seek(0)
     await msg.edit(content='```md\n#] JUST A SEC\n> UPLOADING TO DISCORD```')
-    await ctx.send("```md\n#] HERE IS YOUR GRAPH!```", 
+    await ctx.send("```md\n#] HERE IS YOUR GRAPH!```",
                    file = discord.File(plotimg, 'PRIZM_graph.png'))
     await msg.delete()
     pyplt.close()

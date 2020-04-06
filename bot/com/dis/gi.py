@@ -15,14 +15,22 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=["guildinfo", "guildi", "iguild", "gldi", "igld",
-                           "serverinfo", "srvi", "isrv", "si", "serveri", "iserver"],
-                  help='dis',
-                  brief = 'Shows info about this guild',
-                  usage = ';]gi',
-                  description = '[NO ARGS FOR THS COMMAND]')
+@commands.command(
+    aliases = [
+        "guildinfo", "guildi", "iguild", "gldi", "igld",
+        "serverinfo", "srvi", "isrv", "si", "serveri", "iserver"
+    ],
+    help='dis',
+    brief = 'Shows info about this guild',
+    usage = ';]gi',
+    description = '''\
+[NO INPUT FOR THS COMMAND]
+'''
+)
 @commands.check(enbl)
 async def gi(ctx):
+    async with ctx.channel.typing():
+        pass
     _gld = ctx.guild
     features = "\n> ".join(_gld.features) if len(_gld.features) else "[NONE]"
     lit = [f"""
@@ -51,23 +59,39 @@ NSFW BAN ] {str(_gld.explicit_content_filter)}""",
   BOOSTERS ] {_gld.premium_subscription_count}
   CHANNELS ] {len(_gld.text_channels)}
  BOOST LVL ] {_gld.premium_tier}
-CATAGORIES ] {len(_gld.catagories)}
+CATEGORIES ] {len(_gld.categories)}
 """]
-    lit.extend(ez.pager(_gld.channels, 2000, 
-              ("#", discord.TextChannel),
-              ("%", discord.VoiceChannel),
-              ("+", discord.CatagoryChannel),
-              head = "CHANNELS ] "))
-   
-    lit.extend(ez.pager(_gld.roles, 2000,
-              ('&', "ANY"),
-              head = "ROLES ] "))
 
-    lit.extend(ez.pager(_gld.emojis, 2000,
-              (':', "ANY"),
-              head = "EMOJI NAMES ] "))
+    lit.extend(
+        ez.pager(
+            _gld.channels, 2000,
+            ["#", discord.TextChannel],
+            ["%", discord.VoiceChannel],
+            ["+", discord.CategoryChannel],
+            head = "CHANNELS ] "
+        )
+    )
 
-    await pages.PageThis(ctx, lit, "GUILD INFO", thumb=str(_gld.icon_url).replace('webp', 'png'))
+    lit.extend(
+        ez.pager(
+            _gld.roles, 2000,
+            ['&', "ANY"],
+            head = "ROLES ] "
+        )
+    )
+
+    lit.extend(
+        ez.pager(
+            _gld.emojis, 2000,
+            [':', "ANY"],
+            head = "EMOJI NAMES ] "
+        )
+    )
+
+    await pages.PageThis(
+        ctx, lit, "GUILD INFO",
+        thumb = str(_gld.icon_url).replace('webp', 'png')
+    )
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

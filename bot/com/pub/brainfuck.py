@@ -9,6 +9,7 @@ from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
 import random
+from util.hexdump import hexdump
 from util.embedify import embedify
 import io
 import re
@@ -18,11 +19,12 @@ import time
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=["brainfuck", "prizfuck"],
-                  help = 'pub',
-                  brief = 'PrizFuck, the better BrainFuck',
-                  usage = ';]bf {?l} {code} | {?inp}',
-                  description = '''\
+@commands.command(
+    aliases = ["brainfuck", "prizfuck", "pf"],
+    help = 'fun',
+    brief = 'PrizFuck, the better BrainFuck',
+    usage = ';]bf {?l} {code} | {?inp}',
+    description = '''\
 L    [NUMBER] - How large the RAM should be, 16 bytes by default
 CODE [TEXT  ] - The PrizFuck code to execute
 INP  [TEXT  ] - The input text
@@ -65,12 +67,12 @@ CHAR | FUNCTION
 
 
 #] NOTES ---
-> You may only have 65535 bytes in RAM maximum, 
+> You may only have 65535 bytes in RAM maximum,
 > - default is 16, but automatically increases.
 > - You can put a number before your code to set
 > - the ram size. It will automatically loop
 
-> You may only loop 65535 times in the entire 
+> You may only loop 65535 times in the entire
 > - execution, it stops automatically
 
 > You may only have 65535 tokens processed in
@@ -96,11 +98,11 @@ CHAR | FUNCTION
         bf = bf.split(" | ")[0]
     else:
         inp = ""
+    def repeater(matches):
+        return matches[1] * int(matches[2])
+    bf = re.sub(r"(.)X(\d+)", repeater, bf)
     ram = [0] * l
-    i = 0
-    x = 0
-    z = 0
-    p = 0
+    i, x, z, p = 0, 0, 0, 0
     brack = []
     curly = []
     ifs = []
@@ -110,10 +112,7 @@ CHAR | FUNCTION
     run_brack = {}
     run_curly = {}
     run_if = {}
-    def repeater(matches):
-        return matches[1] * int(matches[2])
-    bf = re.sub(r"(.)X(\d+)", repeater, bf)
-    bf = list(bftxt)
+    bf = list(bf)
     for b in range(len(bf)):
         if bf[b] not in "?!<>[]{}#%^*+=-&~/:;.,_":
             bf[b] = ""
@@ -171,10 +170,10 @@ CHAR | FUNCTION
                 ram[i] = ord(stdin.__next__())
             except:
                 pass
-        elif b == "[": 
+        elif b == "[":
             if ram == 0:
                 p = run_brack[p]
-        elif b == "{": 
+        elif b == "{":
             if ram[i] != 0:
                 p = run_curly[p]
         elif b == ".": out.append(f"{ram[i]:02x}")
@@ -196,7 +195,7 @@ CHAR | FUNCTION
             s = s.replace("1", "0")
             s = s.replace(".", "1")
             ram[i] = int(s, 2)
-        
+
         p += 1
         if i == -1 and len(ram) < 65535:
             ram = [0] * 8 + ram
@@ -215,58 +214,15 @@ CHAR | FUNCTION
         dbg += b + " | #" + hex(loc) + " - "
         dbg += " ".join(f"{c:02x}" for c in ram[loc:loc + 8]) + "\n"
         if iter > 65535:
-            await ctx.send(f"```diff\n-] TOO MANY ITERATIONS [65535 max]```")
+            await ctx.send("```diff\n-] TOO MANY ITERATIONS [65535 max]```")
         elif tokens > 65535:
-            await ctx.send(f"```diff\n-] TOO MANY TOKENS [65535 max]```")
+            await ctx.send("```diff\n-] TOO MANY TOKENS [65535 max]```")
     await msg.edit(content = "```md\n#] HEX EDITING```")
     unprintable = [f"{x:02x}" for x in list(range(0, 33)) + list(range(127, 160)) + [173]]
     for z in range(len(ram)):
         ram[z] = f"{ram[z]:02x}".upper()
-    stdhex = ""
-    stdraw = ""
-    stdout = ""
-    for x in range(0, len(out), 8):
-        for y in range(4):
-            try:
-                stdout += out[x+y] + " "
-            except IndexError:
-                stdout += "   "
-        stdout += " "
-        for y in range(4, 8):
-            try:
-                stdout += out[x+y] + " "
-            except IndexError:
-                stdout += "   "
-        stdout += " | "
-        for y in range(8):
-            try:
-                if out[x+y] in unprintable:
-                    stdout += "."
-                else:
-                    stdout += chr(int(out[x+y], 16))
-                stdraw += chr(int(out[x+y], 16))
-            except IndexError:
-                stdout += " "
-        stdout += "\n "
-    stdout = " "+stdout.strip()
-    for x in range(0, len(ram), 8):
-        for y in range(4):
-            stdhex += ram[x+y] + " "
-            if x + y == i:
-                stdhex = stdhex[:-4] + ">" + stdhex[-3:-1] + "<"
-        stdhex += " "
-        for y in range(4, 8):
-            stdhex += ram[x+y] + " "
-            if x + y == i:
-                stdhex = stdhex[:-4] + ">" + stdhex[-3:-1] + "<"
-        stdhex += " | "
-        for y in range(8):
-            if ram[x+y] in unprintable:
-                stdhex += "."
-            else:
-                stdhex += chr(int(ram[x+y], 16))
-        stdhex += "\n "
-    stdhex = stdhex.strip()
+    stdout, stdraw = hexdump(out)
+    stdhex = hexdump(ram)[0].strip()
     if not stdhex.startswith(">"):
         stdhex = " " + stdhex
     out = io.BytesIO(f'''OUTPUT ---
@@ -278,7 +234,7 @@ RAM ---
 
 DEBUG ---
 {dbg}
-'''.encode("utf-8")) 
+'''.encode("utf-8"))
 
     r = "\n".join(stdhex.splitlines()[:15])
     o = "\n".join(stdout.splitlines()[:15])
@@ -296,12 +252,12 @@ DEBUG ---
 {bf[p:p+32]}END
 ^```""",
             foot = f"PRIZM ;] // TOKENS ] {tokens} // LOOPS ] {iter} // See file for more"
-        ), 
+        ),
         file = discord.File(out, "prizfuck.txt")
     )
     await msg.delete()
-        
-             
+
+
 ##///---------------------///##
 ##///     OTHER STUFF     ///##
 ##///---------------------///##

@@ -11,7 +11,7 @@ from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from pprint import pprint as pp
 from chk.enbl import enbl
-def entry(lit,coms:list,lbl,mini) -> list:
+def entry(lit, coms: list, lbl, mini) -> list:
     """
     >>> CREATES AN ENTRY IN THE HELP TABLE <<<
     LIT  [LIST] - The Pages
@@ -38,17 +38,20 @@ def entry(lit,coms:list,lbl,mini) -> list:
                   #usage = ';]',
                   #description = '[NO ARGS FOR THIS COMMAND]'
 
-@commands.command(aliases = ['help'], 
-                      help = 'inf',
-                      brief = 'Brings up this message',
-                      usage = ';]help {?com}',
-                      description = '''    COM [COMMAND NAME] - OPTIONAL: Brings up a help message for that specific command
-    ''')
+@commands.command(
+    aliases = ['help'], 
+    help = 'inf',
+    brief = 'Brings up this message',
+    usage = ';]help {?com}',
+    description = '''\
+COM [COMMAND NAME] - OPTIONAL: Brings up a help message for that specific command
+'''
+)
 @commands.check(enbl)
-async def hlep(ctx, com:str=''):
+async def hlep(ctx, com: str = ''):
     mini = False
     if ctx.guild:
-        prefix = dbman.get('pre', 'pre', id=ctx.guild.id)
+        prefix = dbman.get('pre', 'pre', id = ctx.guild.id)
     else:
         prefix = ';]'
     if '-m' in com:
@@ -68,12 +71,22 @@ async def hlep(ctx, com:str=''):
 ```''')
     lit = []
     coms = {}
-    cats = ['INF','FUN','MATH','DIS','OTH','INT','MUSIC','AI']
+    cats = [
+        'INF', 
+        'FUN',
+        'MATH', 
+        'DIS', 
+        'OTH', 
+        'INT',
+        'MUSIC',
+        'AI'
+    ]
     for cat in cats:
         coms[cat] = []
     for com in ctx.bot.commands:
         if not mini:
-            com_desc = f'] "{str(com.usage).replace(";]", prefix)}"\n>  {com.brief} '+random.choice(faces())
+            com_desc = f'] "{str(com.usage).replace(";]", prefix)}"\n' + \
+                       f'>  {com.brief} ' + random.choice(faces())
         else:
             com_desc = f'> {com.name}'
         try:
@@ -83,16 +96,18 @@ async def hlep(ctx, com:str=''):
         except:
             pass
 
-    replce = {'INF':'INFO',
-              'FUN':'FUN',
-              'MATH':'MATHS',
-              'DIS':'META',
-              'OTH':'OTHER',
-              'INT':'INTERACTIVE',
-              'MUSIC':'MUSIC',
-              'AI': 'AI'}
+    replce = {
+        'INF': 'INFO',
+        'FUN': 'FUN',
+        'MATH': 'MATHS',
+        'DIS': 'META',
+        'OTH': 'OTHER',
+        'INT': 'INTERACTIVE',
+        'MUSIC': 'MUSIC',
+        'AI': 'AI'
+    }
     for cat in coms:
-        lit = entry(lit,coms[cat],replce[cat],mini)
+        lit = entry(lit, coms[cat], replce[cat], mini)
     await pages.PageThis(ctx, lit, "COMMANDS LIST", f"""```md
 #] {'{?stuff}'} - Optional argument
 #] To see mod commands, use '{prefix}hlepmod'

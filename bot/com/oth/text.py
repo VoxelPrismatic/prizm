@@ -5,23 +5,23 @@
 import typing
 import discord                    #python3.7 -m pip install -U discord.py
 import logging, random, asyncio, time
-import re
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
 from chatterbot import ChatBot
 from chatterbot.trainers import ListTrainer, ChatterBotCorpusTrainer
 from chatterbot.logic import LogicAdapter
+import re
 
 
 
 # Create a new instance of a ChatBot
 cbot = ChatBot(
     'PRIZM ;]',
-    storage_adapter = 'chatterbot.storage.SQLStorageAdapter',
-    logic_adapters = [
+    storage_adapter='chatterbot.storage.SQLStorageAdapter',
+    logic_adapters=[
         {
-            'import_path': 'chatterbot.logic.BestMatch'
+            'import_path': 'chatterbot.logic.BestMatch',
         }
     ]
 )
@@ -30,52 +30,58 @@ trainer = ChatterBotCorpusTrainer(cbot)
 
 last = {}
 
-chars = {
-    "ŵ": "w",
-    "èéêëēėę": "e",
-    "ŷÿ": "y",
-    "ūúùüû": "u",
-    "ìįīíïî": "i",
-    "õōøœóòöô": "o",
-    "ªąāåãæäâáà": "a",
-    "šśß": "s",
-    "ł": "l",
-    "żźž": "z",
-    "čćç": "c",
-    "ńñ": "n",
-    "\u2019\u2018": "'",
-    "\u201c\u201d": '"',
-}
+banned = [
+    "nig(ger)? ",
+    "cunt(boy)? ",
+    "k[iy]ke ",
+    "fag(got)? ",
+    "slut ",
+]
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(
-    aliases = ['ai', 'chat', ''],
-    help = 'ai',
-    brief = 'You can have a conversation with me!',
-    usage = ';]text {convo}',
-    description = '''\
+@commands.command(aliases = ['ai', 'chat', ''],
+                  help = 'ai',
+                  brief = 'You can have a conversation with me!',
+                  usage = ';]text {convo}',
+                  description = '''\
 CONVO [TEXT] - The conversation
 ''')
 @commands.check(enbl)
 async def text(ctx, *, convo):
     global last
-    if re.search(r"<:\w+:\d+>", convo):
-        return await ctx.send("```diff\n-] I DON'T UNDERSTAND CUSTOM EMOJIS```")
-    if not re.search(r"^[\d\w `~!@#$%^&*()-_=+\[\]{}\\|;:'\",<.>/?\n]+$", convo):
-        return await ctx.send("```diff\n-] PLEASE USE ASCII ONLY```")
+    convo += " "
+    if not last:
+        last[ctx.channel.id] = [convo, time.monotonic()]
     async with ctx.channel.typing():
-        convo = re.sub(r" +", r" ", convo)
-        for r in chars:
-            convo = re.sub("[" + "\\".join(r) + "]", chars[r], convo)
-        response = cbot.get_response(convo)
+        replacements = [('\u2019', "'"), ('\u2018', "'"), ('\u201c', '"'), ('\u201d','"'), (':', '.')]
+        for a, b in replacements:
+            convo = convo.replace(a, b)
+        if not any(re.search(word, convo) for word in banned):
+            response = cbot.get_response(convo.strip())
+            if ctx.channel.id in last:
+                ls = last[ctx.channel.id]
+                if time.monotonic() - ls[1] < 60:
+                    trainer = ListTrainer(cbot)
+                    trainer.train([ls[0], convo])
+            last[ctx.channel.id] = [str(response), time.monotonic()]
+        else:
+            term = random.choice([
+                "bitch",
+                "ass hole",
+                "ass hat",
+                "fuckwad",
+                "dick head",
+                "dingus",
+                "shit brain",
+                "you incompetent buffoon",
+                "prick",
+                "nut sack"
+            ])
+            response = "Watch your language, " + term
     await ctx.send(response)
-    if ctx.author in last and time.monotonic() - last[ctx.author][1] < 180:
-        trainer = ListTrainer(cbot)
-        trainer.train([last[ctx.author][0], convo])
-    last[ctx.author] = [str(response), time.monotonic()]
 
 @commands.command(help='ai',
                   brief='You can help me learn!',
@@ -98,10 +104,7 @@ async def learn(ctx, *, text:str = ""):
                 trainer.train(''.join(text).splitlines())
             return await ctx.send('```md\n#] THANKS!```')
         else:
-            return await ctx.send(
-                '```diff\n-] MUST BE A FULL CONVERSATION'
-                ' - AN EVEN AMOUNT OF MESSAGES```'
-            )
+            return await ctx.send('```diff\n-] MUST BE A FULL CONVERSATION - AN EVEN AMOUNT OF MESSAGES```')
     await ctx.send('''```md
 #] YOU ARE ALLOWING ME TO STORE SOME DATA
 >  This data is not identifiable, it is just
@@ -113,19 +116,13 @@ async def learn(ctx, *, text:str = ""):
     learn = []
     for x in range(10):
         try:
-            msg1 = await ctx.bot.wait_for(
-                'message', timeout = 30.0, check = check
-            )
-            msg2 = await ctx.bot.wait_for(
-                'message', timeout = 30.0, check = check
-            )
+            msg1 = await ctx.bot.wait_for('message', timeout = 30.0, check = check)
+            msg2 = await ctx.bot.wait_for('message', timeout = 30.0, check = check)
         except asyncio.TimeoutError:
             async with ctx.channel.typing():
                 if len(learn):
                     trainer.train(learn)
-            return await ctx.send(
-                '```diff\n-] 30 SEC SINCE LAST MESSAGE, TIMEOUT```'
-            )
+            return await ctx.send('```diff\n-] 30 SEC SINCE LAST MESSAGE, TIMEOUT```')
         else:
             if not random.randint(0,3):
                 await ctx.send(random.choice(

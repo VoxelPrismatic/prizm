@@ -7,11 +7,7 @@ axes.grid: True
 axes.labelcolor: 2daaa8
 axes.labelsize: 11
 axes.linewidth: 1
-axes.prop_cycle: cycler('color', ['f8b430', 'f81921', 'e0e4e0', 'f8fcf8', 'a3adaf',
-                                  '191919', '32acab', 'd65664', '575857', '9c9c8d',
-                                  'f9cb79', '404040', '606973', 'd9d9d9', '888f9f',
-                                  'f70008', '5073f0', '51c000', 'f80488', '60c0e8',
-                                  'f8a8b1', '000000'])
+axes.prop_cycle: cycler('color', ['f8b430', 'f81921', 'e0e4e0', 'f8fcf8', 'a3adaf', '191919', '32acab', 'd65664', '575857', '9c9c8d', 'f9cb79', '404040', '606973', 'd9d9d9', '888f9f', 'f70008', '5073f0', '51c000', 'f80488', '60c0e8', 'f8a8b1', '000000'])
 
 figure.figsize: 6.40, 3.12
 figure.facecolor: 222322
