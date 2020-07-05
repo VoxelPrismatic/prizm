@@ -49,7 +49,7 @@ def merge(r, score):
         for c in range(x, len(r)-1):
             if r[c] != 0 and r[c+1] == 0:
                 r[c], r[c+1] = r[c+1], r[c]
-    return r
+    return r, score
 
 def invert(grid):
     """
@@ -99,11 +99,12 @@ games = {}
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases = ['2048'],
-                  help='fun',
-                  brief='2048 but in Discord',
-                  usage=';]2048 {?size}',
-                  description='''\
+@commands.command(
+    aliases = ['2048'],
+    help='fun',
+    brief='2048 but in Discord',
+    usage=';]2048 {?size}',
+    description='''\
 SIZE [NUMBER] - The size [is square] DEFAULT: 4
 ''')
 @commands.check(enbl)
@@ -119,7 +120,7 @@ async def _2048(ctx, size:int=4):
     msg = await ctx.send(
         embed = embedify(
             title='2048 ;]',
-            desc = f'```{getString(grid)}\nSCORE ] 0```',
+            desc = f'```{get_str(grid)}\nSCORE ] 0```',
             foot = "PRIZM ;] // REACT TO MOVE"
         )
     )
@@ -166,7 +167,7 @@ async def _2048(ctx, size:int=4):
                     await imsg.edit(
                         embed = embedify(
                             title='2048 ;]',
-                            desc = f'```{getString(grid)}\nSCORE ] {games[tmsg]["scr"]}```',
+                            desc = f'```{get_str(grid)}\nSCORE ] {games[tmsg]["scr"]}```',
                             foot = 'PRIZM ;] // TIMEOUT'
                         )
                     )
@@ -188,7 +189,7 @@ async def _2048(ctx, size:int=4):
             move = str(rct.emoji)
 
             if move in moves:
-                gridNow = getString(grid)
+                gridNow = get_str(grid)
                 grid, score = moves[move](grid, score)
                 games[rct.message.id] = {
                     'scr':score,
@@ -202,7 +203,7 @@ async def _2048(ctx, size:int=4):
                 await rct.message.edit(
                     embed = embedify(
                         title = '2048 ;]',
-                        desc = f'```{getString(grid)}\nSCORE ] {score}```',
+                        desc = f'```{get_str(grid)}\nSCORE ] {score}```',
                         foot = 'PRIZM ;] // STOPPED'
                     )
                 )
@@ -231,7 +232,7 @@ async def _2048(ctx, size:int=4):
                     await rct.message.edit(
                         embed = embedify(
                             title = '2048 ;]',
-                            desc = f'```{getString(grid)}\nSCORE ] {score}```',
+                            desc = f'```{get_str(grid)}\nSCORE ] {score}```',
                             foot = 'PRIZM ;] // GAME OVER'
                         )
                     )
@@ -240,7 +241,7 @@ async def _2048(ctx, size:int=4):
                 except:
                     pass
                 continue
-            elif getString(grid) != gridNow:
+            elif get_str(grid) != gridNow:
                 grid[y][x] = choice(['2','4'])
                 score += int(grid[y][x])
             try:
@@ -251,7 +252,7 @@ async def _2048(ctx, size:int=4):
             await rct.message.edit(
                 embed = embedify(
                     title = '2048 ;]',
-                    desc = f'```{getString(grid, True)}\nSCORE ] {score}```',
+                    desc = f'```{get_str(grid, True)}\nSCORE ] {score}```',
                     foot = f'PRIZM ;] // {r} TO MOVE'
                 )
             )

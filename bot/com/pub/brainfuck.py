@@ -211,8 +211,8 @@ CHAR | FUNCTION
         elif ram[i] < 0:
             ram[i] = 255
         loc = (i % 8) * 8
-        dbg += b + " | #" + hex(loc) + " - "
-        dbg += " ".join(f"{c:02x}" for c in ram[loc:loc + 8]) + "\n"
+        #dbg += b + " | #" + hex(loc) + " - "
+        #dbg += " ".join(f"{c:02x}" for c in ram[loc:loc + 8]) + "\n"
         if iter > 65535:
             await ctx.send("```diff\n-] TOO MANY ITERATIONS [65535 max]```")
         elif tokens > 65535:
@@ -225,15 +225,14 @@ CHAR | FUNCTION
     stdhex = hexdump(ram)[0].strip()
     if not stdhex.startswith(">"):
         stdhex = " " + stdhex
-    out = io.BytesIO(f'''OUTPUT ---
+    out = io.BytesIO(f'''OUTPUT [ASCII] ---
 {stdraw}
+
+OUTPUT [HEXDUMP] ---
 {stdout}
 
-RAM ---
+RAM [HEXDUMP] ---
 {stdhex}
-
-DEBUG ---
-{dbg}
 '''.encode("utf-8"))
 
     r = "\n".join(stdhex.splitlines()[:15])

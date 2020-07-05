@@ -10,7 +10,6 @@ from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
 from chk.has import *
-import subprocess #Office conversion
 import asyncio
 import random
 from util import ez
@@ -71,15 +70,11 @@ async def convert(ctx, fmt):
             img = img.convert("RGB")
         img.save("msc/RAW." + new)
     elif old.lower() in txt_ext and new.lower() in txt_ext:
-        old_file = await aiofiles.open("msc/RAW." + old)
-        new_file = await aiofiles.open("msc/RAW." + new, "w+")
-        await new_file.write("".join(await old_file.readlines()))
-        await new_file.close()
-        await old_file.close()
+        os.rename("msc/RAW." + old, "msc/RAW." + new)
         await msg.edit(content = "```md\n#] UPLOADING TO DISCORD```")
         await ctx.send("```md\n#] CONVERTED ;]```", file = discord.File('msc/RAW.' + new))
         await msg.delete()
-        return os.remove("msc/RAW." + new), os.remove("msc/RAW." + old)
+        return os.remove("msc/RAW." + new)
     elif any(old in group and new in group for group in ffmpeg_formats):
         proc = FIL.FFmpeg(
             inputs = {f"{root}.{old}": None},

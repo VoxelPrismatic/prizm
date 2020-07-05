@@ -50,7 +50,7 @@ async def char(ctx, *, txt):
             txt = html5codes[txt[1:-1].upper()]
     except Exception as ex:
         return await ctx.send(f"```diff\n-] INVALID CHAR\n=] {str(ex)}```")
-       
+
     ls = []
     for t in txt:
         if t not in ls: ls.append(t)
@@ -61,7 +61,7 @@ async def char(ctx, *, txt):
     for ch in ls:
         code = ord(ch)
         table += f"\n{ch} - "
-        try: 
+        try:
             line = f"U+{code:04x} [{unidata.name(ch)} - {unidata.category(ch)}]"
         except:
             line = f"U+{code:04x} [Unknown character]"
@@ -138,13 +138,13 @@ KOTLIN ] \\{py if py[0] == "u" else "NOPE."}
     if len(txt) == 1:
         extra = '```' + more + '```'
     for x in list(code):
-        if x in cata: 
+        if x in cata:
             key += f'[{x}] - {code[x].upper()}\n'
     await ctx.send(
-        table + key + '```' + extra, 
+        "\n".join(table.split("\n")[:25]) + "\n".join(key.split("\n")[:10]) + '```' + extra,
         file = discord.File(io.BytesIO(more.encode()), "chars.txt")
     )
-        
+
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##

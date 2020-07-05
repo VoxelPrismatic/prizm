@@ -1,4 +1,8 @@
 import os
+import subprocess
+import asyncio
+import shlex
+import aiofiles
 
 def iter_range(iterable, vars = 1):
     ls = []
@@ -60,3 +64,19 @@ def grab_dir(home):
         except:
             dirs.append(home + file)
     return dirs
+
+async def proc(command, **kw):
+    proc = subprocess.Popen(shlex.split(command), **kw)
+    while proc.poll() is None:
+        await asyncio.sleep(1)
+    return proc
+
+async def aio_read(file, mode = "r"):
+    async with aiofiles.open(file, mode) as f:
+        text = await f.read()
+    return text
+
+async def aio_write(file, content, mode = "w"):
+    async with aiofiles.open(file, mode) as f:
+        await f.write(content)
+    return len(content)

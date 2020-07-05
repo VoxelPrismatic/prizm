@@ -10,10 +10,25 @@ import traceback
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from util.pages import PageThis
+import asyncio
+import shlex
+import io
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
+
+def get_output(lim = False):
+    out = open("out.txt").read()
+    err = open("err.txt").read()
+    if lim:
+        out = out[-600:]
+        err = err[-600:]
+    return f'''```md
+#] stdOUT
+{out}___``````diff
+-] stdERR
+{err}___```'''
 
 @commands.command(
     help = 'own',
@@ -21,41 +36,33 @@ from util.pages import PageThis
     usage = ';]shell {code}',
     description = '''\
 CODE [TEXT] - The shell code to execute
-''')
+'''
+)
 @commands.is_owner()
 async def shell(ctx, *, code:str):
     st1 = time.monotonic()
-    msgs = await ctx.send('```md\n#] JUST A MOMENT```')
+    msgs = await ctx.send('```md\n#] JUST A MOMENT\n> Running for 0s```')
+    msg_ = await ctx.send('\*output goes here\*')
     try:
-        st2 = time.monotonic()
-        proc = subprocess.run(
-            code.replace('---shell','').split(), 
-            capture_output = True,
-            shell = ('---shell' in code), 
-            timeout = 20.0
+        proc = subprocess.Popen(
+            shlex.split(code.replace('---shell','')),
+            stdout = open("/home/priz/Desktop/PRIZM/out.txt", "wb+"),
+            stderr = open("/home/priz/Desktop/PRIZM/err.txt", "wb+")
         )
-        out = proc.stdout.decode().replace('`','\u200b`')
-        err = proc.stderr.decode().replace('`','\u200b`')
-        ttl = time.monotonic() - st2
-        interpreter = f'''```md
-{out}{err}
-] ==================
-> EXE TIME // {str(1000 * ttl)[:10]}ms
-```'''
+        t = 0
+        while proc.poll() is None:
+            await asyncio.sleep(0.25)
+            t += 0.25
+            if t == int(t):
+                await msgs.edit(content = f'```md\n#] JUST A MOMENT\n> Running for {t}s```')
+                await msg_.edit(content = get_output(True))
+        interpreter_lim = get_output(True)
+        interpreter = get_output()
         print(interpreter)
-        if len(interpreter) > 2000:
-            open('txt/interpreter.txt','w+').write(f"""\
-> EXE TIME // {str(1000 * ttl)[:10]}ms
-----------
-{out}{err}
-""")
-            await ctx.send(
-                '```diff\n-] IT OVERFLOWED```',
-                file = discord.File(fp = open('txt/interpreter.txt'))
-            )
-        else: 
-            await ctx.send(interpreter)
-
+        await ctx.send(
+            interpreter_lim,
+            file = discord.File(io.BytesIO(interpreter.encode()), "bash.txt")
+        )
     except Exception as exc:
         tb = traceback.format_exc().replace('`','\u200b`')
         await ctx.send(f'''```diff
@@ -63,6 +70,8 @@ async def shell(ctx, *, code:str):
 -] TYPE // {type(exc).__name__}
 > {str(exc)}
 {tb}```''')
+    await msgs.delete()
+    await msg_.delete()
 
 
 ##///---------------------///##

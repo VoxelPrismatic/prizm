@@ -9,6 +9,7 @@ from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
 from util.embedify import embedify
 import PIL
+from PIL import Image
 
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
@@ -26,11 +27,12 @@ def smaller(img):
     img.save("msc/pub_img.png")
     return img
 
-@commands.command(aliases = ['paint', 'color', 'canvas', 'painting', 'drawing', 'coloring'],
-                      help = 'fun',
-                      brief = 'Have fun drawing with others!',
-                      usage = ';]draw {?color} {?x1} {?y1} {?x2} {?y2} {...} {?xN} {?yN}',
-                      description = '''\
+@commands.command(
+    aliases = ['paint', 'color', 'canvas', 'painting', 'drawing', 'coloring'],
+    help = 'fun',
+    brief = 'Have fun drawing with others!',
+    usage = ';]draw {?color} {?x1} {?y1} {?x2} {?y2} {...} {?xN} {?yN}',
+    description = '''\
 COLOR  [TEXT] - The color you want to place, MUST BE HEX
 xN, yN [ANY ] - The XY coordinates [MAX - 127, MIN - 0]
 > You can use ranges like 0-16
@@ -39,15 +41,23 @@ xN, yN [ANY ] - The XY coordinates [MAX - 127, MIN - 0]
 *If no params are passed, the image is sent
 *If only coordinates are passed, the color at that coordinate is sent along with the image
 *ALL relative points are relative to YOUR last point
-''')
+'''
+)
 @commands.check(enbl)
 async def draw(ctx, color: str = "", *args: str):
     sr = re.search
-    img = PIL.Image.open("msc/pub_img.png")
+    try:
+        img = PIL.Image.open("msc/pub_img.png")
+    except FileNotFoundError:
+        await ctx.send("The image wasn't found, a new one will be made.")
+        img = PIL.Image.new("RGBA", (128, 128), color = (255, 255, 255))
+        img.save("msc/pub_img.png")
     if not len(args) or (len(args)%2 and not len(args) == 1):
         img = larger(img)
-        await ctx.send("```md\n#] CURRENT PAINTING```",
-                       file=discord.File("msc/pub_img.png"))
+        await ctx.send(
+            "```md\n#] CURRENT PAINTING```",
+            file=discord.File("msc/pub_img.png")
+        )
         smaller(img)
     elif sr(r"^\d+$", color) and sr(r"^\d+$", args[0]) and len(args) == 1:
         x, y = int(color), int(args[0])

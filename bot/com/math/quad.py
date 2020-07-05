@@ -16,13 +16,18 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases = [], 
-                  help = 'math',
-                  brief = 'Solves the quadratic formula',
-                  usage = ';]quad {A} {B} {C}',
-                  description = '''\
+def sqrt(n):
+    return n ** 0.5
+
+@commands.command(
+    aliases = [],
+    help = 'math',
+    brief = 'Solves the quadratic formula',
+    usage = ';]quad {A} {B} {C}',
+    description = '''\
 A, B, C [NUMBER] - Corrosponds to "Ax^2 + Bx + C"
-''')
+'''
+)
 @commands.check(enbl)
 async def quad(ctx, A: float, B: float, C: float):
     root = str(nsimp(f'sqrt({B**2}-4*{A}*{C})'))
@@ -30,11 +35,11 @@ async def quad(ctx, A: float, B: float, C: float):
     if '*I' in root:
         root, imaginary = root.replace('*I', ''), True
     if '*' not in root and 'sqrt(' not in root:
-        K, D = int(root), 1
+        K, D = float(eval(root)), 1
     elif '*' not in root and 'sqrt(' in root:
-        K, D = 1, float(root.split('sqrt(')[1][:-1])
+        K, D = 1, float(eval(root))
     else:
-        K, D = int(root.split('*')[0]), float(root.split('sqrt(')[1][:-1])
+        K, D = int(root.split('*')[0]), float(eval(root))
     if imaginary:
         K = K*1j
     sol1 = evl(f"({-B}+{K}*sqrt({D}))/(2*{A})")

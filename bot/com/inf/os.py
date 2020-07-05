@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*
 
 #/// DEPENDENCIES
-import os, psutil, tensorflow, dbl, scipy, cv2
+import os, tensorflow, dbl, scipy, cv2
 import discord                    #python3.7 -m pip install -U discord.py
 import logging
 import numpy as np                #python3.7 -m pip install -U numpy
@@ -13,6 +13,7 @@ import platform, sys, sysconfig, praw
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
+import re
 from util.pages import PageThis
 
 def itms(itm):
@@ -21,7 +22,7 @@ def itms(itm):
         return
     elif itm.is_file():
         if '.' not in itm.name:
-            types['txt']+=1
+            types['txt'] += 1
         else:
             try:
                 x = types[itm.name.split('.')[1]]
@@ -52,20 +53,21 @@ def itms(itm):
             elif x.strip()=='':
                 blank+=1
     else:
-        dirs+=1
+        dirs += 1
         folders.append(itm)
+
 async def grab_dirs(lvl = "./"):
     lines = 0
     comment = 0
     blank = 0
-    files = 0 
+    files = 0
     dirs = 0
     byte = 0
     strblock = False
     for f in os.listdir(lvl):
         if f.endswith(".py"):
             files += 1
-            async with aiofiles.open(lvl+f) as g:
+            async with aiofiles.open(lvl + f) as g:
                 t = await g.read()
             byte += len(t)
             for l in t.splitlines():
@@ -80,8 +82,7 @@ async def grab_dirs(lvl = "./"):
                     comment += 1
         else:
             try:
-                os.listdir(lvl+f)
-                a, b, c, d, e, f = await grab_dirs(lvl+f)
+                a, b, c, d, e, f = await grab_dirs(lvl + f)
                 lines += a
                 comment += b
                 blank += c
@@ -92,30 +93,53 @@ async def grab_dirs(lvl = "./"):
                 pass
     return lines, comment, blank, files, dirs, byte
 
+def readlines(com):
+    file = "/home/priz/Desktop/PRIZM/msc/stats.txt"
+    open(file, "w+").write("")
+    os.system(f"{com} > {file}")
+    lines = open(file).read().split("\n")
+    for line in range(len(lines)):
+        lines[line] = re.sub(" +", " ", lines[line])
+    return lines
+
+
 ##///---------------------///##
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases=["system","os","sys"],
-                  help = 'inf',
-                  brief = 'Shows what I\'m running on',
-                  usage = ';]os',
-                  description = '''\
+@commands.command(
+    aliases=["system","os","sys"],
+    help = 'inf',
+    brief = 'Shows what I\'m running on',
+    usage = ';]os',
+    description = '''\
 [NO INPUT FOR THIS COMMAND]
-''')
-  
+'''
+)
 @commands.check(enbl)
 async def _sysinfo(ctx):
-    
-    lines, comment, blank, files, dirs, byte = await grab_dirs()
 
-    platform = str(sysconfig.get_platform())
-    pyver = str(sysconfig.get_python_version())
-    cpu = psutil.cpu_percent(interval = None, percpu = True)
-    spu = psutil.cpu_freq(percpu = True)
-    tpu = psutil.sensors_temperatures()['coretemp']
-    swap = psutil.swap_memory()
-    ram = psutil.virtual_memory()
+    #Collect data
+    async with ctx.channel.typing():
+        platform = str(sysconfig.get_platform())
+        pyver = str(sysconfig.get_python_version())
+        lines = readlines("free")
+        swap = int(lines[2].split(" ")[2])
+        totalswap = int(lines[2].split(" ")[1])
+        ram = int(lines[1].split(" ")[2])
+        totalram = int(lines[1].split(" ")[1])
+        lines = readlines("sensors")
+        cpu_temps = [lines[8].split(" ")[2], lines[9].split(" ")[2]]
+        lines = readlines("mpstat -A")
+        cpu = []
+        for x in range(4, 8):
+            temp = 100 - float(lines[x].split(" ")[-1])
+            cpu.append(f"{temp:.2f}%")
+        lines = readlines('cat /proc/cpuinfo | grep "^[c]pu MHz"')
+        spu = []
+        for x in range(4):
+            spu.append(int(float(lines[x].split(" ")[-1])))
+        lines, comment, blank, files, dirs, byte = await grab_dirs()
     await PageThis(ctx,[f'''#] SYSTEM
   PLATFORM ] {platform}
     PYTHON ] {pyver}
@@ -125,7 +149,6 @@ async def _sysinfo(ctx):
      NUMPY ] {np.__version__}
      DBLPY ] {dbl.__version__}
      SCIPY ] {scipy.__version__}
-    PSUTIL ] {psutil.__version__}
    NUMEXPR ] {ne.__version__}
    LOGGING ] {logging.__version__}
   AIOFILES ] {aiofiles.__version__}
@@ -141,12 +164,12 @@ f'''#] FILES AND THINGS
   COMMENTS ] {comment}
 CODE LINES ] {lines-blank-comment}''',
 f'''#] RESOURCES
-     CPU 0 ] {cpu[0]}% [{spu[0].current} Mhz - {tpu[0].current}C]
-     CPU 1 ] {cpu[1]}% [{spu[1].current} Mhz - {tpu[0].current}C]
-     CPU 2 ] {cpu[2]}% [{spu[2].current} Mhz - {tpu[1].current}C]
-     CPU 3 ] {cpu[3]}% [{spu[3].current} Mhz - {tpu[1].current}C]
- RAM USAGE ] {ram.used/1048576:.2f} MiB/{ram.total/1048576:.2f} MiB [{ram.percent}%]
-SWAP USAGE ] {swap.used/1048576:.2f} MiB/{swap.total/1048576:.2f} MiB [{swap.percent}%]
+CPU 0 ] {cpu[0]:<7} [{spu[0]} Mhz - {cpu_temps[0]}]
+CPU 1 ] {cpu[1]:<7} [{spu[1]} Mhz - {cpu_temps[0]}]
+CPU 2 ] {cpu[2]:<7} [{spu[2]} Mhz - {cpu_temps[1]}]
+CPU 3 ] {cpu[3]:<7} [{spu[3]} Mhz - {cpu_temps[1]}]
+  RAM ] {ram/1048576:.2f} GiB/{totalram/1048576:.2f} GiB [{ram/totalram * 100:.2f}%]
+ SWAP ] {swap/1048576:.2f} GiB/{totalswap/1048576:.2f} GiB [{swap/totalswap * 100:.2f}%]
 '''],'SYSTEM INFO')
 
 ##///---------------------///##

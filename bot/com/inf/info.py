@@ -12,13 +12,15 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases = [], 
-                  help = 'inf',
-                  brief = 'Shows aditional bot info',
-                  usage = ';]info',
-                  description = '''\
+@commands.command(
+    aliases = [], 
+    help = 'inf',
+    brief = 'Shows aditional bot info',
+    usage = ';]info',
+    description = '''\
 [NO INPUT FOR THIS COMMAND]
-''')
+'''
+)
 @commands.check(enbl)
 async def info(ctx):
     await ctx.send('''```md
@@ -38,9 +40,9 @@ async def info(ctx):
 >  The AI uses NLTK and your responses to learn. If you
 >  - want the bot to learn faster, you can use the ;]learn
 >  - command and send a full 2 person conversation
-`````md
+``````md
 #] THE PC
->  This bot is being run on a laptop with only 8GB of ram
+>  This bot is being run on a laptop with only 16GB of ram
 >  and it's using more than 100 files for commands and more
 >  This is not meant to be a high demanding bot, but I'm
 >  already sure that it's more than just a side project

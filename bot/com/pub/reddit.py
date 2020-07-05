@@ -6,6 +6,7 @@ import discord                    #python3.7 -m pip install -U discord.py
 import logging, random, typing
 import praw, re, time, prawcore as craw
 from util.priz_err import *
+from typing import Optional
 from discord.ext import commands
 from discord.ext.commands import Bot, MissingPermissions, has_permissions
 from chk.enbl import enbl
@@ -31,7 +32,7 @@ async def get(thing, msg):
     for sbn in thing:
         x += 1
         ls.append(sbn)
-        if not x%50:
+        if not x % 25:
             async with msg.channel.typing():
                 await msg.edit(content=msg.content[:-3]+" /```")
     return ls
@@ -40,18 +41,20 @@ async def get(thing, msg):
     aliases = ['rd', 'redd', 'rdt', 'red'],
     help = 'fun',
     brief = 'Gives you a random post from a given {subreddit}',
-    usage = ';]reddit {?subreddit} {?search}',
+    usage = ';]reddit {?num_posts} {subreddit} {?search}',
     description = '''\
-SUBREDDIT [TEXT] - The name of the subredditm /r/ is optional
+NUM_POSTS [NUMBER] - How many submissions to post, max 5
+SUBREDDIT [TEXT  ] - The name of the subredditm /r/ is optional
 > /u/ is required to redditor feeds
 > also can be a link to a submission
 > /m/<multireddit>#<redditor> is needed for multireddits
 > > eg /m/CoolMultireddit#Redditor1010
-SEARCH    [TEXT] - What to search for
+SEARCH    [TEXT  ] - What to search for
 '''
 )
 @commands.check(enbl)
-async def reddit(ctx, subreddit:str, *, search = ''):
+async def reddit(ctx, num_posts: Optional[int] = 1, subreddit: str = "cursedminecraft", *, search: str = ''):
+    num_posts = max(1, min(5, num_posts))
     msg = await ctx.send('```md\n#] LOGGING IN```')
     async with ctx.channel.typing():
         red = rd()
@@ -88,75 +91,78 @@ async def reddit(ctx, subreddit:str, *, search = ''):
             await msg.edit(content='```md\n#] GRABBING SUBREDDIT```')
         if is_nsfw and not ctx.channel.is_nsfw():
             raise PrizmNsfwError()
-        async with ctx.channel.typing(): pass
+        async with ctx.channel.typing():
+            pass
         if search and not is_user:
             board = "search"
-            sbq = await get(sbd.search(search, limit=200), msg)
+            sbq = await get(sbd.search(search, limit = 100), msg)
         else:
             sort = random.choice(['n', 'h', 't', 'c'] + (['r'] if not is_user else []))
             thing = {
-                "n": [(lambda sb, ms: get(sb.new(limit = 200), ms)), "new"],
-                "h": [(lambda sb, ms: get(sb.hot(limit = 200), ms)), "hot"],
-                "t": [(lambda sb, ms: get(sb.top(limit = 200), ms)), "top"],
-                "c": [(lambda sb, ms: get(sb.controversial(limit = 200), ms)), "controversial"],
-                "r": [(lambda sb, ms: get(sb.rising(limit = 200), ms)), "rising"]
+                "n": [(lambda sb, ms: get(sb.new(limit = 100), ms)), "new"],
+                "h": [(lambda sb, ms: get(sb.hot(limit = 100), ms)), "hot"],
+                "t": [(lambda sb, ms: get(sb.top(limit = 100), ms)), "top"],
+                "c": [(lambda sb, ms: get(sb.controversial(limit = 100), ms)), "controversial"],
+                "r": [(lambda sb, ms: get(sb.rising(limit = 100), ms)), "rising"]
             }
             sbh, board = thing[sort]
             sbq = await sbh(sbd, msg)
-        if type(sbq) != list: return
+        if type(sbq) != list:
+            return
+        await msg.edit(content='```md\n#] PARSING POST```')
+    for x in range(num_posts):
         sbn = random.choice(sbq)
         attempts = 0
-        await msg.edit(content='```md\n#] PARSING POST```')
         while ((sbn.over_18 and not allow_nsfw) or not sbn) and attempts < 200:
             sbn = random.choice(sbq)
             attempts += 1
         if attempts >= 200 and sbn.over_18 and not allow_nsfw:
             return await msg.edit(content='```diff\n-] ONLY NSFW POSTS FOUND```')
-    if type(sbn) == praw.models.Submission:
-        txt = sbn.selftext.replace('>!','||').replace('!<','||')
-        lnk = sbn.permalink
-        src = sbn.url.split('//')[1].split('/')[0].split('www.')[-1]
-        if src == 'reddit.com':
-            src = "self."+sbn.subreddit.display_name
-        prm = sbn.shortlink
-        lnk = sbn.url
-    attrib = ''
-    warn = ''
-    if sbn.locked or time.time() - sbn.created_utc > 15552000: 
-        attrib += '[-] '
-    if sbn.stickied: 
-        attrib += '[>- '
-    if sbn.edited: 
-        attrib += '=> '
-    if sbn.is_self: 
-        attrib += 'TXT '
-    else: 
-        attrib += 'O-O '
-    if sbn.over_18: 
-        attrib += '<!> '
-    if sbn.spoiler: 
-        attrib += '[||] '
-    if not any(lnk.endswith(f'.{fmt}') for fmt in ['gif', 'jpg', 'jpeg', 'png']):
-        warn = '```diff\n-] Try clicking "[IMAGE]"```'
-    await ctx.send(
-        embed = embedify(
-            title = f'REDDIT ;] - {src}',
-            desc=f"""```md
+        if type(sbn) == praw.models.Submission:
+            txt = sbn.selftext.replace('>!','||').replace('!<','||')
+            lnk = sbn.permalink
+            src = sbn.url.split('//')[1].split('/')[0].split('www.')[-1]
+            if src == 'reddit.com':
+                src = "self."+sbn.subreddit.display_name
+            prm = sbn.shortlink
+            lnk = sbn.url
+        attrib = ''
+        warn = ''
+        if sbn.locked or time.time() - sbn.created_utc > 15552000:
+            attrib += '[-] '
+        if sbn.stickied:
+            attrib += '[>- '
+        if sbn.edited:
+            attrib += '=> '
+        if sbn.is_self:
+            attrib += 'TXT '
+        else:
+            attrib += 'O-O '
+        if sbn.over_18:
+            attrib += '<!> '
+        if sbn.spoiler:
+            attrib += '[||] '
+        if not any(lnk.endswith(f'.{fmt}') for fmt in ['gif', 'jpg', 'jpeg', 'png']):
+            warn = '```diff\n-] Try clicking "[IMAGE]"```'
+        await ctx.send(
+            embed = embedify(
+                title = f'REDDIT ;] - {src}',
+                desc=f"""```md
 #] {sbn.title}
 ]] FLAIR ] [{sbn.link_flair_text}]
 ]] SCORE ] {sbn.score}
 >  OTHER ] {attrib if attrib else '[NONE]'}```
 [[POST]]({prm}) [[IMAGE]]({lnk})
 {warn}""",
-            img = lnk if not txt else None,
-            fields = [
-                ['CONTENT', txt if len(txt) <= 1024 else txt[:1021]+'...', False]
-            ] if sbn.is_self else [],
-            foot = f"/r/{sbn.subreddit.display_name}/{board} // "
-                   f"/u/{sbn.author.name if sbn.author else '[DELETED]'} "
-                   f"{'// /m/' + sbd.display_name if is_multi else ''}"
+                img = lnk if not txt else None,
+                fields = [
+                    ['CONTENT', txt if len(txt) <= 1024 else txt[:1021]+'...', False]
+                ] if sbn.is_self else [],
+                foot = f"/r/{sbn.subreddit.display_name}/{board} // "
+                    f"/u/{sbn.author.name if sbn.author else '[DELETED]'} "
+                    f"{'// /m/' + sbd.display_name if is_multi else ''}"
+            )
         )
-    )
     await msg.delete()
 
 ##///---------------------///##

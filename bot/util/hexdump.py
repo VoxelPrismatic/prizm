@@ -8,20 +8,16 @@ unprintable.append(f"{173:02x}")
 def hexdump(out):
     stdout = ""
     stdraw = ""
-    for x in range(0, len(out), 8):
-        for y in range(4):
+    for x in range(0, len(out), 16):
+        for y in range(16):
             try:
                 stdout += out[x + y] + " "
             except IndexError:
                 stdout += "   "
-        stdout += " "
-        for y in range(4, 8):
-            try:
-                stdout += out[x + y] + " "
-            except IndexError:
-                stdout += "   "
-        stdout += " | "
-        for y in range(8):
+            if (y + 1) % 4 == 0:
+                stdout += " "
+        stdout += "| "
+        for y in range(16):
             try:
                 if out[x + y] in unprintable:
                     stdout += "•"

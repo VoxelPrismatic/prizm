@@ -42,13 +42,15 @@ banned = [
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases = ['ai', 'chat', ''],
-                  help = 'ai',
-                  brief = 'You can have a conversation with me!',
-                  usage = ';]text {convo}',
-                  description = '''\
+@commands.command(
+    aliases = ['ai', 'chat', ''],
+    help = 'ai',
+    brief = 'You can have a conversation with me!',
+    usage = ';]text {convo}',
+    description = '''\
 CONVO [TEXT] - The conversation
-''')
+'''
+)
 @commands.check(enbl)
 async def text(ctx, *, convo):
     global last
@@ -78,17 +80,20 @@ async def text(ctx, *, convo):
                 "shit brain",
                 "you incompetent buffoon",
                 "prick",
-                "nut sack"
+                "nut sack",
             ])
             response = "Watch your language, " + term
     await ctx.send(response)
 
-@commands.command(help='ai',
-                  brief='You can help me learn!',
-                  usage=';]learn {?text}',
-                  description='''\
+@commands.command(
+    aliases = ['corpus'],
+    help = 'ai',
+    brief = 'You can help me learn!',
+    usage = ';]learn {?text}',
+    description = '''\
 TEXT [TEXT] - Preset conversation, each message on new line
-''')
+'''
+)
 @commands.check(enbl)
 async def learn(ctx, *, text:str = ""):
     trainer = ListTrainer(cbot)

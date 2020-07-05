@@ -109,6 +109,7 @@ async def on_connect():
 
 @bot.listen()
 async def on_ready():
+
     await bot.change_presence(
         activity = discord.Activity(
             type = 2,
@@ -122,24 +123,41 @@ async def on_ready():
     face = faces.faces()
     texts = faces.texts()
     try:
+        m = await channel.send(
+            embed = embedify.embedify(
+                desc = f'''```diff
++] PRIZM IS LOADING ;]``````md
+> Currently loading commands and things
+> This may take a while, please stand by
+> - If it takes too long, I will restart
+] {' '.join(random.choice(face) for x in range(3))}```''',
+                time = 'now'
+            )
+        )
         for ext in range(len(allext)):
             for com in allext[ext]:
                 lext(f'{lodtxt[ext]}{com}')
+        await m.delete()
         await channel.send(
             embed = embedify.embedify(
                 desc = f'''```md
 #] PRIZM IS ONLINE ;]``````md
-> https://voxelprismatic.github.io/prizm.dev
+> https://voxelprismatic.github.io/prizm.dev/
+> You can support development over at Patreon!
+> - https://patreon.com/voxelprismatic
 ] {' '.join(random.choice(face) for x in range(3))}```''',
                 time = 'now'
             )
         )
     except:
+        await m.delete()
         await channel.send(
             embed = embedify.embedify(
                 desc = f'''```diff
 -] PRIZM IS BROKEN ;[``````md
 > Some features may not work correctly
+> Be sure to report any bugs using this command:
+> - ;]bug {'{the bug}'}
 ] {' '.join(random.choice(face) for x in range(3))}```''',
                 time = 'now'
             )
@@ -294,4 +312,5 @@ async def on_guild_join(gld):
 ##///     OTHER STUFF     ///##
 ##///---------------------///##
 
-bot.run(secrets) #Security...
+while True:
+    bot.run(secrets) #Security...
