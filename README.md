@@ -1,8 +1,7 @@
 # PRIZM
 My first ever bot, PRIZM ;]
 
-> This repo is not updated very often, only big changes such as completely new code will be
-pushed weekly
+> This repo is not updated very often
 
 # What is PRIZM?
 PRIZM is a Discord bot that honestly has too many features. It can interact with Reddit,
