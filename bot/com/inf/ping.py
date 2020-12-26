@@ -13,13 +13,15 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases = [],
-                  help = 'inf',
-                  brief = 'Sends the ping time',
-                  usage = ';]ping',
-                  description = '''\
+@commands.command(
+    aliases = [],
+    help = 'inf',
+    brief = 'Sends the ping time',
+    usage = ';]ping',
+    description = '''\
 [NO INPUT FOR THIS COMMAND]
-''')
+'''
+)
 @commands.check(enbl)
 async def ping(ctx):
     start = time.monotonic()
@@ -35,11 +37,11 @@ async def ping(ctx):
     await msg.delete()
     delete = time.monotonic() - start
     await ctx.send(embed=embedify.embedify(desc=f'''```md\n#] PONG ;]
->   PING ] {float(ctx.bot.latency)*1000:.10f}ms
->   SEND ] {send*1000:.10f}ms
->   EDIT ] {edit*1000:.10f}ms
->  REACT ] {react*1000:.10f}ms
-> DELETE ] {delete*1000:.10f}ms
+>   PING ] {float(ctx.bot.latency)*1000:.3f}ms
+>   SEND ] {send*1000:.2f}ms
+>   EDIT ] {edit*1000:.2f}ms
+>  REACT ] {react*1000:.2f}ms
+> DELETE ] {delete*1000:.2f}ms
 ```'''))
 
 ##///---------------------///##

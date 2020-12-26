@@ -104,6 +104,9 @@ def filler(ax, z, eq1, eq2, color, inequal):
     return ax
 def option(nam, eq, val = 0):
     if nam in eq:
+        if nam == "--x=":
+            n = eq.split("=")[1].split(" ")[0]
+            return eq.replace(f"--x={n}", ""), float(n)
         return eq.replace(nam, ""), 1
     return eq, val
 def grab_window(eq, x, y, step, ymax, polar):
@@ -139,7 +142,7 @@ def grab_window(eq, x, y, step, ymax, polar):
                         y = z
     return re.sub(r"\{.*\}", "", eq), x, y
 
-def multilabels(x, y, eq0, eq1, eq2, solved, maximum, minimum, zeros, yinter):
+def multilabels(x, y, eq0, eq1, eq2, solved, maximum, minimum, zeros, yinter, xval):
     eqA = eq0
     if maximum:
         itm1, itm2 = NAmax(eq1), NAmax(eq2)
@@ -192,8 +195,9 @@ def asymptote(ln, ls, eq, lt):
             cur[i] = cur[i][::-1]
     return cur
 
-def labels(x, y, eq, maximum, minimum, zeros, yinter):
-    gx = evl(str(sp.simplify(eq)), x, y).round(8)
+def labels(x, y, eq, maximum, minimum, zeros, yinter, xval):
+    eqg = sp.simplify(eq)
+    gx = evl(str(eqg), x, y).round(8)
     gr = gx.flatten()
     label = fmt(eq)
     if minimum:
@@ -214,6 +218,8 @@ def labels(x, y, eq, maximum, minimum, zeros, yinter):
             y = sp.Symbol('y')
             st = ', '.join(f'[0.0, {rf(z)}]' for z in sp.solve(eq, y))
         label += f" // Y-INT ] {st if st else 'NONE'}"
+    if xval:
+        label += f" // ({xval:.4f}, {float(eqg.subs({'x': xval, 'y': xval}).evalf()):.4f})"
     return label, gx
 
 
@@ -248,6 +254,8 @@ async def graph(ctx, xmin: Opt[float] = None, xmax: Opt[float] = None,
 >  Find the coordinates of where x=0
 ]  --det  --detect  --asym  --asymptote
 >  Find asymptotes and remove the vertical line there
+] --x=N
+  Show the value when x = N, where N is a number
 ** These are specific per equation, eg
    ;]graph tan(x) --asym | tan(x^2) --zero
            ^asym only      ^zero only``````md
@@ -323,7 +331,7 @@ async def graph(ctx, xmin: Opt[float] = None, xmax: Opt[float] = None,
         cstep = int(eqs.split('---step=')[1].split(' ')[0])
     except IndexError:
         cstep = 5
-    cstep = min(10000, max(5, cstep)) #Limit the steps from 0 to 10000 inclusive
+    cstep = min(50000, max(5, cstep)) #Limit the steps from 0 to 10000 inclusive
     for calc in calculators:
         if re.search(calc, eqs):
             if calc == r"---step=\d+":
@@ -334,7 +342,7 @@ async def graph(ctx, xmin: Opt[float] = None, xmax: Opt[float] = None,
             styler = calculators[calc][1]
             break
     else:
-        step = (abs(max(xmax, ymax)) + abs(min(xmin, ymin))) / 10000
+        step = (abs(max(xmax, ymax)) + abs(min(xmin, ymin))) / 50000
         styler = 'prizm'
     eqA = []
     eqs = eqs.split(' | ')
@@ -347,6 +355,7 @@ async def graph(ctx, xmin: Opt[float] = None, xmax: Opt[float] = None,
         eq, mn = option("--min", eq)
         eq, zr = option("--zero", eq)
         eq, yi = option("--yint", eq)
+        eq, xv = option("--x=", eq, None)
         if eq.startswith("x=") and eq[2] not in "<>":
             eq = eq[2:]
             ae = "y"
@@ -358,14 +367,14 @@ async def graph(ctx, xmin: Opt[float] = None, xmax: Opt[float] = None,
         eq = parse_eq(eq)
         if "x" in eq and "y" in eq or ">" in eq or "<" in eq:
             ae = "xy"
-        if "x" in eq:
+        elif "x" in eq:
             ae = "x"
         elif "y" in eq:
             ae = "y"
         if "x" in eq and "y" in eq and not any(t in eq for t in "=><"):
             eq += "=0"
         eq, x, y = grab_window(eq, array, array, step, ymax, polar)
-        eqA.append([nrc(eq), mx, mn, zr, yi, dt, x, y, ae])
+        eqA.append([nrc(eq), mx, mn, zr, yi, dt, xv, x, y, ae])
 
 
     ##/// STYLIZE
@@ -392,9 +401,9 @@ async def graph(ctx, xmin: Opt[float] = None, xmax: Opt[float] = None,
         circle1 = evl(f"-0.5 * sqrt({func}) + {ymax} - {ymin}", x, y)
         circle2 = evl(f"0.5 * sqrt({func}) + {ymax} - {ymin}", x, y)
 
-        for eq, mx, mn, zeros, yinter, asymp, x, y, axis in eqA:
+        for eq, mx, mn, zeros, yinter, asymp, xval, x, y, axis in eqA:
             color = random.choice(colors)
-            params = [mx, mn, zeros, yinter]
+            params = [mx, mn, zeros, yinter, xval]
 
             ##/// X and Y EQUATIONS
             if axis == "xy":

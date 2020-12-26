@@ -74,7 +74,7 @@ async def play(ctx, vc: discord.VoiceChannel, *, link):
         await vc.connect()
     vcC = ctx.voice_client
     if 'https://youtu' in link or 'yt-' in link or 'youtube-' in link:
-        index = 0
+        index = 1
         if '-i=' in link or '-index=' in link or '-l=' in link or '-listing=' in link:
             for i in ['-i=','-index=','-l=','-listing=']:
                 if link.find(i) != -1:

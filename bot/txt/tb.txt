@@ -1,5 +1,6 @@
-  File "/home/priz/.local/lib/python3.7/site-packages/discord/ext/commands/core.py", line 83, in wrapped
+  File "/home/priz/.local/lib/python3.7/site-packages/discord/ext/commands/core.py", line 85, in wrapped
     ret = await coro(*args, **kwargs)
-  File "/home/priz/Desktop/PRIZM/com/own/exe.py", line 74, in exe
-    with redirect_stdout(out): rtn = await sub['fn']()
-  File "<string>", line 2, in fn
+  File "/home/priz/Desktop/PRIZM/com/mod/mng.py", line 356, in mng
+    names = await twitter.get_usernames(*[l[0] for l in lis])
+  File "/home/priz/Desktop/PRIZM/lis/twitter.py", line 164, in get_usernames
+    ))["username"]

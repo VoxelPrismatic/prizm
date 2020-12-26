@@ -82,7 +82,7 @@ async def shorturl(ctx, url: str, alias: str = ""):
         else:
             while not alias or alias in shorts:
                 alias = ""
-                for x in range(16):
+                for x in range(4):
                     alias += random.choice(
                         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                         "abcdefghijklmnopqrstuvwxyz"

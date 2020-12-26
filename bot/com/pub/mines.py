@@ -14,58 +14,54 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases = [],
-                  help = 'fun',
-                  brief = 'Sweep mines away',
-                  usage = ';]mines {?size} {?mines}',
-                  description = '''\
+@commands.command(
+    aliases = ["minesweeper"],
+    help = 'fun',
+    brief = 'Sweep mines away',
+    usage = ';]mines {?size} {?mines}',
+    description = '''\
 SIZE  [NUMBER] - X by X tiles
 MINES [NUMBER] - How many mines
-''')
+'''
+)
 @commands.check(enbl)
 async def mines(ctx, size:int=10, mines:int=10):
     if mines >= size*size-1:
         return await ctx.send('```diff\n-] TOO MANY MINES```')
     if size > 15:
         return await ctx.send('```diff\n-] SIZE TOO BIG```')
-    def add(x,y,x2,y2,tbl):
-        if x==x2 and y==y2:
-            return tbl
-        if x==-1 or y==-1:
-            return tbl
-        if tbl[x][y] == 'X':
-            tbl[x2][y2] = str(int(tbl[x2][y2])+1)
-        return tbl
     table = []
-    for x in range(size):
-       table.append([])
-       for y in range(size): table[x].append('0')
+    for y in range(size):
+        table.append([])
+        for x in range(size):
+           table[y].append(0)
     for z in range(mines):
-        x,y=rng(0,size-1),rng(0,size-1)
-        while table[x][y] == 'X':
-            x,y=rng(0,size-1),rng(0,size-1)
-        table[x][y] = 'X'
-    for x in range(size):
-        for y in range(size):
-            try:
-                table = add(x,y+1,x,y,table)
-            except: pass
-            try: table = add(x,y-1,x,y,table)
-            except: pass
-            try:
-                table = add(x+1,y,x,y,table)
-                table = add(x+1,y+1,x,y,table)
-                table = add(x+1,y-1,x,y,table)
-            except:
-                pass
-            try:
-                table = add(x-1,y,x,y,table)
-                table = add(x-1,y+1,x,y,table)
-                table = add(x-1,y-1,x,y,table)
-            except:
-                pass
-    await ctx.send(embed=embedify.embedify(desc='||`['+']`||\n||`['.join(']`||||`['.join(x) for x in table)+']`||',
-                                           foot=f'SIZE ] {size}x{size} || MINES ] {mines}'))
+        x, y = rng(0, size - 1), rng(0, size - 1)
+        while table[y][x] == 'X':
+            x, y = rng(0, size - 1), rng(0, size - 1)
+        table[y][x] = 'X'
+        for dX in [-1, 0, 1]:
+            for dY in [-1, 0, 1]:
+                if (dX == 0 and dY == 0) or y + dY < 0 or x + dX < 0:
+                    continue
+                try:
+                    table[y + dY][x + dX] += 1
+                except (IndexError, TypeError):
+                    pass
+    st = ""
+    for y in range(size):
+        for x in range(size):
+            if table[y][x] == "X":
+                st += "||***`[X]`***||"
+            else:
+                st += f"||`[{table[y][x]}]`||"
+        st += "\n"
+    await ctx.send(
+        embed = embedify.embedify(
+            desc = st,
+            foot = f'SIZE ] {size}x{size} || MINES ] {mines}'
+        )
+    )
 
 
 ##///---------------------///##

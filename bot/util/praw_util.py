@@ -6,9 +6,9 @@ def reddit() -> praw.Reddit:
     Returns the Reddit client
     """
     return praw.Reddit(
-        client_id = '<app id>',
-        client_secret = '<app token>',
-        user_agent = '<app name> by /u/<username>'
+        client_id = 'huHeFxmx2XrZjg',
+        client_secret = 'DP5cQlCV0uehcmEH0Cx12wbjFhs',
+        user_agent = 'PRIZM ;] by /u/UltimateRedditCat'
     )
 
 def multi(client, redditor, multireddit):

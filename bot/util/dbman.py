@@ -1,8 +1,10 @@
-import sqlite3, random
+import sqlite3, random, time
 db = sqlite3.connect('data.sqlite3')
 src = sqlite3.connect(':memory:')
 db.backup(src)
 cr = src.cursor()
+
+commits = 0
 
 def saftey(itm):
     if type(itm) == str:
@@ -18,6 +20,13 @@ def save():
         db.commit()
         db.backup(src)
         src.commit()
+
+last_save = time.monotonic()
+def timeout_save():
+    if not random.randint(0, 9) or last_save - time.monotonic() >= 15:
+        last_save = time.monotonic()
+        save()
+
 def kwarg(**kwargs):
     if len(kwargs):
         return 'WHERE '+' and '.join(f'{saftey(k)} {"is" if saftey(kwargs[k]) == "NULL" else "="} {saftey(kwargs[k])}' for k in kwargs)
@@ -38,8 +47,8 @@ def read_db(command, *args):
 def commit(command, *args):
     #print(command, *args)
     cr = read_db(command, *args)
-    if random.randint(0,9) == 9:
-        save()
+    save()
+
 
 def retrieve(command, *args):
     #print(command, *args)
@@ -48,11 +57,13 @@ def retrieve(command, *args):
 
 def get(table, *names, return_first = True, is_not_null = [],
         return_null = False, return_as_list = False, rtn = None,
-        **kwargs):
+        dont_touch = False, **kwargs):
     cols, where = arg(*names), kwarg(**kwargs)
     not_null = ' and '.join(f'{x} IS NOT NULL' for x in is_not_null)
     selected = retrieve(f'SELECT {cols} FROM {table} {where} {"WHERE" if not_null and not where else " and " if where and not_null else ""} {not_null}')
     returned = None
+    if dont_touch:
+        return selected
     if not return_first:
         return rtn(selected) if rtn != None else selected
     elif selected in [[],None,[None]]:

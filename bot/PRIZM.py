@@ -21,6 +21,11 @@ from util.getPre import getPre
 from util import dbman
 import re
 import os
+import subprocess
+print('##///  [15]  ///###')
+from lis import twitter
+import traceback
+import io
 
 print('##///  DONE  ///##')
 print('##/// DEFINE ///##')
@@ -28,8 +33,6 @@ print('##/// DEFINE ///##')
 bot = commands.Bot(command_prefix = getPre, case_insenitive = True)
 bot.remove_command("help")
 logging.basicConfig(level='INFO')
-with open('secrets.txt', mode='r') as KEY:
-    secrets = KEY.read().strip()
 
 print('##///  DONE  ///##')
 
@@ -97,6 +100,24 @@ print('##///  DONE  ///##')
 
 print('##// STARTING //##')
 
+ever_connected = False
+
+async def run_twitter():
+    while True:
+        try:
+            await twitter.on_tweet(bot)
+        except Exception as ex:
+            await bot.get_channel(569698278271090728).send(
+                "<@481591703959240706>",
+                file = discord.File(
+                    io.BytesIO(
+                        (str(ex) + "\n" +  "\n".join(traceback.format_tb(ex.__traceback__))).encode()
+                    ),
+                    "tb.txt"
+                )
+            )
+        await asyncio.sleep(15)
+
 @bot.listen()
 async def on_connect():
     await bot.change_presence(
@@ -104,87 +125,50 @@ async def on_connect():
             type = 2,
             name = "RAM Burning Noises",
             url='https://discord.gg/Z84Nm6n'
-        )
+        ),
+        status = discord.Status.dnd
     )
-
-@bot.listen()
-async def on_ready():
-
-    await bot.change_presence(
-        activity = discord.Activity(
-            type = 2,
-            name = "HDD Clicking Sounds",
-            url = 'https://discord.gg/Z84Nm6n'
-        )
-    )
-
-    channel = bot.get_channel(556247032701124650)
-    await channel.purge(limit=10)
-    face = faces.faces()
-    texts = faces.texts()
-    try:
-        m = await channel.send(
-            embed = embedify.embedify(
-                desc = f'''```diff
-+] PRIZM IS LOADING ;]``````md
-> Currently loading commands and things
-> This may take a while, please stand by
-> - If it takes too long, I will restart
-] {' '.join(random.choice(face) for x in range(3))}```''',
-                time = 'now'
-            )
-        )
-        for ext in range(len(allext)):
-            for com in allext[ext]:
-                lext(f'{lodtxt[ext]}{com}')
-        await m.delete()
+    global ever_connected
+    if ever_connected:
+        bot.load_extension('util.botlst')
+        bot.unload_extension('util.botlst')
         await channel.send(
             embed = embedify.embedify(
                 desc = f'''```md
 #] PRIZM IS ONLINE ;]``````md
 > https://voxelprismatic.github.io/prizm.dev/
-> You can support development over at Patreon!
+> You can support development over on Patreon!
 > - https://patreon.com/voxelprismatic
 ] {' '.join(random.choice(face) for x in range(3))}```''',
                 time = 'now'
             )
         )
-    except:
-        await m.delete()
-        await channel.send(
-            embed = embedify.embedify(
-                desc = f'''```diff
--] PRIZM IS BROKEN ;[``````md
-> Some features may not work correctly
-> Be sure to report any bugs using this command:
-> - ;]bug {'{the bug}'}
-] {' '.join(random.choice(face) for x in range(3))}```''',
-                time = 'now'
-            )
-        )
-        msg = await bot.get_channel(569698278271090728).send(
-            f"```diff\n-] SOMETHING IS BROKEN, RESTARTING```"
-        )
-        ctx = await bot.get_context(msg)
-        try:
-            await ctx.invoke(restart)
-        except:
-            pass
-        await asyncio.sleep(5)
-        try:
-            await ctx.invoke(restart)
-        except:
-            pass
+        await run_twitter()
+
+
+@bot.listen()
+async def on_ready():
+    msg = await bot.get_channel(569698278271090728).send("```md\n#] STARTING...```")
+    ctx = await bot.get_context(msg)
+    try:
+        await ctx.invoke(restart)
+    except Exception as ex:
+        await bot.get_channel(556247032701124650).send(f"<@481591703959240706> Something broke: ```{type(ex)}: {ex}``````{ex.__traceback__.tb_lineno}```")
+    face = faces.faces()
+    texts = faces.texts()
     await bot.change_presence(
         activity = discord.Activity(
             type = 3,
             name = f"{random.choice(texts)} {random.choice(face)}",
             url = 'https://discord.gg/Z84Nm6n'
-        )
+        ),
+        status = discord.Status.idle
     )
     jsons(bot)
     print(time.time())
     bot.load_extension('util.botlst')
+    bot.unload_extension('util.botlst')
+    pages.init()
     gld = '>'+'\n>'.join(g.name for g in bot.guilds)
     print(f'''
 GLD
@@ -192,13 +176,17 @@ GLD
 
 GG! PRIZM ;] // v{discord.__version__}
 ''')
-    pages.init()
+    global ever_connected
+    ever_connected = True
+    await run_twitter()
 
 @bot.listen()
 async def on_disconnect():
-    print('ATTEMPT LOGIN')
-    await bot.connect()
-    time.sleep(5)
+    dbman.save()
+    channel = bot.get_channel(556247032701124650)
+    await channel.purge(limit = 10)
+
+
 
 ##///---------------------///##
 ##///      BOT EVENT      ///##
@@ -230,8 +218,33 @@ async def load(ctx):
 @bot.command(aliases=['debug','r','rst','db','dbug'])
 @commands.is_owner()
 async def restart(ctx):
+    await bot.change_presence(
+        activity = discord.Activity(
+            type = 2,
+            name = "HDD Clicking Sounds",
+            url = 'https://discord.gg/Z84Nm6n'
+        ),
+        status = discord.Status.dnd
+    )
+    face = faces.faces()
+    texts = faces.texts()
+    channel = bot.get_channel(556247032701124650)
+    await channel.purge(limit = 10)
+    m = await channel.send(
+        embed = embedify.embedify(
+            desc = f'''```diff
++] PRIZM IS LOADING ;]``````md
+> Currently loading commands and things
+> This may take a while, please stand by
+> - If it takes too long, I will restart
+] {' '.join(random.choice(face) for x in range(3))}```''',
+            time = 'now'
+        )
+    )
     fail = False
-    msg = await ctx.send('```md\n#] UNLOADING COMMANDS```')
+    msg = await ctx.send('```md\n#] SAVING DATABASE```')
+    dbman.save()
+    await msg.edit(content = '```md\n#] UNLOADING COMMANDS```')
     allext,lodtxt = refresh.refresh()
     for ext in range(len(allext)):
         for com in allext[ext]:
@@ -239,7 +252,7 @@ async def restart(ctx):
                 uext(f"{lodtxt[ext]}{com}")
             except:
                 pass
-    await msg.edit(content = '```md\n#] RELOADING EXTENSIONS```')
+    await msg.edit(content = '```md\n#] RELOADING MODULES```')
     try:
         reload(pages)
         reload(embedify)
@@ -279,17 +292,37 @@ async def restart(ctx):
             os.system(f"git -C {git} rm {f}")
             n += 1
     if n:
-        await msg.edit(content = "```md\n#] SAVING GITHUB HOSTING CHANGES```")
-        os.system(f"git -C {git} commit --amend --no-edit")
-        proc = subprocess.Popen(
-            f"git -C {git}.git push".split()
-        )
-        while proc.returncode is None:
-            await asyncio.sleep(1)
+        await msg.channel.send("<@481591703959240706> Check github hosting")
+    await msg.edit(content = '```md\n#] SAVING DATABASE```')
+    dbman.save()
+    await channel.purge(limit = 10)
     if not fail:
         await msg.edit(content = '```md\n#] RESTARTED SUCCESSFULLY```')
+        await channel.send(
+            embed = embedify.embedify(
+                desc = f'''```md
+#] PRIZM IS ONLINE ;]``````md
+> https://voxelprismatic.github.io/prizm.dev/
+> You can support development over on Patreon!
+> - https://patreon.com/voxelprismatic
+] {' '.join(random.choice(face) for x in range(3))}```''',
+                time = 'now'
+            )
+        )
     else:
         await msg.edit(content = '```md\n#] SOME MODULES FAILED TO RESTART```')
+        await channel.send(
+            embed = embedify.embedify(
+                desc = f'''```diff
+-] PRIZM IS BROKEN ;[``````md
+> Some features may not work correctly
+> Be sure to report any bugs using this command:
+> - ;]bug {'{the bug}'}
+] {' '.join(random.choice(face) for x in range(3))}```''',
+                time = 'now'
+            )
+        )
+    bot.broken = fail
     face = faces.faces()
     texts = faces.texts()
     await bot.change_presence(
@@ -297,7 +330,8 @@ async def restart(ctx):
             type = 3,
             name = f"{random.choice(texts)} {random.choice(face)}",
             url = 'https://discord.gg/Z84Nm6n'
-        )
+        ),
+        status = discord.Status.idle
     )
 
 @bot.listen()
@@ -312,5 +346,6 @@ async def on_guild_join(gld):
 ##///     OTHER STUFF     ///##
 ##///---------------------///##
 
-while True:
-    bot.run(secrets) #Security...
+reconnect = 0
+secrets = open("secrets.txt").read().strip()
+bot.run(secrets) #Security...

@@ -118,12 +118,14 @@ def ssa_sin(s1, a, s2, hao2, n0, n1, n2, n3, n4, u):
             a = f"{a1[0]*180/pi:.2f} or {a1[1]*180/pi:.2f}"
             c = f"{a2[0]*180/pi:.2f} or {a2[1]*180/pi:.2f}"
     return a1, a2, hao2
-    
-@commands.command(aliases=["tri"],
-                  help='math',
-                  brief='Solves triangles',
-                  usage=';]triangle',
-                  description='[NO INPUT FOR THIS COMMAND]')
+
+@commands.command(
+    aliases = ["tri"],
+    help = 'math',
+    brief = 'Solves triangles',
+    usage = ';]triangle',
+    description = '[NO INPUT FOR THIS COMMAND]'
+)
 @commands.check(enbl)
 async def triangle(ctx):
     a = 0
@@ -134,7 +136,10 @@ async def triangle(ctx):
     Z = 0
     rad = True
     hao2 = ""
-    msg = await ctx.send(embed=embedify.emb(title = "TRIANGLES ;]", desc = f"""```md
+    msg = await ctx.send(
+        embed = embedify.emb(
+            title = "TRIANGLES ;]",
+            desc = f"""```md
 #] TRIANGLES
 
 {tri(a, b, c, X, Y, Z)}
@@ -143,16 +148,21 @@ async def triangle(ctx):
 >  One value must be a side
 #] ANY '0' VALUE IS CONSIDERED EMPTY
 ]] RADIANS - CLICK \U0001f501 TO CHANGE
-```""", foot = "PRIZM ;] // REACT TO EDIT"))
+```""",
+            foot = "PRIZM ;] // REACT TO EDIT"
+        )
+    )
     _inst[msg.id] = {"var": [a, b, c, X, Y, Z], "msg": msg, "rad": rad, "ctx": ctx}
     for r in "ABCXYZ":
         await msg.add_reaction(eval('"\\N{REGIONAL INDICATOR SYMBOL LETTER '+r+'}"'))
     await msg.add_reaction("\u2705")
     await msg.add_reaction(f"\U0001f501")
     def check(rct, usr):
-        return usr == ctx.author and rct.emoji in ["\U0001f1e6", "\U0001f1e7", "\U0001f1e8",
-                                                   "\U0001f1fd", "\U0001f1fe", "\U0001f1ff",
-                                                   "\U0001f501", "\u2705"]
+        return usr == ctx.author and rct.emoji in [
+            "\U0001f1e6", "\U0001f1e7", "\U0001f1e8",
+            "\U0001f1fd", "\U0001f1fe", "\U0001f1ff",
+            "\U0001f501", "\u2705"
+        ]
     def chk(msg):
         return msg.author == ctx.author and msg.channel == ctx.channel
     while True:
@@ -222,18 +232,32 @@ async def triangle(ctx):
                 while c > 2*pi or c < 0:
                     c += (-1 if c > 2*pi else 1) * 2*pi
                 if a + b + c > pi:
-                    del _inst[msg.id] 
+                    del _inst[msg.id]
                     return await ctx.send("```-] INVALID ANGLES```")
                 elif a < 0 or b < 0 or c < 0 or X < 0 or Y < 0 or Z < 0:
-                    del _inst[msg.id] 
+                    del _inst[msg.id]
                     return await ctx.send("```-] NEGATIVE VALUES NOT ALLOWED```")
                 elif not(X or Y or Z):
                     await ctx.send("```-] NO SIDES GIVEN, SIDE X = 1```")
                     X = 1
                 elif X and Y and Z and (a or b or c):
-                    del _inst[msg.id] 
+                    del _inst[msg.id]
                     return await ctx.send("```-] TOO MANY VALUES GIVEN```")
+
+
+                if a and b and c:
+                    pass #Dont continue on
+                elif a and b and not c:
+                    c = pi - a - b
+                    hao2 += f"C = {u} - A - B\n"
+                elif a and c and not b:
+                    b = pi - a - c
+                    hao2 += f"B = {u} - A - C\n"
+                elif b and c and not a:
+                    a = pi - b - c
+                    hao2 += f"A = {u} - B - C\n"
                 #Law of cosines
+
                 if X and Y and c and not Z:
                     Z = side_cos(X, c, Y)
                     hao2 += "Z = \u221a(X\xb2 + Y\xb2 - 2 * X * Y * cos(C))\n"
@@ -244,29 +268,29 @@ async def triangle(ctx):
                     Y = side_cos(X, b, Z)
                     hao2 += "Y = \u221a(X\xb2 + Z\xb2 - 2 * X * Z * cos(B))\n"
                 if X and Y and Z:
-                    if not(a and b and c):
+                    if a and b and c:
+                        pass #Dont continue on
+                    elif a and b and not c:
+                        c = pi - a - b
+                        hao2 += f"C = {u} - A - B\n"
+                    elif a and c and not b:
+                        b = pi - a - c
+                        hao2 += f"B = {u} - A - C\n"
+                    elif b and c and not a:
+                        a = pi - b - c
+                        hao2 += f"A = {u} - B - C\n"
+                    else:
                         if not c:
-                            c = angle_cos(X, Y, Z)
+                            c = math.acos((X**2 + Y**2 - Z**2)/(2 * X * Y))
                             hao2 += "C = arccos((X\xb2 + Y\xb2 - Z\xb2)/(2 * X * Y))\n"
                         if not a:
-                            a = angle_cos(Y, Z, X)
+                            a = math.acos((Y**2 + Z**2 - X**2)/(2 * Z * Y))
                             hao2 += "A = arccos((Y\xb2 + Z\xb2 - X\xb2)/(2 * Y * Z))\n"
                         if not b:
-                            b = angle_cos(Z, X, Y)
+                            b = math.acos((Z**2 + X**2 - Y**2)/(2 * X * Z))
                             hao2 += "B = arccos((Z\xb2 + X\xb2 - Y\xb2)/(2 * X * Z))\n"
-                        
+
                 #Law of sines - Angle
-                if a and b and c:
-                    pass #Dont continue on
-                elif a and b and not c:
-                    c = 180-a-b
-                    hao2 += f"C = {u} - A - B"
-                elif a and c and not b:
-                    b = 180-a-c
-                    hao2 += f"B = {u} - A - C"
-                elif b and c and not a:
-                    a = 180-b-c
-                    hao2 += f"A = {u} - B - C"
                 if not(X and Y and Z):
                     if a and b and Y and not X:
                         X = angle_sin(Y, a, b)
@@ -286,15 +310,18 @@ async def triangle(ctx):
                     if c and a and X and not Z:
                         Z = angle_sin(X, c, a)
                         hao2 += "Z = X*(sin(C)/sin(A))\n"
-                    if a and b and not c:
-                        c = 180-a-b
-                        hao2 += f"C = {u} - A - B"
+
+                    if a and b and c:
+                        pass #Dont continue on
+                    elif a and b and not c:
+                        c = pi - a - b
+                        hao2 += f"C = {u} - A - B\n"
                     elif a and c and not b:
-                        b = 180-a-c
-                        hao2 += f"B = {u} - A - C"
+                        b = pi - a - c
+                        hao2 += f"B = {u} - A - C\n"
                     elif b and c and not a:
-                        a = 180-b-c
-                        hao2 += f"A = {u} - B - C"
+                        a = pi - b - c
+                        hao2 += f"A = {u} - B - C\n"
                     else:
                         if Y and b and Z and not a and not c:
                             a, c, hao2 = ssa_sin(Y, b, Z, hao2, "A", "C", "B", "Y", "Z", u)
@@ -338,12 +365,12 @@ async def triangle(ctx):
                     await msg.clear_reactions()
                 except:
                     pass
-                del _inst[msg.id] 
+                del _inst[msg.id]
                 return await msg.edit(embed=embedify.emb(title = "TRIANGLES ;]", desc = f"""```md
 #] TRIANGLES
 
 {tri(a, b, c, X, Y, Z)}
-     
+
 ]] {"RADIANS" if rad else "DEGREES"}
 
 #] HOW TO SOLVE

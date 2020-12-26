@@ -13,15 +13,19 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases = [],
-                  help = 'fun',
-                  brief = 'Spams {num} chars!',
-                  usage = ';]spam {?num}',
-                  description = '''\
+@commands.command(
+    aliases = [],
+    help = 'fun',
+    brief = 'Spams {num} chars!',
+    usage = ';]spam {?num}',
+    description = '''\
 NUM [NUMBER] - How many chars to spam
-''')
+'''
+)
 @commands.check(enbl)
 async def spam(ctx, num: int = 10):
+    if num == 0:
+        return await ctx.send("_ _")
     num = min(num, 10000)
     data = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcsdefghgijklmnopqrstuvwxyz1234567890!@#$%^&*()-_=+[]{}\"\'<,>./?\\|`~"
     for x in range(int(num/2000)):

@@ -19,15 +19,16 @@ def entry(lit, coms: list, lbl, mini) -> list:
     COMS [LIST] - The Commands
     LBL  [STR ] - Command Label
     """
-    if len(coms) > (10 if not mini else 20):
+    n_m = (8 if not mini else 16)
+    if len(coms) > n_m:
         x = 0
         for y in coms:
-            if not x % (10 if not mini else 20):
-                lit.append(f'#] {lbl} [{int(x/(10 if not mini else 20))+1}/{len(range(0,len(coms),10))}]\n')
-            lit[-1] += y +'\n'
+            if not x % n_m:
+                lit.append(f'#] {lbl} [{int(x/n_m)+1}/{len(range(0,len(coms),n_m))}]```')
+            lit[-1] += y
             x += 1
     else:
-        lit.append(f'#] {lbl}\n'+'\n'.join(coms))
+        lit.append(f'#] {lbl}```'+''.join(coms))
     return lit
 
 ##///---------------------///##
@@ -35,7 +36,7 @@ def entry(lit, coms: list, lbl, mini) -> list:
 ##///---------------------///##
 
 @commands.command(
-    aliases = ['helpmod', 'modhelp', 'modhlep'], 
+    aliases = ['helpmod', 'modhelp', 'modhlep'],
     help = 'inf',
     brief = 'Brings up the mod help message',
     usage = ';]helpmod',
@@ -58,9 +59,9 @@ async def hlepmod(ctx, mini = ""):
         coms[cat] = []
     for com in ctx.bot.commands:
         if not mini:
-            com_desc = f'] "{com.usage}"\n>  {com.brief} ' + random.choice(faces())
+            com_desc = f'```md\n] "{com.usage}"\n>  {com.brief} ' + random.choice(faces()) + '```'
         else:
-            com_desc = f'> {com.name}'
+            com_desc = f'```> {com.name}```'
         try:
             if com.help not in ['mod']:
                 continue
@@ -72,7 +73,7 @@ async def hlepmod(ctx, mini = ""):
     for cat in coms:
         lit = entry(lit,coms[cat],replce[cat],mini)
 
-    await pages.PageThis(ctx, lit, "COMMANDS LIST", f"""```diff
+    await pages.PageThis(ctx, lit, "COMMANDS LIST", f"""diff
 -] {'{?stuff}'} - Optional argument
 -] To see mod commands, use '{prefix}hlep'
 -] Use '{prefix} <text>' to have a conversation!```""")

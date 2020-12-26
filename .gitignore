@@ -14,6 +14,7 @@ __pycache__/
 
 #SENSITIVE INFO
 bot/secrets.txt
+bot/secrets-bk.txt
 bot/util/prawUser.py
 bot/util/praw_util.py
 bot/util/botlst.py
@@ -30,3 +31,4 @@ bot/txt/interpreter.txt
 
 #OTHERS
 *.kdev4
+kdev4/

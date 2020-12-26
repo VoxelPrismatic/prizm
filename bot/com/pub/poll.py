@@ -14,21 +14,27 @@ from chk.enbl import enbl
 ##///    BOT  COMMANDS    ///##
 ##///---------------------///##
 
-@commands.command(aliases = [],
-                  help = 'fun',
-                  brief = 'Creates a poll',
-                  usage = ';]poll {text}',
-                  description = '''\
+@commands.command(
+    aliases = [],
+    help = 'fun',
+    brief = 'Creates a poll',
+    usage = ';]poll {text}',
+    description = '''\
 TEXT [TEXT] - The poll description
 ''')
 @commands.check(enbl)
 async def poll(ctx, *, text = ""):
-        await ctx.message.delete()
-        if not text:
-            text = f"@{str(ctx.author)} should probably add a better description here..."
-        msg = await ctx.send(embed=embedify.embedify(desc=f'```md\n#] POLL!\n> {txt}```',foot="React √ If You Agree ;]"))
-        await msg.add_reaction('<:yes:614129663693946884>')
-        await msg.add_reaction('<:no:614129709197819908>')
+    if not text:
+        text = f"@{str(ctx.author)} should probably add a better description here..."
+    msg = await ctx.send(
+        embed = embedify.embedify(
+            desc = f'```md\n#] POLL!```{text}',
+            foot = "React √ If You Agree ;]"
+        )
+    )
+    await msg.add_reaction('<:yes:614129663693946884>')
+    await msg.add_reaction('<:no:614129709197819908>')
+    await ctx.message.delete()
 
 ##///---------------------///##
 ##///     OTHER STUFF     ///##
