@@ -19,6 +19,7 @@ bot/util/prawUser.py
 bot/util/praw_util.py
 bot/util/botlst.py
 bot/txt/interpreter.txt
+rewrite/tokens.json
 
 #SERVER DATA
 *.json
