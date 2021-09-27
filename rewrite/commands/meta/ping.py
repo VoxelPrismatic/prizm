@@ -1,5 +1,3 @@
-import aiohttp
-
 info = {
     "name": "ping",
     "type": 1,
@@ -13,6 +11,7 @@ async def command(WS, msg):
         "type": 4 if "message" not in list(msg) else 7,
         "data": {
             "content": "",
+            "flags": 1 << 6,
             "embeds": [
                 {
                     "title": "PONG ;]",

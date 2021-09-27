@@ -145,17 +145,22 @@ async def load_commands(ctx):
                     current = current.__getattribute__(f[:-3])
                     u = ctx.commands_url(533290351184707584 if "/owner" in dn else None)
                     id_ = 0
-                    async with sess.post(u, headers = {"Authorization": "Bot " + ctx.token}, json = current.info) as resp:
-                        print(resp)
-                        d = await resp.json()
-                        print(d)
-                        ctx.cache.commands[current.info["name"]] = Classify({
-                            "command": current.command,
-                            "module": current,
-                            "data": d,
-                            "url": u
-                        })
-                        id_ = d["id"]
+                    while True:
+                        async with sess.post(u, headers = {"Authorization": "Bot " + ctx.token}, json = current.info) as resp:
+                            print(resp)
+                            d = await resp.json()
+                            print(d)
+                            ctx.cache.commands[current.info["name"]] = Classify({
+                                "command": current.command,
+                                "module": current,
+                                "data": d,
+                                "url": u
+                            })
+                            try:
+                                id_ = d["id"]
+                                break
+                            except:
+                                await asyncio.sleep(d["retry_after"])
                     if "/guilds/" in u:
                         async with sess.put(
                             u + "/" + id_ + "/permissions",
@@ -277,4 +282,5 @@ async def login(token):
 for f in os.listdir("gateway"):
     os.remove("gateway/" + f)
 
-asyncio.run(login(WS.TOKENS.bot))
+while True:
+    asyncio.run(login(WS.TOKENS.bot))

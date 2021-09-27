@@ -1,6 +1,6 @@
-import aiohttp
-import time
 import importlib
+import traceback
+
 info = {
     "name": "reload",
     "type": 1,
@@ -46,13 +46,14 @@ async def command(WS, msg):
         }))
     except Exception as ex:
         print(f"\x1b[91;1m{ex}\x1b[0m")
+        tb = "\n".join(traceback.format_tb(ex.__traceback__))
         resp = await WS.post(WS.interaction(msg), data = WS.form({
             "type": 4,
             "data": {
                 "embeds": [
                     {
                         "title": "FAILED ;[",
-                        "description": f"Command `/{options}` not found",
+                        "description": f'{ex}\n```{tb}```',
                         "color": 0xff0000
                     }
                 ]

@@ -1,10 +1,11 @@
+import random
 import re
 
 info = {
-    "name": "markdown",
+    "name": "mock",
     "type": 1,
-    "description": "Sends the raw markdown of a given message",
-    "id": "markdown",
+    "description": "Mocks the given message",
+    "id": "mock",
     "options": [
         {
             "name": "message-id",
@@ -70,12 +71,10 @@ async def command(WS, msg):
                 "flags": 1 << 6
             }
         }))
-    for s in "\\*<_|`~":
-        st = st.replace(s, "\\" + s)
     return await WS.post(WS.interaction(msg), data = WS.form({
         "type": 4,
         "data": {
-            "content": st,
+            "content": ''.join([x.upper() if random.randint(0, 1) else x.lower() for x in st]),
             "flags": 1 << 6
         }
     }))

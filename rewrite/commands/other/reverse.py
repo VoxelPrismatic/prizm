@@ -1,10 +1,10 @@
 import re
 
 info = {
-    "name": "markdown",
+    "name": "reverse",
     "type": 1,
-    "description": "Sends the raw markdown of a given message",
-    "id": "markdown",
+    "description": "Sends the reverse text of a given message",
+    "id": "reverse",
     "options": [
         {
             "name": "message-id",
@@ -70,12 +70,10 @@ async def command(WS, msg):
                 "flags": 1 << 6
             }
         }))
-    for s in "\\*<_|`~":
-        st = st.replace(s, "\\" + s)
     return await WS.post(WS.interaction(msg), data = WS.form({
         "type": 4,
         "data": {
-            "content": st,
+            "content": st[::-1],
             "flags": 1 << 6
         }
     }))
