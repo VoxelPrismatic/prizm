@@ -138,6 +138,8 @@ async def load_commands(ctx):
     async with aiohttp.ClientSession() as sess:
         for dn, dr, fn in os.walk("commands"):
             for f in fn:
+                if f[0] == "_":
+                    continue
                 if f.endswith(".py"):
                     k = dn.replace("/", ".") + "." + f[:-3]
                     print(k)

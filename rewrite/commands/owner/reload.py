@@ -21,6 +21,11 @@ async def command(WS, msg):
     options = msg["data"]["options"][0]["value"]
     try:
         current = WS.cache.commands[options].module
+        try:
+            for m in current.extras:
+                importlib.reload(m)
+        except:
+            pass
         importlib.reload(current)
         WS.cache.commands[options].command = current.command
         resp = WS.post(WS.cache.commands[options].url, headers = {"Authorization": "Bot " + WS.TOKENS.bot}, json = current.info)
