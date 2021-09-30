@@ -36,8 +36,10 @@ async def c(WS, msg, options):
             "data": {
                 "flags": 1 << 6,
                 "embeds": [{
-                    "title": "FRACTIONS ;]",
-                    "description": "**{a/c:.0f}** / **{b/c:.0f}**",
+                    "title": f"{a/c:.0f}/{b/c:.0f}",
+                    "footer": {
+                        "text": str(c)
+                    },
                     "color": 0x00ff00
                 }]
             }

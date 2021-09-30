@@ -22,20 +22,24 @@ async def command(WS, msg):
     try:
         current = WS.cache.commands[options].module
         try:
-            for m in current.extras:
-                importlib.reload(m)
+            current.extras
         except:
             pass
+        else:
+            for m in current.extras:
+                importlib.reload(m)
         importlib.reload(current)
         WS.cache.commands[options].command = current.command
-        resp = WS.post(WS.cache.commands[options].url, headers = {"Authorization": "Bot " + WS.TOKENS.bot}, json = current.info)
-        print(resp)
-        WS.cache.commands[current.info["name"]] = WS.classify({
-            "command": current.command,
-            "module": current,
-            "data": resp,
-            "url": WS.cache.commands[options].url
-        })
+        if str(current.info) != str(WS.cache.commands[options].info):
+            resp = await WS.post(WS.cache.commands[options].url, headers = {"Authorization": "Bot " + WS.TOKENS.bot}, json = current.info)
+            print(resp)
+            WS.cache.commands[current.info["name"]] = WS.classify({
+                "command": current.command,
+                "module": current,
+                "info": current.info,
+                "data": resp,
+                "url": WS.cache.commands[options].url
+            })
         WS.cache.commands[options].data
         resp = await WS.post(WS.interaction(msg), data = WS.form({
             "type": 4,
@@ -57,7 +61,7 @@ async def command(WS, msg):
             "data": {
                 "embeds": [
                     {
-                        "title": "FAILED ;[",
+                        "title": f"{type(ex)} ;[",
                         "description": f'{ex}\n```{tb}```',
                         "color": 0xff0000
                     }

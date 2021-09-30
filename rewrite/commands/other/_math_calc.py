@@ -3,16 +3,16 @@ from cmath import *
 from numpy import *
 from numexpr import *
 import sympy as sp
-from util.parse_math import parse_eq
+from util.parse_math import parse_eq, unparse_eq
 
 async def c(WS, msg, options):
-    eq = parse_eq(eq)
+    eq = parse_eq(options["options"][0]["value"])
     try:
-        num = round(float(evaluate(eq)), 16)
+        num = round(float(evaluate(eq)), 10)
         if str(num).endswith(".0"):
             num = int(num)
     except ValueError:
-        return await WS.post({
+        return await WS.post(WS.interaction(msg), data = WS.form({
             "type": 4,
             "data": {
                 "flags": 1 << 6,
@@ -22,9 +22,9 @@ async def c(WS, msg, options):
                     "color": 0xff0000
                 }]
             }
-        })
+        }))
     except SyntaxError as ex:
-        return await WS.post({
+        return await WS.post(WS.interaction(msg), data = WS.form({
             "type": 4,
             "data": {
                 "flags": 1 << 6,
@@ -34,9 +34,9 @@ async def c(WS, msg, options):
                     "color": 0xff0000
                 }]
             }
-        })
+        }))
     except ZeroDivisionError:
-        return await WS.post({
+        return await WS.post(WS.interaction(msg), data = WS.form({
             "type": 4,
             "data": {
                 "flags": 1 << 6,
@@ -46,9 +46,9 @@ async def c(WS, msg, options):
                     "color": 0xff0000
                 }]
             }
-        })
-    except NameError:
-        return await WS.post({
+        }))
+    except NameError as ex:
+        return await WS.post(WS.interaction(msg), data = WS.form({
             "type": 4,
             "data": {
                 "flags": 1 << 6,
@@ -58,16 +58,18 @@ async def c(WS, msg, options):
                     "color": 0xff0000
                 }]
             }
-        })
+        }))
     else:
-        return await WS.post({
+        return await WS.post(WS.interaction(msg), data = WS.form({
             "type": 4,
             "data": {
                 "flags": 1 << 6,
                 "embeds": [{
-                    "title": "CALC ;]",
-                    "description": f"{num}",
+                    "title": str(num),
+                    "author": {
+                        "name": unparse_eq(eq)
+                    },
                     "color": 0x00ff00
                 }]
             }
-        })
+        }))

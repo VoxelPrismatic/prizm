@@ -70,12 +70,11 @@ async def command(WS, msg):
                 "flags": 1 << 6
             }
         }))
-    for s in "\\*<_|`~":
-        st = st.replace(s, "\\" + s)
+
     return await WS.post(WS.interaction(msg), data = WS.form({
         "type": 4,
         "data": {
-            "content": st,
+            "content": WS.escape(st),
             "flags": 1 << 6
         }
     }))
