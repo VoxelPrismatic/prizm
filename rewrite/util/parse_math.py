@@ -91,10 +91,24 @@ unparser = {
     r"arcsinh\(1/\((.+?)\)\)": r"arccsch(\1)",
 }
 
-def parse_eq(eq):
+def parse_eq(eq, radians = False):
     eq = eq.replace('^','**').lower().strip()
     for r in parser:
         eq = re.sub(r, parser[r], eq)
+    s = list(re.finditer(f"((arc)?(sin|cos|tan|sec|csc|cot)h?)\((.+?)\)", eq))
+    if s and not radians:
+        for match in s:
+            func, arc, a, arg = match.group()
+            if not arc:
+                eq = eq[:match.start()] + f"{func}(({arg})*3.1415926535/180)" + eq[match.end():]
+                s = list(re.finditer(f"((arc)?(sin|cos|tan|sec|csc|cot)h?)\((.+?)\)", eq))
+    elif not s and radians:
+        for match in s:
+            func, arc, a, arg = match.group()
+            if not arc:
+                eq = eq[:match.start()] + f"{func}(({arg})*180/3.1415926535)" + eq[match.end():]
+                s = list(re.finditer(f"((arc)?(sin|cos|tan|sec|csc|cot)h?)\((.+?)\)", eq))
+            
     return eq
 
 def unparse_eq(eq):
