@@ -10,8 +10,8 @@ async def c(WS, msg, options):
         radians = options["options"][1]["value"]
         warn = {}
     except:
-        radians = "pi" in eq
-        if any(x in eq for x in ["cos", "csc", "tan", "cot", "sin", "sec"]):
+        radians = "pi" in options["options"][0]["value"]
+        if any(x in options["options"][0]["value"] for x in ["cos", "csc", "tan", "cot", "sin", "sec"]):
             warn = {"footer": {"text": f"Note: Assumed {'radians' if radians else 'degrees'}"}}
         else:
             warn = {}

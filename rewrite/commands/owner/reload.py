@@ -12,6 +12,12 @@ info = {
             "description": "Command name",
             "type": 3,
             "required": True
+        },
+        {
+            "name": "send",
+            "description": "Update command JSON?",
+            "type": 5,
+            "required": False
         }
     ],
     "default_permission": False
@@ -19,6 +25,11 @@ info = {
 
 async def command(WS, msg):
     options = msg["data"]["options"][0]["value"]
+    try:
+        update = msg["data"]["options"][1]["value"]
+        print(update)
+    except:
+        update = False
     try:
         current = WS.cache.commands[options].module
         try:
@@ -30,7 +41,7 @@ async def command(WS, msg):
                 importlib.reload(m)
         importlib.reload(current)
         WS.cache.commands[options].command = current.command
-        if str(current.info) != str(WS.cache.commands[options].info):
+        if update: #str(current.info) != str(WS.cache.commands[options].info):
             resp = await WS.post(WS.cache.commands[options].url, headers = {"Authorization": "Bot " + WS.TOKENS.bot}, json = current.info)
             print(resp)
             WS.cache.commands[current.info["name"]] = WS.classify({

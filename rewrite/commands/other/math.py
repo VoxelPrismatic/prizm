@@ -11,6 +11,7 @@ from commands.other import _math_factorial
 from commands.other import _math_triangle
 from commands.other import _math_factor
 from commands.other import _math_radical
+from util import parse_math
 
 info = {
     "name": "math",
@@ -263,7 +264,8 @@ extras = [
     _math_factorial,
     _math_triangle,
     _math_factor,
-    _math_radical
+    _math_radical,
+    parse_math
 ]
 
 async def command(WS, msg):

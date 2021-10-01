@@ -43,7 +43,7 @@ parser = {
     r"arccoth\((.+?)\)": r"arctanh(1/(\1))",
     r"arccsch\((.+?)\)": r"arcsinh(1/(\1))",
     r"arcsech\((.+?)\)": r"arccosh(1/(\1))",
-    
+
     r"\|(.+?)\|": r"(abs(\1))",
     r"\[(.+?)\]": r"(floor(\1))",
     r"(\d+)([xy\(])": r"\1*\2",
@@ -89,26 +89,28 @@ unparser = {
     r"arctanh\(1/\((.+?)\)\)": r"arccoth(\1)",
     r"arccosh\(1/\((.+?)\)\)": r"arcsech(\1)",
     r"arcsinh\(1/\((.+?)\)\)": r"arccsch(\1)",
+    r"\((.+?)\)\*pi/180": r"\1",
+    r"\((.+?)\)\*180/pi": r"\1",
 }
 
 def parse_eq(eq, radians = False):
     eq = eq.replace('^','**').lower().strip()
     for r in parser:
         eq = re.sub(r, parser[r], eq)
-    s = list(re.finditer(f"((arc)?(sin|cos|tan|sec|csc|cot)h?)\((.+?)\)", eq))
+    s = list(re.finditer(r"((arc)?(sin|cos|tan|sec|csc|cot)h?)\((.+?)\)", eq))
     if s and not radians:
         for match in s:
-            func, arc, a, arg = match.group()
+            func, arc, a, arg = match.groups()
             if not arc:
                 eq = eq[:match.start()] + f"{func}(({arg})*3.1415926535/180)" + eq[match.end():]
                 s = list(re.finditer(f"((arc)?(sin|cos|tan|sec|csc|cot)h?)\((.+?)\)", eq))
     elif not s and radians:
         for match in s:
-            func, arc, a, arg = match.group()
+            func, arc, a, arg = match.groups()
             if not arc:
                 eq = eq[:match.start()] + f"{func}(({arg})*180/3.1415926535)" + eq[match.end():]
                 s = list(re.finditer(f"((arc)?(sin|cos|tan|sec|csc|cot)h?)\((.+?)\)", eq))
-            
+
     return eq
 
 def unparse_eq(eq):
