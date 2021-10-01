@@ -11,7 +11,10 @@ async def c(WS, msg, options):
         warn = {}
     except:
         radians = "pi" in eq
-        warn = {"footer": {"text": f"Note: Assumed {'radians' if radians else 'degrees'}"}}
+        if any(x in eq for x in ["cos", "csc", "tan", "cot", "sin", "sec"]):
+            warn = {"footer": {"text": f"Note: Assumed {'radians' if radians else 'degrees'}"}}
+        else:
+            warn = {}
     eq = parse_eq(options["options"][0]["value"], radians)
     try:
         num = round(float(evaluate(eq)), 10)
