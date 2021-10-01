@@ -6,7 +6,13 @@ import sympy as sp
 from util.parse_math import parse_eq, unparse_eq
 
 async def c(WS, msg, options):
-    eq = parse_eq(options["options"][0]["value"])
+    try:
+        radians = options["options"][1]["value"]
+        warn = {}
+    except:
+        radians = "pi" in eq
+        warn = {"footer": {"text": f"Note: Assumed {'radians' if radians else 'degrees'}"}}
+    eq = parse_eq(options["options"][0]["value"], radians)
     try:
         num = round(float(evaluate(eq)), 10)
         if str(num).endswith(".0"):
@@ -69,6 +75,7 @@ async def c(WS, msg, options):
                     "author": {
                         "name": unparse_eq(eq)
                     },
+                    **warn,
                     "color": 0x00ff00
                 }]
             }
