@@ -10,5 +10,7 @@ for the rewrite, here they are so far
   - aiofiles
   - aiohttp
 - python 3.10-dev\*\*
+
 \*yes, py3.10 is a beta rn, but switch/case is so useful!
+
 \*\*otherwise you cannot install some of the other requirements
