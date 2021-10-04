@@ -1,10 +1,10 @@
 import re
 import json
 import io
-from commands.moderation import _clear_n
-from commands.moderation import _clear_to
-from commands.moderation import _clear_from
-from commands.moderation import _clear_in
+from . import _clear_n
+from . import _clear_to
+from . import _clear_from
+from . import _clear_in
 
 info = {
     "name": "clear",

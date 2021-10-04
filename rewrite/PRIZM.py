@@ -130,6 +130,24 @@ class Everything:
     def classify(self, a):
         return Classify(a)
 
+    def escape(self, st):
+        for s in "\\*<_|`~":
+            st = st.replace(s, "\\" + s)
+        return st
+
+    async def not_implemented(self, msg):
+        await self.post(self.interaction(msg), data = WS.form({
+            "type": 4,
+            "data": {
+                "flags": 1 << 6,
+                "embeds": [{
+                    "title": "NOT ADDED YET ;[",
+                    "description": "This feature has not been implemented yet, check [the projects page](https://github.com/VoxelPrismatic/prizm/projects/1) for more details",
+                    "color": 0xff0000
+                }]
+            }
+        }))
+
 
 
 WS = Everything()
@@ -155,6 +173,7 @@ async def load_commands(ctx):
                             ctx.cache.commands[current.info["name"]] = Classify({
                                 "command": current.command,
                                 "module": current,
+                                "info": current.info,
                                 "data": d,
                                 "url": u
                             })
@@ -179,12 +198,16 @@ async def load_commands(ctx):
                         #input()
 
 async def heartbeat(ctx):
+    ctx.KILL = False
     while True:
         print("Heartbeat:", ctx.heartbeat_interval)
         ctx.LATENCY = time.time()
         await ctx.websocket.send_json({"d": ctx.sequence, "op": 1})
         print("Heartbeat sent")
-        await asyncio.sleep(ctx.heartbeat_interval / 1000)
+        for x in range(0, ctx.heartbeat_interval, 500):
+            await asyncio.sleep(0.5)
+            if ctx.KILL is True:
+                return
         print(list(ctx.cache.commands))
 
 async def login(token):
@@ -224,6 +247,7 @@ async def login(token):
             async with sess.ws_connect(ws) as sock:
                 WS.websocket = sock
                 if not reconnect:
+                    WS.KILL = True
                     await sock.send_json({"d": data, "op": 2})
                     msg = (await sock.receive()).json()
                     print(msg)
@@ -244,40 +268,40 @@ async def login(token):
                         d = json.loads(zlib.decompress(msg.data))
                     print(d)
                     open(f"gateway/{time.monotonic()} op={d['op']} t={d['t']}.json", "w+").write(json.dumps(d, indent = 4))
-                    if d["op"] == 0: #Dispatch event
-                        t = d["t"]
-                        if t == "READY":
-                            WS.cache.user = Classify(d["d"]["user"])
-                            await load_commands(WS)
-    #                        input()
-                            for g in d["d"]["guilds"]:
-                                WS.cache.guilds[g["id"]] = Classify(g)
-                            WS.SESSION_ID = d["d"]["session_id"]
-                        elif t == "GUILD_CREATE":
-                            try:
-                                WS.cache.guilds[d["d"]["id"]].__update__(d["d"])
-                            except KeyError:
-                                WS.cache.guilds[d["d"]["id"]] = Classify(d["d"])
-                        elif t == "INTERACTION_CREATE":
-                            try:
-                                asyncio.create_task(WS.cache.commands[d["d"]["data"]["name"]].command(WS, d["d"]))
-                            except:
-                                try:
-                                    asyncio.create_task(WS.cache.commands[d["d"]["message"]["interaction"]["name"]].command(WS, d["d"]))
-                                except:
-                                    print("\x1b[94;1mERROR: Command not found\x1b[0m")
-                    elif d["op"] == 1: #Heartbeat
-                        pass
-                    elif d["op"] == 7: #Reconnect
-                        print({"op": 6, "d": {"token": token, "session_id": WS.SESSION_ID, "seq": WS.sequence}})
-                        await sock.send_json({"op": 6, "d": {"token": token, "session_id": WS.SESSION_ID, "seq": WS.sequence}})
-                        reconnect = True
-                    elif d["op"] == 9: #Invalid Session
-                        await sock.send_json({"d": data, "op": 2})
-                    elif d["op"] == 10: #Hello
-                        WS.heartbeat_interval = d["d"]["heartbeat_interval"]
-                    elif d["op"] == 11: #Heartbeat ACK
-                        WS.LATENCY = time.time() - WS.LATENCY
+                    match d["op"]:
+                        case 0: #Dispatch event
+                            match d["t"]:
+                                case "READY":
+                                    WS.cache.user = Classify(d["d"]["user"])
+                                    await load_commands(WS)
+                                    for g in d["d"]["guilds"]:
+                                        WS.cache.guilds[g["id"]] = Classify(g)
+                                    WS.SESSION_ID = d["d"]["session_id"]
+                                case "GUILD_CREATE":
+                                    try:
+                                        WS.cache.guilds[d["d"]["id"]].__update__(d["d"])
+                                    except KeyError:
+                                        WS.cache.guilds[d["d"]["id"]] = Classify(d["d"])
+                                case "INTERACTION_CREATE":
+                                    try:
+                                        asyncio.create_task(WS.cache.commands[d["d"]["data"]["name"]].command(WS, d["d"]))
+                                    except:
+                                        try:
+                                            asyncio.create_task(WS.cache.commands[d["d"]["message"]["interaction"]["name"]].command(WS, d["d"]))
+                                        except:
+                                            print("\x1b[94;1mERROR: Command not found\x1b[0m")
+                        case 1: #Heartbeat
+                            pass
+                        case 7: #Reconnect
+                            await sock.send_json({"op": 6, "d": {"token": token, "session_id": WS.SESSION_ID, "seq": WS.sequence}})
+                            reconnect = True
+                        case 9: #Invalid Session
+                            WS.KILL = True
+                            await sock.send_json({"d": data, "op": 2})
+                        case 10: #Hello
+                            WS.heartbeat_interval = d["d"]["heartbeat_interval"]
+                        case 11: #Heartbeat ACK
+                            WS.LATENCY = time.time() - WS.LATENCY
                     WS.sequence = d["s"] or WS.sequence
     #            exit()
 

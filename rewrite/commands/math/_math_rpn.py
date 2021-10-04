@@ -1,3 +1,3 @@
 async def c(WS, msg, options):
-    pass
+    WS.not_implemented(msg)
 

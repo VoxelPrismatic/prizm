@@ -1,16 +1,16 @@
 import re
 import json
 import io
-from commands.other import _math_stats
-from commands.other import _math_calc
-from commands.other import _math_fraction
-from commands.other import _math_quadratic
-from commands.other import _math_rpn
-from commands.other import _math_substitute
-from commands.other import _math_factorial
-from commands.other import _math_triangle
-from commands.other import _math_factor
-from commands.other import _math_radical
+from . import _math_stats
+from . import _math_calc
+from . import _math_fraction
+from . import _math_quadratic
+from . import _math_rpn
+from . import _math_substitute
+from . import _math_factorial
+from . import _math_triangle
+from . import _math_factor
+from . import _math_radical
 from util import parse_math
 
 info = {
@@ -65,13 +65,13 @@ info = {
                 {
                     "name": "x",
                     "description": "x in x/y or x:y",
-                    "type": 3,
+                    "type": 10,
                     "required": True
                 },
                 {
                     "name": "y",
                     "description": "y in x/y or x:y",
-                    "type": 3,
+                    "type": 10,
                     "required": True
                 }
             ]
@@ -84,19 +84,19 @@ info = {
                 {
                     "name": "a",
                     "description": "(-b ± √(b² - 4ac))/2a",
-                    "type": 3,
+                    "type": 10,
                     "required": True
                 },
                 {
                     "name": "b",
                     "description": "(-b ± √(b² - 4ac))/2a",
-                    "type": 3,
+                    "type": 10,
                     "required": True
                 },
                 {
                     "name": "c",
                     "description": "(-b ± √(b² - 4ac))/2a",
-                    "type": 3,
+                    "type": 10,
                     "required": True
                 }
             ]
@@ -134,7 +134,7 @@ info = {
                 {
                     "name": "value",
                     "description": "Value for the variable",
-                    "type": 3,
+                    "type": 10,
                     "required": True
                 },
                 {
@@ -190,19 +190,19 @@ info = {
                 {
                     "name": "x",
                     "description": "Value for side X. This is a shortcut",
-                    "type": 3,
+                    "type": 10,
                     "required": False
                 },
                 {
                     "name": "y",
                     "description": "Value for side Y. This is a shortcut",
-                    "type": 3,
+                    "type": 10,
                     "required": False
                 },
                 {
                     "name": "z",
                     "description": "Value for side Z. This is a shortcut",
-                    "type": 3,
+                    "type": 10,
                     "required": False
                 },
                 {
