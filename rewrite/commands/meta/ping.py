@@ -1,3 +1,4 @@
+import time
 info = {
     "name": "ping",
     "type": 1,

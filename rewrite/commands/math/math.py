@@ -289,6 +289,8 @@ async def command(WS, msg):
             await _math_triangle.c(WS, msg, options)
         case "radical":
             await _math_radical.c(WS, msg, options)
+        case "factor":
+            await _math_factor.c(WS, msg, options)
         case _:
             print(_)
 

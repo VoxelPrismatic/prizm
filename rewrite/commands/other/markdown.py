@@ -75,6 +75,7 @@ async def command(WS, msg):
         "type": 4,
         "data": {
             "content": WS.escape(st),
-            "flags": 1 << 6
+            "flags": 1 << 6,
+            "allowed_mentions": []
         }
     }))

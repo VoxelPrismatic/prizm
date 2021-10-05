@@ -15,13 +15,6 @@ info = {
             "description": "Add a reason",
             "type": 3,
             "required": False
-        },
-        {
-            "name": "clear_days",
-            "type": 4,
-            "description": "Clears up to 7 days worth of messages",
-            "required": False,
-            "choices": [{"name": str(x), "value": x} for x in range(8)]
         }
     ]
 }
@@ -33,13 +26,9 @@ async def command(WS, msg):
             return
         return await WS.delete(f"{WS.API}/channels/{msg['channel_id']}/messages/{msg['message']['id']}")
 
-    delete_days = int(msg['data']['options'][-1]['value']) if msg['data']['options'][-1]['name'] == 'delete_days' else 0
-    resp = await WS.put(f"{WS.API}/guilds/{msg['guild_id']}/bans/{msg['data']['options'][0]['value']}", data = WS.form({
-        "delete_message_days": delete_days
-    }), headers = {
+    resp = await WS.delete(f"{WS.API}/guilds/{msg['guild_id']}/{msg['data']['options'][0]['value']}", headers = {
         "X-Audit-Log-Reason": "Requested by " + WS.member(msg) + "; " + \
-            (msg['data']['options'][1]['value'] if msg['data']['options'][1]['name'] == 'reason' else "[no reason provided]") + \
-            f"; {delete_days} day{'s' if delete_days != 1 else ''} of messages cleared"
+            (msg['data']['options'][1]['value'] if msg['data']['options'][1]['name'] == 'reason' else "[no reason provided]")
     })
     if resp:
         print(f"\x1b[91;1m{resp}\x1b[0m")

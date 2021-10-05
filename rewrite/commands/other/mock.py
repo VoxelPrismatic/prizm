@@ -75,6 +75,7 @@ async def command(WS, msg):
         "type": 4,
         "data": {
             "content": ''.join([x.upper() if random.randint(0, 1) else x.lower() for x in st]),
-            "flags": 1 << 6
+            #"flags": 1 << 6,
+            "allowed_mentions": []
         }
     }))

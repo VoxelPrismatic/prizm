@@ -3,6 +3,7 @@ import json
 import re
 
 async def c(WS, msg, options):
+    channels_URL = f"https://discord.com/channels/{msg['guild_id']}/{msg['channel_id']}/"
     def get_ID(snow):
         try:
             if len(snow) < 17:

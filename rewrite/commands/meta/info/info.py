@@ -78,9 +78,10 @@ extras = [
     _info_role,
     _info_user
 ]
+
 async def command(WS, msg):
     options = msg["data"]["options"][0]
-    match options:
+    match options["name"]:
         case "channel":
             await _info_channel.c(WS, msg, options)
         case "emoji":

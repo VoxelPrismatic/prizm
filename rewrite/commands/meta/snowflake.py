@@ -16,27 +16,30 @@ info = {
 }
 
 async def command(WS, msg):
-    options = msg["data"]["options"][0]["value"]
-    try:
-        snow = int(options)
-        if len(options) < 17 or len(options) > 19:
-            raise Exception
-    except:
-        return await WS.post(WS.interaction(msg), data = WS.form({
-            "type": 4,
-            "data": {
-                "content": "",
-                "embeds": [
-                    {
-                        "title": "ERROR ;[",
-                        "description": f"The provided snowflake, `{options}`, is not a valid snowflake",
-                        "color": 0xff0000,
-                        "timestamp": WS.NOW
-                    }
-                ],
-                "flags": 1 << 6
-            }
-        }))
+    if "message" in msg:
+        snow = int(msg["message"]["embeds"][0]["footer"]["text"])
+    else:
+        options = msg["data"]["options"][0]["value"]
+        try:
+            snow = int(options)
+            if len(options) < 17 or len(options) > 19:
+                raise Exception
+        except:
+            return await WS.post(WS.interaction(msg), data = WS.form({
+                "type": 4,
+                "data": {
+                    "content": "",
+                    "embeds": [
+                        {
+                            "title": "ERROR ;[",
+                            "description": f"The provided snowflake, `{options}`, is not a valid snowflake",
+                            "color": 0xff0000,
+                            "timestamp": WS.NOW
+                        }
+                    ],
+                    "flags": 1 << 6
+                }
+            }))
     t = int(((snow >> 22) + 1420070400000)/1000)
     snow_time = datetime.datetime.utcfromtimestamp(t)
     now_time = datetime.datetime.utcnow()
@@ -70,7 +73,7 @@ async def command(WS, msg):
     utc = snow_time.strftime('%Y-%m-%dT%H:%M:%S UTC')
 
     return await WS.post(WS.interaction(msg), data = WS.form({
-        "type": 4,
+        "type": 7 if "message" in msg else 4,
         "data": {
             "content": "",
             "embeds": [
@@ -87,10 +90,25 @@ async def command(WS, msg):
                             "value": f"<t:{t}:F>\n`{utc}`",
                             "inline": False
                         }
-                    ]
+                    ],
+                    "color": 0x00ff00,
+                    "footer": {"text": str(snow)}
                 }
             ],
-            "flags": 1 << 6
+            "flags": 1 << 6,
+            "components": [
+                {
+                    "type": 1,
+                    "components": [
+                        {
+                            "type": 2,
+                            "label": "Update",
+                            "style": 2,
+                            "custom_id": "snowflake"
+                        }
+                    ]
+                }
+            ]
         }
     }))
 

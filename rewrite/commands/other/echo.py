@@ -20,5 +20,6 @@ async def command(WS, msg):
         "type": 4,
         "data": {
             "content": msg["data"]["options"][0]["value"],
+            "allowed_mentions": []
         }
     }))

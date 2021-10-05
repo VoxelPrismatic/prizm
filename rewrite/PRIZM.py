@@ -5,6 +5,8 @@ import zlib
 import time
 import os
 import importlib
+import traceback
+import io
 
 class Classify:
     def __init__(self, dic, __parent__ = None):
@@ -210,6 +212,45 @@ async def heartbeat(ctx):
                 return
         print(list(ctx.cache.commands))
 
+async def run_command(d):
+    try:
+        try:
+            cmd = d["d"]["data"]["name"]
+        except KeyError:
+            cmd = d["d"]["data"]["custom_id"].split("|")[0]
+        await WS.cache.commands[cmd].command(WS, d["d"])
+
+    except Exception as ex:
+        tb = f"{type(ex).__name__}: {ex}:\n" + "\n".join(traceback.format_tb(ex.__traceback__))
+        await WS.post(WS.interaction(d["d"]), data = WS.form({
+            "type": 4,
+            "data": {
+                "embeds": [{
+                    "title": "YOU FOUND A BUG ;]",
+                    "description": "Thanks, I'll get on it as soon as I can.\n" \
+                                   "If you like, you can submit a `/bug` report",
+                    "footer": {"text": "Traceback available in the attached file"},
+                    "color": 0xff0088
+                }],
+                "flags": 1 << 6,
+            }
+        }, {
+            "value": io.BytesIO(tb.encode()),
+            "filename": "traceback.txt"
+        }))
+        js = json.dumps(d["d"], indent = 2)
+        await WS.post(f"{WS.API}/channels/613157686329999363/messages", data = WS.form({
+            "embeds": [{
+                "title": "BUG ;[",
+                "description": "[too long to put here]" if len(js) > 2000 else f"```json\n{js}```",
+                "footer": {"text": "Traceback available in the attached file"},
+                "color": 0xff0088
+            }]
+        }, {
+            "value": io.BytesIO((tb + (("\n-------\ndata = " + js) if len(js) > 2000 else "")).encode()),
+            "filename": "traceback.txt"
+        }))
+
 async def login(token):
     async with aiohttp.ClientSession() as sess:
         async with sess.get(WS.gateway_url) as resp:
@@ -283,13 +324,7 @@ async def login(token):
                                     except KeyError:
                                         WS.cache.guilds[d["d"]["id"]] = Classify(d["d"])
                                 case "INTERACTION_CREATE":
-                                    try:
-                                        asyncio.create_task(WS.cache.commands[d["d"]["data"]["name"]].command(WS, d["d"]))
-                                    except:
-                                        try:
-                                            asyncio.create_task(WS.cache.commands[d["d"]["message"]["interaction"]["name"]].command(WS, d["d"]))
-                                        except:
-                                            print("\x1b[94;1mERROR: Command not found\x1b[0m")
+                                    asyncio.create_task(run_command(d))
                         case 1: #Heartbeat
                             pass
                         case 7: #Reconnect
