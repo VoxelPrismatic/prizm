@@ -14,4 +14,4 @@ for the rewrite, here they are so far
   - sympy
 - python 3.10-dev\*
 
-\*\*otherwise you cannot install some of the other requirements
+\*otherwise you cannot install some of the other requirements
