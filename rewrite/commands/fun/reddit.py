@@ -358,6 +358,22 @@ async def command(WS, msg):
         async with aiohttp.ClientSession() as sess:
             async with sess.get(url) as resp:
                 data = await resp.json()
+                if "data" not in data:
+                    return await WS.patch(WS.interaction(msg, 1), data = WS.form({
+                        "embeds": [{
+                            "color": 0xff0000,
+                            "title": "NOT FOUND ;[",
+                            "description": f"The subreddit `{name}` does not exist"
+                        }]
+                    }))
+                if len(data["children"]) == 0:
+                    return await WS.patch(WS.interaction(msg, 1), data = WS.form({
+                        "embeds": [{
+                            "color": 0xff0000,
+                            "title": "EMPTY ;[",
+                            "description": f"The subreddit `{name}` does not have any posts, or I don't have access to them"
+                        }]
+                    }))
             async with sess.get(listing + "about.json") as resp:
                 obj = await resp.json()
                 if "data" not in obj:
